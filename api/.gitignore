@@ -1,12 +1,7 @@
 # Compiled class file
 *.class
-**/bin
-**/build
-**/.gradle
-
-# IDE
-**/.idea
-**/.vscode
+api/build
+api/.gradle
 
 # Log file
 *.log
