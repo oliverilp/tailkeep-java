@@ -17,7 +17,7 @@ public class Downloader {
 
     private final CommandExecutor cmd;
     private final String videoId;
-    private final long jobId;
+    private final String jobId;
     private final String url;
     private final String filename;
     private final String mediaPath;
@@ -28,7 +28,7 @@ public class Downloader {
     private String speed = null;
     private String eta = null;
 
-    public Downloader(CommandExecutor cmd, String videoId, long jobId, String url, String filename) {
+    public Downloader(CommandExecutor cmd, String videoId, String jobId, String url, String filename) {
         this.cmd = cmd;
         this.videoId = videoId;
         this.jobId = jobId;

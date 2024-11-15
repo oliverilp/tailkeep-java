@@ -14,15 +14,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MetadataQueueListener {
     private final MetadataFetcher metadataFetcher;
-    private final KafkaTemplate<String, MetadataResultMessage> kafkaTemplate;
+    private final KafkaTemplate<String, MetadataResultMessage> metadataKafkaTemplate;
 
     public MetadataQueueListener(MetadataFetcher metadataFetcher,
-            KafkaTemplate<String, MetadataResultMessage> metadataKafkaTemplate) {
+                                 KafkaTemplate<String, MetadataResultMessage> metadataKafkaTemplate) {
         this.metadataFetcher = metadataFetcher;
-        this.kafkaTemplate = metadataKafkaTemplate;
+        this.metadataKafkaTemplate = metadataKafkaTemplate;
     }
 
-    @KafkaListener(topics = KafkaTopicNames.METADATA_QUEUE, groupId = "metadata-queue-consumer", containerFactory = "factory")
+    @KafkaListener(
+            topics = KafkaTopicNames.METADATA_QUEUE,
+            groupId = "metadata-queue-consumer",
+            containerFactory = "metadataFactory"
+    )
     public void onMetadataJob(MetadataRequestMessage messageRequest) {
         String url = messageRequest.url();
         log.info("Received message request with url: {}", url);
@@ -41,7 +45,7 @@ public class MetadataQueueListener {
 
                     var result = new MetadataResultMessage(messageRequest.jobId(), metadata);
 
-                    kafkaTemplate.send(KafkaTopicNames.METADATA_RESULTS, result);
+                    metadataKafkaTemplate.send(KafkaTopicNames.METADATA_RESULTS, result);
                 });
     }
 }

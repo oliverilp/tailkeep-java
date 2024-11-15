@@ -16,17 +16,18 @@ import org.tailkeep.api.model.MetadataRequestMessage;
 @RequestMapping("api/v1/messages")
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
 public class DownloadController {
-  private final KafkaTemplate<String, MetadataRequestMessage> kafkaTemplate;
+    private final KafkaTemplate<String, MetadataRequestMessage> kafkaTemplate;
 
-  public DownloadController(KafkaTemplate<String, MetadataRequestMessage> messageRequestKafkaTemplate) {
-    this.kafkaTemplate = messageRequestKafkaTemplate;
-  }
+    public DownloadController(
+            KafkaTemplate<String, MetadataRequestMessage> messageRequestKafkaTemplate) {
+        this.kafkaTemplate = messageRequestKafkaTemplate;
+    }
 
-  @PostMapping
-  public void publish(@RequestBody MetadataRequestMessage request) throws Exception {
-    String jobId = UUID.randomUUID().toString();
+    @PostMapping
+    public void publish(@RequestBody MetadataRequestMessage request) throws Exception {
+        String jobId = UUID.randomUUID().toString();
 
-    MetadataRequestMessage enrichedRequest = new MetadataRequestMessage(jobId, request.url());
-    kafkaTemplate.send(KafkaTopicNames.METADATA_QUEUE, enrichedRequest);
-  }
+        MetadataRequestMessage enrichedRequest = new MetadataRequestMessage(jobId, request.url());
+        kafkaTemplate.send(KafkaTopicNames.METADATA_QUEUE, enrichedRequest);
+    }
 }

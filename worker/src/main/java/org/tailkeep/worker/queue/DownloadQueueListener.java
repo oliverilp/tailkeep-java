@@ -5,10 +5,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.tailkeep.worker.config.KafkaTopicNames;
 import org.tailkeep.worker.download.DownloadProgress;
+import org.tailkeep.worker.download.DownloadRequestMessage;
 import org.tailkeep.worker.download.DownloadService;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -17,33 +16,34 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DownloadQueueListener {
     private final DownloadService downloadService;
-    private final ObjectMapper objectMapper;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, DownloadProgress> downloadKafkaTemplate;
 
     public DownloadQueueListener(
             DownloadService downloadService,
             ObjectMapper objectMapper,
-            KafkaTemplate<String, String> kafkaTemplate) {
+            KafkaTemplate<String, DownloadProgress> downloadKafkaTemplate) {
         this.downloadService = downloadService;
-        this.objectMapper = objectMapper;
-        this.kafkaTemplate = kafkaTemplate;
+        this.downloadKafkaTemplate = downloadKafkaTemplate;
     }
 
-    @KafkaListener(topics = KafkaTopicNames.DOWNLOAD_QUEUE, groupId = "download-queue-consumer")
-    public void onDownloadJob(String message) {
-        try {
-            JsonNode json = objectMapper.readTree(message);
-            String jobId = json.get("jobId").asText();
-            String videoId = json.get("videoId").asText();
-            String url = json.get("url").asText();
-            String filename = json.get("filename").asText();
+    @KafkaListener(
+            topics = KafkaTopicNames.DOWNLOAD_QUEUE,
+            groupId = "download-queue-consumer",
+            containerFactory = "downloadFactory"
+    )
+    public void onDownloadJob(DownloadRequestMessage message) {
+        log.info("RECEIVED DOWNLOAD" + message);
+        log.info("RECEIVED DOWNLOAD" + message);
+        log.info("RECEIVED DOWNLOAD" + message);
 
+        try {
             downloadService.processDownload(
-                    jobId,
-                    videoId,
-                    url,
-                    filename,
-                    progress -> sendProgressUpdate(progress)).thenAccept(progress -> sendProgressUpdate(progress));
+                    message.jobId(),
+                    message.videoId(),
+                    message.url(),
+                    message.filename(),
+                    this::sendProgressUpdate
+            ).thenAccept(this::sendProgressUpdate);
 
         } catch (Exception e) {
             log.error("Failed to process download job", e);
@@ -51,11 +51,6 @@ public class DownloadQueueListener {
     }
 
     private void sendProgressUpdate(DownloadProgress progress) {
-        try {
-            String progressJson = objectMapper.writeValueAsString(progress);
-            kafkaTemplate.send(KafkaTopicNames.PROGRESS_UPDATES, progressJson);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to serialize progress", e);
-        }
+        downloadKafkaTemplate.send(KafkaTopicNames.DOWNLOAD_PROGRESS, progress);
     }
 }

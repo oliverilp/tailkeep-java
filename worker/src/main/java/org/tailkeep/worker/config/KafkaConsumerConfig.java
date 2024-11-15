@@ -14,32 +14,61 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.tailkeep.worker.metadata.MetadataRequestMessage;
+import org.tailkeep.worker.download.DownloadRequestMessage;
 
 @Configuration
 public class KafkaConsumerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    public Map<String, Object> consumerConfig() {
+    private Map<String, Object> consumerConfig() {
         return Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
-                JsonDeserializer.TRUSTED_PACKAGES, "*",
-                JsonDeserializer.TYPE_MAPPINGS,
-                "org.tailkeep.api.model.MetadataRequestMessage:org.tailkeep.worker.metadata.MetadataRequestMessage");
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class
+        );
     }
 
-    @Bean
-    public ConsumerFactory<String, MetadataRequestMessage> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(consumerConfig());
+    private <T> JsonDeserializer<T> createJsonDeserializer(Class<T> targetClass) {
+        JsonDeserializer<T> deserializer = new JsonDeserializer<>(targetClass, false);
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeHeaders(false);
+        return deserializer;
     }
 
-    @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, MetadataRequestMessage>> factory(
-            ConsumerFactory<String, MetadataRequestMessage> consumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<String, MetadataRequestMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    private <T> ConsumerFactory<String, T> createConsumerFactory(Class<T> targetClass) {
+        return new DefaultKafkaConsumerFactory<>(
+                consumerConfig(),
+                new StringDeserializer(),
+                createJsonDeserializer(targetClass));
+    }
+
+    private <T> KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, T>> createListenerContainerFactory(
+            ConsumerFactory<String, T> consumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, MetadataRequestMessage> metadataConsumerFactory() {
+        return createConsumerFactory(MetadataRequestMessage.class);
+    }
+
+    @Bean
+    public ConsumerFactory<String, DownloadRequestMessage> downloadConsumerFactory() {
+        return createConsumerFactory(DownloadRequestMessage.class);
+    }
+
+    @Bean("metadataFactory")
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, MetadataRequestMessage>> metadataListenerContainerFactory(
+            ConsumerFactory<String, MetadataRequestMessage> metadataConsumerFactory) {
+        return createListenerContainerFactory(metadataConsumerFactory);
+    }
+
+    @Bean("downloadFactory")
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, DownloadRequestMessage>> downloadListenerContainerFactory(
+            ConsumerFactory<String, DownloadRequestMessage> downloadConsumerFactory) {
+        return createListenerContainerFactory(downloadConsumerFactory);
     }
 }

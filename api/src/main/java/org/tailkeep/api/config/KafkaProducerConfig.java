@@ -12,48 +12,42 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.tailkeep.api.model.MetadataRequestMessage;
+import org.tailkeep.api.model.DownloadRequestMessage;
 
 @Configuration
 public class KafkaProducerConfig {
 
-  @Value("${spring.kafka.bootstrap-servers}")
-  private String bootstrapServers;
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
 
-  public Map<String, Object> producerConfig() {
-    return Map.of(
-        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
-        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
-        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class,
-        JsonSerializer.TYPE_MAPPINGS,
-        "org.tailkeep.api.model.MetadataRequestMessage:org.tailkeep.worker.metadata.MetadataRequestMessage");
-  }
+    public Map<String, Object> producerConfig() {
+        return Map.of(
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class,
+                // Needed to avoid type mappings in consumer
+                JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+    }
 
-  @Bean
-  public ProducerFactory<String, MetadataRequestMessage> producerFactory() {
-    return new DefaultKafkaProducerFactory<>(producerConfig());
-  }
+    @Bean
+    public ProducerFactory<String, MetadataRequestMessage> metadataProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(producerConfig());
+    }
 
-  // @Bean
-  // public KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String,
-  // String> producerFactory) {
-  // return new KafkaTemplate<>(producerFactory);
-  // }
+    @Bean
+    public ProducerFactory<String, DownloadRequestMessage> downloadProducerFactory() {
+        return new DefaultKafkaProducerFactory<>(producerConfig());
+    }
 
-  @Bean
-  public KafkaTemplate<String, MetadataRequestMessage> messageRequestKafkaTemplate(
-      ProducerFactory<String, MetadataRequestMessage> producerFactory) {
-    return new KafkaTemplate<>(producerFactory);
-  }
+    @Bean
+    public KafkaTemplate<String, MetadataRequestMessage> metadataRequestKafkaTemplate(
+            ProducerFactory<String, MetadataRequestMessage> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
+    }
 
-  // @Bean
-  // public KafkaTemplate<String, DownloadRequest> downloadRequestKafkaTemplate(
-  // ProducerFactory<String, DownloadRequest> producerFactory) {
-  // return new KafkaTemplate<>(producerFactory);
-  // }
-
-  // @Bean
-  // public KafkaTemplate<String, MetadataRequest> metadataRequestKafkaTemplate(
-  // ProducerFactory<String, MetadataRequest> producerFactory) {
-  // return new KafkaTemplate<>(producerFactory);
-  // }
+    @Bean
+    public KafkaTemplate<String, DownloadRequestMessage> downloadRequestKafkaTemplate(
+            ProducerFactory<String, DownloadRequestMessage> downloadProducerFactory) {
+        return new KafkaTemplate<>(downloadProducerFactory);
+    }
 }
