@@ -23,7 +23,7 @@ public class Downloader {
     private static final Pattern DOWNLOAD_SIZE_REGEX = Pattern.compile("of\\s+~?\\s+(\\d+\\.\\d+\\w{1,3})");
     private static final Pattern DOWNLOAD_SPEED_REGEX = Pattern.compile("at\\s+(\\d+\\.\\d+\\w{1,3}/s)");
     private static final Pattern DOWNLOAD_ETA_REGEX = Pattern.compile("ETA\\s+(\\d+:\\d+(?::\\d+)?)");
-    private static final Pattern DOWNLOAD_FRAG_REGEX = Pattern.compile("\\(frag (\\d+)/\\d+\\)");
+    // private static final Pattern DOWNLOAD_FRAG_REGEX = Pattern.compile("\\(frag (\\d+)/\\d+\\)");
     private static final Pattern CATEGORY_REGEX = Pattern.compile("^(?:\\[)(.*?)(?:\\])");
 
     private final CommandExecutor cmd;

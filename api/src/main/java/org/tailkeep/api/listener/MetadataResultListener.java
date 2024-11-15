@@ -11,10 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class MetadataListener {
+public class MetadataResultListener {
     private final KafkaTemplate<String, DownloadRequestMessage> downloadKafkaTemplate;
 
-    public MetadataListener(KafkaTemplate<String, DownloadRequestMessage> downloadRequestKafkaTemplate) {
+    public MetadataResultListener(KafkaTemplate<String, DownloadRequestMessage> downloadRequestKafkaTemplate) {
         this.downloadKafkaTemplate = downloadRequestKafkaTemplate;
     }
 
