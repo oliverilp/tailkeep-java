@@ -80,9 +80,9 @@ public class CommandExecutor {
         Process process = currentProcess.getAndSet(null);
         if (process != null && process.isAlive()) {
             process.destroy();
-            System.out.println("Process killed.");
+            log.info("Process killed.");
         } else {
-            System.out.println("No active process to kill.");
+            log.warn("No active process to kill.");
         }
     }
 }
