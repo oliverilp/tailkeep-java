@@ -4,8 +4,23 @@ networks:
     driver: bridge
 volumes:
   redpanda: null
+  postgres: null
 
 services:
+  db:
+    container_name: tailkeep-postgres
+    image: postgres:alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tailkeep
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - tailkeep_network
   redpanda:
     command:
       - redpanda
