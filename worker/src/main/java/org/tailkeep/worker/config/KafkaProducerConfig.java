@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import org.tailkeep.worker.download.DownloadProgress;
+import org.tailkeep.worker.download.DownloadProgressMessage;
 import org.tailkeep.worker.metadata.MetadataResultMessage;
 
 @Configuration
@@ -36,9 +36,9 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, DownloadProgress> downloadKafkaTemplate() {
-        var producerFactory = new DefaultKafkaProducerFactory<String, DownloadProgress>(producerConfig());
+    public KafkaTemplate<String, DownloadProgressMessage> downloadKafkaTemplate() {
+        var producerFactory = new DefaultKafkaProducerFactory<String, DownloadProgressMessage>(producerConfig());
 
-        return new KafkaTemplate<String, DownloadProgress>(producerFactory);
+        return new KafkaTemplate<String, DownloadProgressMessage>(producerFactory);
     }
 }

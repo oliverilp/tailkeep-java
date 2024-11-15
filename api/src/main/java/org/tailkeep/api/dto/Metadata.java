@@ -1,4 +1,4 @@
-package org.tailkeep.api.model;
+package org.tailkeep.api.dto;
 
 public record Metadata(
                 String youtubeId,

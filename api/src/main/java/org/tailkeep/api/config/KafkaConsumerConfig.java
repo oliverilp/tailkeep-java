@@ -13,8 +13,8 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.tailkeep.api.model.MetadataResultMessage;
-import org.tailkeep.api.model.DownloadProgress;
+import org.tailkeep.api.dto.DownloadProgressMessage;
+import org.tailkeep.api.dto.MetadataResultMessage;
 
 @Configuration
 public class KafkaConsumerConfig {
@@ -57,8 +57,8 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, DownloadProgress> downloadConsumerFactory() {
-        return createConsumerFactory(DownloadProgress.class);
+    public ConsumerFactory<String, DownloadProgressMessage> downloadConsumerFactory() {
+        return createConsumerFactory(DownloadProgressMessage.class);
     }
 
     @Bean("metadataFactory")
@@ -68,8 +68,8 @@ public class KafkaConsumerConfig {
     }
 
     @Bean("downloadFactory")
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, DownloadProgress>> downloadListenerContainerFactory(
-            ConsumerFactory<String, DownloadProgress> downloadConsumerFactory) {
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, DownloadProgressMessage>> downloadListenerContainerFactory(
+            ConsumerFactory<String, DownloadProgressMessage> downloadConsumerFactory) {
         return createListenerContainerFactory(downloadConsumerFactory);
     }
 }

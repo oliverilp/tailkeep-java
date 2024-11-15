@@ -1,6 +1,6 @@
-package org.tailkeep.worker.download;
+package org.tailkeep.api.dto;
 
-public record DownloadProgress(
+public record DownloadProgressMessage(
         String videoId,
         String jobId,
         String status,

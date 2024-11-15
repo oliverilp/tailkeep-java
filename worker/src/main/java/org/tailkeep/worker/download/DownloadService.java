@@ -17,12 +17,12 @@ public class DownloadService {
         this.commandExecutor = commandExecutor;
     }
 
-    public CompletableFuture<DownloadProgress> processDownload(
+    public CompletableFuture<DownloadProgressMessage> processDownload(
             String jobId,
             String videoId,
             String url,
             String filename,
-            Consumer<DownloadProgress> onProgress) {
+            Consumer<DownloadProgressMessage> onProgress) {
         var downloader = new Downloader(commandExecutor, videoId, jobId, url, filename);
 
         return downloader.download(onProgress);

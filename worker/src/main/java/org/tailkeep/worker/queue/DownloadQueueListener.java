@@ -4,7 +4,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.tailkeep.worker.config.KafkaTopicNames;
-import org.tailkeep.worker.download.DownloadProgress;
+import org.tailkeep.worker.download.DownloadProgressMessage;
 import org.tailkeep.worker.download.DownloadRequestMessage;
 import org.tailkeep.worker.download.DownloadService;
 
@@ -16,12 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DownloadQueueListener {
     private final DownloadService downloadService;
-    private final KafkaTemplate<String, DownloadProgress> downloadKafkaTemplate;
+    private final KafkaTemplate<String, DownloadProgressMessage> downloadKafkaTemplate;
 
     public DownloadQueueListener(
             DownloadService downloadService,
             ObjectMapper objectMapper,
-            KafkaTemplate<String, DownloadProgress> downloadKafkaTemplate) {
+            KafkaTemplate<String, DownloadProgressMessage> downloadKafkaTemplate) {
         this.downloadService = downloadService;
         this.downloadKafkaTemplate = downloadKafkaTemplate;
     }
@@ -50,7 +50,7 @@ public class DownloadQueueListener {
         }
     }
 
-    private void sendProgressUpdate(DownloadProgress progress) {
+    private void sendProgressUpdate(DownloadProgressMessage progress) {
         downloadKafkaTemplate.send(KafkaTopicNames.DOWNLOAD_PROGRESS, progress);
     }
 }

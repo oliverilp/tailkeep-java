@@ -11,8 +11,8 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import org.tailkeep.api.model.MetadataRequestMessage;
-import org.tailkeep.api.model.DownloadRequestMessage;
+import org.tailkeep.api.dto.DownloadRequestMessage;
+import org.tailkeep.api.dto.MetadataRequestMessage;
 
 @Configuration
 public class KafkaProducerConfig {

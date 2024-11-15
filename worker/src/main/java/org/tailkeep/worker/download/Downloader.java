@@ -49,11 +49,11 @@ public class Downloader {
         this.mediaPath = System.getenv("MEDIA_PATH");
     }
 
-    public DownloadProgress getDownloadProgress() {
-        return new DownloadProgress(videoId, jobId, status, hasEnded, progress, size, speed, eta);
+    public DownloadProgressMessage getDownloadProgress() {
+        return new DownloadProgressMessage(videoId, jobId, status, hasEnded, progress, size, speed, eta);
     }
 
-    public DownloadProgress onOutput(String text) {
+    public DownloadProgressMessage onOutput(String text) {
         log.info(text);
 
         // Check status
@@ -102,7 +102,7 @@ public class Downloader {
         return getDownloadProgress();
     }
 
-    public CompletableFuture<DownloadProgress> download(Consumer<DownloadProgress> progressCallback) {
+    public CompletableFuture<DownloadProgressMessage> download(Consumer<DownloadProgressMessage> progressCallback) {
         List<String> args = Arrays.asList(url);
         return cmd.execute(args, text -> progressCallback.accept(onOutput(text)))
                 .thenApply(unused -> {
