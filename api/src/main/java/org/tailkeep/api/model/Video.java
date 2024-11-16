@@ -1,5 +1,6 @@
 package org.tailkeep.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -49,6 +50,7 @@ public class Video {
     
     private String filename;
     
+    @JsonIgnore
     @OneToMany(mappedBy = "video")
     private List<DownloadProgress> progressList;
     

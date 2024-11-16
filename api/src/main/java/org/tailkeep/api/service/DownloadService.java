@@ -93,6 +93,11 @@ public class DownloadService {
         );
     }
 
+    public DownloadProgress getDownloadProgressById(String id) {
+        return downloadProgressRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Download progress not found: " + id));
+    }
+
     private String cleanUrl(String url) throws Exception {
         URI uri = new URI(url);
         

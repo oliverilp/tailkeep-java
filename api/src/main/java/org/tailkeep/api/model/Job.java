@@ -1,5 +1,7 @@
 package org.tailkeep.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -23,7 +25,8 @@ public class Job {
     @ManyToOne
     @JoinColumn(name = "video_id")
     private Video video;
-    
+
+    @JsonIgnore
     @OneToOne(mappedBy = "job", cascade = CascadeType.ALL)
     private DownloadProgress downloadProgress;
 }

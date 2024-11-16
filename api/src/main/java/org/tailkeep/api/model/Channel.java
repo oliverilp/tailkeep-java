@@ -1,5 +1,6 @@
 package org.tailkeep.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,6 +32,7 @@ public class Channel {
     @Column(name = "channel_url")
     private String channelUrl;
     
+    @JsonIgnore
     @OneToMany(mappedBy = "channel")
     private List<Video> videos;
 }
