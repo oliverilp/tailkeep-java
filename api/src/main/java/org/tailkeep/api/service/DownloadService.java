@@ -1,28 +1,85 @@
 package org.tailkeep.api.service;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.UUID;
+import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tailkeep.api.config.KafkaTopicNames;
+import org.tailkeep.api.dto.DownloadProgressMessage;
 import org.tailkeep.api.dto.MetadataRequestMessage;
+import org.tailkeep.api.model.DownloadProgress;
+import org.tailkeep.api.model.Job;
+import org.tailkeep.api.repository.DownloadProgressRepository;
+import org.tailkeep.api.repository.JobRepository;
 
 @Service
 public class DownloadService {
     private final KafkaTemplate<String, MetadataRequestMessage> kafkaTemplate;
+    private final JobRepository jobRepository;
+    private final DownloadProgressRepository downloadProgressRepository;
 
-    public DownloadService(KafkaTemplate<String, MetadataRequestMessage> kafkaTemplate) {
+    public DownloadService(
+            KafkaTemplate<String, MetadataRequestMessage> kafkaTemplate, 
+            JobRepository jobRepository,
+            DownloadProgressRepository downloadProgressRepository) {
         this.kafkaTemplate = kafkaTemplate;
+        this.jobRepository = jobRepository;
+        this.downloadProgressRepository = downloadProgressRepository;
     }
     
+    @Transactional
     public void processDownloadRequest(MetadataRequestMessage request) throws Exception {
-        String jobId = UUID.randomUUID().toString();
         String cleanedUrl = cleanUrl(request.url());
         
-        MetadataRequestMessage enrichedRequest = new MetadataRequestMessage(jobId, cleanedUrl);
+        Job job = new Job();
+        job.setInputUrl(request.url());
+        job = jobRepository.save(job);
+        
+        MetadataRequestMessage enrichedRequest = new MetadataRequestMessage(job.getId(), cleanedUrl);
         kafkaTemplate.send(KafkaTopicNames.METADATA_QUEUE, enrichedRequest);
+    }
+
+    @Transactional
+    public DownloadProgress updateDownloadProgress(DownloadProgressMessage message) {
+        DownloadProgress progress = downloadProgressRepository.findById(message.jobId())
+            .orElseThrow(() -> new RuntimeException("Download progress not found for job: " + message.jobId()));
+
+        // Update fields
+        progress.setStatus(message.status());
+        progress.setProgress(message.progress());
+        progress.setSize(message.size());
+        progress.setSpeed(message.speed());
+        progress.setEta(message.eta());
+        progress.setHasEnded(message.hasEnded());
+        
+        return downloadProgressRepository.save(progress);
+    }
+
+    @Transactional
+    public DownloadProgress markDownloadComplete(DownloadProgressMessage message) {
+        DownloadProgress progress = downloadProgressRepository.findById(message.jobId())
+            .orElseThrow(() -> new RuntimeException("Download progress not found for job: " + message.jobId()));
+
+        // Update completion fields
+        progress.setProgress(100.0);
+        progress.setStatus("done");
+        progress.setSpeed("0B/s");
+        progress.setEta("00:00");
+        progress.setCompletedAt(LocalDateTime.now());
+        progress.setHasEnded(true);
+
+        return downloadProgressRepository.save(progress);
+    }
+
+    public List<DownloadProgress> getAllDownloadProgress() {
+        return downloadProgressRepository.findAll(
+            Sort.by(Sort.Direction.DESC, "createdAt")
+        );
     }
 
     private String cleanUrl(String url) throws Exception {
