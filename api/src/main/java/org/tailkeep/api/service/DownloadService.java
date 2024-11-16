@@ -45,9 +45,18 @@ public class DownloadService {
     }
 
     @Transactional
-    public DownloadProgress updateDownloadProgress(DownloadProgressMessage message) {
-        DownloadProgress progress = downloadProgressRepository.findById(message.jobId())
-            .orElseThrow(() -> new RuntimeException("Download progress not found for job: " + message.jobId()));
+    public DownloadProgress upsertDownloadProgress(DownloadProgressMessage message) {
+        Job job = jobRepository.findById(message.jobId())
+            .orElseThrow(() -> new RuntimeException("Job not found: " + message.jobId()));
+
+        DownloadProgress progress = job.getDownloadProgress();
+        if (progress == null) {
+            progress = new DownloadProgress();
+            progress.setId(job.getId());
+            progress.setJob(job);
+            progress.setVideo(job.getVideo());
+            job.setDownloadProgress(progress);
+        }
 
         // Update fields
         progress.setStatus(message.status());
@@ -57,17 +66,19 @@ public class DownloadService {
         progress.setEta(message.eta());
         progress.setHasEnded(message.hasEnded());
         
-        return downloadProgressRepository.save(progress);
+        // Save the job which will cascade to download_progress
+        return jobRepository.save(job).getDownloadProgress();
     }
 
     @Transactional
     public DownloadProgress markDownloadComplete(DownloadProgressMessage message) {
         DownloadProgress progress = downloadProgressRepository.findById(message.jobId())
             .orElseThrow(() -> new RuntimeException("Download progress not found for job: " + message.jobId()));
-
+        
         // Update completion fields
-        progress.setProgress(100.0);
         progress.setStatus("done");
+        progress.setProgress(100.0);
+        progress.setSize(message.size());
         progress.setSpeed("0B/s");
         progress.setEta("00:00");
         progress.setCompletedAt(LocalDateTime.now());
