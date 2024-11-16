@@ -16,18 +16,21 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class DownloadProgress {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     
+    @OneToOne
+    @MapsId  // Uses the same ID as the Job
+    @JoinColumn(name = "job_id")
+    private Job job;
+
     @ManyToOne
     @JoinColumn(name = "video_id")
     private Video video;
     
-    @Column(name = "job_id", unique = true)
-    private String jobId;
-    
     private String status;
-    private Float progress;
+    private boolean hasEnded;
+
+    private double progress;
     private String size;
     private String speed;
     private String eta;

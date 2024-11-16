@@ -33,18 +33,19 @@ public class Video {
     @Column(name = "duration_string")
     private String durationString;
     
-    private Integer duration;
+    private Double duration;
     
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
     
+    @Column(columnDefinition = "TEXT")
     private String description;
     
     @Column(name = "view_count")
-    private Integer viewCount;
+    private Long viewCount;
     
     @Column(name = "comment_count")
-    private Integer commentCount;
+    private Long commentCount;
     
     private String filename;
     
