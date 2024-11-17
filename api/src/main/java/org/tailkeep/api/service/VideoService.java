@@ -2,7 +2,7 @@ package org.tailkeep.api.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tailkeep.api.dto.Metadata;
+import org.tailkeep.api.message.Metadata;
 import org.tailkeep.api.model.Channel;
 import org.tailkeep.api.model.Video;
 import org.tailkeep.api.repository.VideoRepository;

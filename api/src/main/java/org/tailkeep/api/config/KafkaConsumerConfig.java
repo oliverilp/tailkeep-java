@@ -13,8 +13,8 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.tailkeep.api.dto.DownloadProgressMessage;
-import org.tailkeep.api.dto.MetadataResultMessage;
+import org.tailkeep.api.message.DownloadProgressMessage;
+import org.tailkeep.api.message.MetadataResultMessage;
 
 @Configuration
 public class KafkaConsumerConfig {

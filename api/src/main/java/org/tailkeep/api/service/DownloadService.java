@@ -4,14 +4,17 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tailkeep.api.config.KafkaTopicNames;
-import org.tailkeep.api.dto.DownloadProgressMessage;
-import org.tailkeep.api.dto.MetadataRequestMessage;
+import org.tailkeep.api.dto.DownloadProgressDto;
+import org.tailkeep.api.mapper.EntityMapper;
+import org.tailkeep.api.message.DownloadProgressMessage;
+import org.tailkeep.api.message.MetadataRequestMessage;
 import org.tailkeep.api.model.DownloadProgress;
 import org.tailkeep.api.model.Job;
 import org.tailkeep.api.repository.DownloadProgressRepository;
@@ -22,14 +25,17 @@ public class DownloadService {
     private final KafkaTemplate<String, MetadataRequestMessage> kafkaTemplate;
     private final JobRepository jobRepository;
     private final DownloadProgressRepository downloadProgressRepository;
+    private final EntityMapper mapper;
 
     public DownloadService(
             KafkaTemplate<String, MetadataRequestMessage> kafkaTemplate, 
             JobRepository jobRepository,
-            DownloadProgressRepository downloadProgressRepository) {
+            DownloadProgressRepository downloadProgressRepository,
+            EntityMapper mapper) {
         this.kafkaTemplate = kafkaTemplate;
         this.jobRepository = jobRepository;
         this.downloadProgressRepository = downloadProgressRepository;
+        this.mapper = mapper;
     }
     
     @Transactional
@@ -45,7 +51,7 @@ public class DownloadService {
     }
 
     @Transactional
-    public DownloadProgress upsertDownloadProgress(DownloadProgressMessage message) {
+    public DownloadProgressDto upsertDownloadProgress(DownloadProgressMessage message) {
         Job job = jobRepository.findById(message.jobId())
             .orElseThrow(() -> new RuntimeException("Job not found: " + message.jobId()));
 
@@ -67,11 +73,11 @@ public class DownloadService {
         progress.setHasEnded(message.hasEnded());
         
         // Save the job which will cascade to download_progress
-        return jobRepository.save(job).getDownloadProgress();
+        return mapper.toDto(jobRepository.save(job).getDownloadProgress());
     }
 
     @Transactional
-    public DownloadProgress markDownloadComplete(DownloadProgressMessage message) {
+    public DownloadProgressDto markDownloadComplete(DownloadProgressMessage message) {
         DownloadProgress progress = downloadProgressRepository.findById(message.jobId())
             .orElseThrow(() -> new RuntimeException("Download progress not found for job: " + message.jobId()));
         
@@ -84,17 +90,19 @@ public class DownloadService {
         progress.setCompletedAt(LocalDateTime.now());
         progress.setHasEnded(true);
 
-        return downloadProgressRepository.save(progress);
+        return mapper.toDto(downloadProgressRepository.save(progress));
     }
 
-    public List<DownloadProgress> getAllDownloadProgress() {
-        return downloadProgressRepository.findAll(
-            Sort.by(Sort.Direction.DESC, "createdAt")
-        );
+    public List<DownloadProgressDto> getAllDownloadProgress() {
+        return downloadProgressRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
+            .stream()
+            .map(mapper::toDto)
+            .collect(Collectors.toList());
     }
 
-    public DownloadProgress getDownloadProgressById(String id) {
+    public DownloadProgressDto getDownloadProgressById(String id) {
         return downloadProgressRepository.findById(id)
+            .map(mapper::toDto)
             .orElseThrow(() -> new RuntimeException("Download progress not found: " + id));
     }
 

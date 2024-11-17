@@ -3,8 +3,8 @@ package org.tailkeep.api.listener;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.tailkeep.api.config.KafkaTopicNames;
-import org.tailkeep.api.dto.DownloadProgressMessage;
-import org.tailkeep.api.model.DownloadProgress;
+import org.tailkeep.api.dto.DownloadProgressDto;
+import org.tailkeep.api.message.DownloadProgressMessage;
 import org.tailkeep.api.service.DownloadService;
 import org.tailkeep.api.service.SseService;
 
@@ -25,7 +25,7 @@ public class DownloadProgressListener {
     public void listen(DownloadProgressMessage message) {
         log.info("[{} | {}] {}%", message.videoId(), message.jobId(), String.format("%.2f", message.progress()));
 
-        DownloadProgress progress;
+        DownloadProgressDto progress;
         if (message.hasEnded()) {
             progress = downloadService.markDownloadComplete(message);
             log.info("Download completed for job: {}", message.jobId());

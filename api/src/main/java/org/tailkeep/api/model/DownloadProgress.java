@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,7 +18,6 @@ public class DownloadProgress {
     @Id
     private String id;
     
-    @JsonIgnore
     @OneToOne
     @MapsId  // Uses the same ID as the Job
     @JoinColumn(name = "job_id")

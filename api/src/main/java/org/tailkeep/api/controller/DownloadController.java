@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.tailkeep.api.dto.MetadataRequestMessage;
-import org.tailkeep.api.model.DownloadProgress;
+import org.tailkeep.api.dto.DownloadProgressDto;
+import org.tailkeep.api.message.MetadataRequestMessage;
 import org.tailkeep.api.service.DownloadService;
 
 @RestController
@@ -31,12 +31,12 @@ public class DownloadController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DownloadProgress>> getAllDownloadProgress() {
+    public ResponseEntity<List<DownloadProgressDto>> getAllDownloadProgress() {
         return ResponseEntity.ok(downloadService.getAllDownloadProgress());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DownloadProgress> getDownloadProgressById(@PathVariable("id") String id) {
+    public ResponseEntity<DownloadProgressDto> getDownloadProgressById(@PathVariable("id") String id) {
         return ResponseEntity.ok(downloadService.getDownloadProgressById(id));
     }
 }

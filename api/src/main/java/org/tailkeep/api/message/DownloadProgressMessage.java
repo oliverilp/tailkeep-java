@@ -1,4 +1,4 @@
-package org.tailkeep.api.dto;
+package org.tailkeep.api.message;
 
 public record DownloadProgressMessage(
         String videoId,
