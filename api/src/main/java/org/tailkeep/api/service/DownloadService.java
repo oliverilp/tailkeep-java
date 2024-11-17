@@ -1,6 +1,9 @@
 package org.tailkeep.api.service;
 
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tailkeep.api.config.KafkaTopicNames;
 import org.tailkeep.api.dto.DownloadProgressDto;
+import org.tailkeep.api.dto.DownloadRequestDto;
+import org.tailkeep.api.exception.InvalidUrlException;
 import org.tailkeep.api.mapper.EntityMapper;
 import org.tailkeep.api.message.DownloadProgressMessage;
 import org.tailkeep.api.message.MetadataRequestMessage;
@@ -36,6 +41,17 @@ public class DownloadService {
         this.jobRepository = jobRepository;
         this.downloadProgressRepository = downloadProgressRepository;
         this.mapper = mapper;
+    }
+
+    public void validateAndStartDownload(DownloadRequestDto request) {
+        validateUrl(request.url());
+        
+        MetadataRequestMessage message = new MetadataRequestMessage(null, request.url());
+        try {
+            processDownloadRequest(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to process download request", e);
+        }
     }
     
     @Transactional
@@ -132,5 +148,46 @@ public class DownloadService {
                       uri.getPath(), 
                       null, 
                       null).toString();
+    }
+
+    private void validateUrl(String urlString) {
+        HttpURLConnection connection = null;
+        try {
+            URL url = URI.create(urlString).toURL();
+            
+            if (!url.getProtocol().equals("https")) {
+                throw new InvalidUrlException("URL must use HTTPS protocol");
+            }
+
+            if (url.getHost().isEmpty()) {
+                throw new InvalidUrlException("URL must have a valid host");
+            }
+
+            if (!url.getHost().contains(".")) {
+                throw new InvalidUrlException("URL must have a valid domain");
+            }
+
+            // Try to actually connect to validate URL exists
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.setConnectTimeout(1000);
+            connection.connect();
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode >= 400) {
+                throw new InvalidUrlException("URL returned error status: " + responseCode);
+            }
+
+        } catch (MalformedURLException e) {
+            throw new InvalidUrlException("Invalid URL format");
+        } catch (InvalidUrlException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InvalidUrlException("Failed to validate URL");
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
     }
 }

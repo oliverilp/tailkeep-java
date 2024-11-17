@@ -12,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.tailkeep.api.dto.DownloadProgressDto;
-import org.tailkeep.api.message.MetadataRequestMessage;
 import org.tailkeep.api.service.DownloadService;
+import org.tailkeep.api.dto.DownloadRequestDto;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("api/v1/downloads")
@@ -26,8 +27,9 @@ public class DownloadController {
     }
 
     @PostMapping
-    public void processDownload(@RequestBody MetadataRequestMessage request) throws Exception {
-        downloadService.processDownloadRequest(request);
+    public ResponseEntity<Void> startDownload(@Valid @RequestBody DownloadRequestDto request) {
+        downloadService.validateAndStartDownload(request);
+        return ResponseEntity.accepted().build();
     }
 
     @GetMapping
