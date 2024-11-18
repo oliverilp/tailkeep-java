@@ -6,6 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.tailkeep.api.model.user.User;
 import org.tailkeep.api.dto.ChangePasswordRequestDto;
+import org.tailkeep.api.exception.InvalidCurrentPasswordException;
+import org.tailkeep.api.exception.PasswordMismatchException;
 import org.tailkeep.api.repository.UserRepository;
 
 import java.security.Principal;
@@ -22,11 +24,11 @@ public class UserService {
 
         // check if the current password is correct
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
-            throw new IllegalStateException("Wrong password");
+            throw new InvalidCurrentPasswordException("Current password is incorrect");
         }
         // check if the two new passwords are the same
         if (!request.newPassword().equals(request.confirmationPassword())) {
-            throw new IllegalStateException("Password are not the same");
+            throw new PasswordMismatchException("New passwords do not match");
         }
 
         // update the password

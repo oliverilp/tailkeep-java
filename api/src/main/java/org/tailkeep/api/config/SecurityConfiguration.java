@@ -15,9 +15,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 import static org.tailkeep.api.model.user.Permission.ADMIN_CREATE;
 import static org.tailkeep.api.model.user.Permission.ADMIN_DELETE;
-import static org.tailkeep.api.model.user.Permission.ADMIN_READ;
 import static org.tailkeep.api.model.user.Permission.ADMIN_UPDATE;
-import static org.tailkeep.api.model.user.Role.ADMIN;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
