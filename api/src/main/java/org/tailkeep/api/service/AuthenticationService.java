@@ -5,6 +5,7 @@ import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.RegisterRequestDto;
 import org.tailkeep.api.model.token.Token;
 import org.tailkeep.api.model.token.TokenType;
+import org.tailkeep.api.model.user.Role;
 import org.tailkeep.api.model.user.User;
 import org.tailkeep.api.repository.TokenRepository;
 import org.tailkeep.api.repository.UserRepository;
@@ -31,14 +32,20 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final ValidationService validationService;
 
+    // Public endpoint - always creates USER role
     public AuthenticationResponseDto register(RegisterRequestDto request) {
+        return registerWithRole(request, Role.USER);
+    }
+
+    // Internal method - allows role specification
+    public AuthenticationResponseDto registerWithRole(RegisterRequestDto request, Role role) {
         validationService.validatePasswordLength(request.getPassword());
 
         var user = User.builder()
                 .nickname(request.getNickname())
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
+                .role(role)
                 .build();
         var savedUser = repository.save(user);
         var jwtToken = jwtService.generateToken(user);

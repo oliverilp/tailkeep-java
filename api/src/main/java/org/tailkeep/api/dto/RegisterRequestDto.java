@@ -1,6 +1,5 @@
 package org.tailkeep.api.dto;
 
-import org.tailkeep.api.model.user.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,5 +14,4 @@ public class RegisterRequestDto {
     private String nickname;
     private String username;
     private String password;
-    private Role role;
 }

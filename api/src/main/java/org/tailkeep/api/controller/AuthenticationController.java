@@ -3,6 +3,8 @@ package org.tailkeep.api.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +16,7 @@ import org.tailkeep.api.dto.RegisterRequestDto;
 import org.tailkeep.api.service.AuthenticationService;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -21,10 +24,14 @@ import java.io.IOException;
 public class AuthenticationController {
 
     private final AuthenticationService service;
+    private final Environment env;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponseDto> register(
-            @RequestBody RegisterRequestDto request) {
+    public ResponseEntity<AuthenticationResponseDto> register(@RequestBody RegisterRequestDto request) {
+        // Only allow registration in development
+        if (!Arrays.asList(env.getActiveProfiles()).contains("dev")) {
+            throw new UnsupportedOperationException("Registration is disabled in production");
+        }
         return ResponseEntity.ok(service.register(request));
     }
 
