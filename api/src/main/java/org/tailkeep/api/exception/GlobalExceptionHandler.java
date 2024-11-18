@@ -98,6 +98,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleUsernameAlreadyExistsException(
+            UsernameAlreadyExistsException e, 
+            HttpServletRequest request
+    ) {
+        ApiError error = new ApiError(
+            request.getRequestURI(),
+            e.getMessage(),
+            HttpStatus.CONFLICT.value(),
+            LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
     @ExceptionHandler(PasswordMismatchException.class)
     public ResponseEntity<ApiError> handlePasswordMismatchException(PasswordMismatchException e, HttpServletRequest request) {
         ApiError error = new ApiError(
