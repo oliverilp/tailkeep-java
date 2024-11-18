@@ -13,26 +13,17 @@ import org.tailkeep.api.service.ChannelService;
 import org.tailkeep.api.service.JobService;
 import org.tailkeep.api.service.VideoService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class MetadataResultListener {
     private final KafkaTemplate<String, DownloadRequestMessage> downloadKafkaTemplate;
     private final ChannelService channelService;
     private final VideoService videoService;
     private final JobService jobService;
-
-    public MetadataResultListener(
-            KafkaTemplate<String, DownloadRequestMessage> downloadRequestKafkaTemplate,
-            ChannelService channelService,
-            VideoService videoService,
-            JobService jobService) {
-        this.downloadKafkaTemplate = downloadRequestKafkaTemplate;
-        this.channelService = channelService;
-        this.videoService = videoService;
-        this.jobService = jobService;
-    }
 
     @KafkaListener(topics = KafkaTopicNames.METADATA_RESULTS, groupId = "metadata-results-consumer", containerFactory = "metadataFactory")
     public void listen(MetadataResultMessage message) {

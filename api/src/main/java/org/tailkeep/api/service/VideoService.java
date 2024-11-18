@@ -7,13 +7,12 @@ import org.tailkeep.api.model.Channel;
 import org.tailkeep.api.model.Video;
 import org.tailkeep.api.repository.VideoRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class VideoService {
     private final VideoRepository videoRepository;
-
-    public VideoService(VideoRepository videoRepository) {
-        this.videoRepository = videoRepository;
-    }
 
     @Transactional
     public Video createOrUpdateVideo(Metadata metadata, Channel channel) {

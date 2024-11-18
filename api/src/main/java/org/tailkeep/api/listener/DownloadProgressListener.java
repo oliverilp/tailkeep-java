@@ -8,18 +8,15 @@ import org.tailkeep.api.message.DownloadProgressMessage;
 import org.tailkeep.api.service.DownloadService;
 import org.tailkeep.api.service.SseService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class DownloadProgressListener {
     private final DownloadService downloadService;
     private final SseService sseService;
-
-    public DownloadProgressListener(DownloadService downloadService, SseService sseService) {
-        this.downloadService = downloadService;
-        this.sseService = sseService;
-    }
 
     @KafkaListener(topics = KafkaTopicNames.DOWNLOAD_PROGRESS, groupId = "download-progress-consumer", containerFactory = "downloadFactory")
     public void listen(DownloadProgressMessage message) {

@@ -6,13 +6,12 @@ import org.tailkeep.api.message.Metadata;
 import org.tailkeep.api.model.Channel;
 import org.tailkeep.api.repository.ChannelRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class ChannelService {
     private final ChannelRepository channelRepository;
-
-    public ChannelService(ChannelRepository channelRepository) {
-        this.channelRepository = channelRepository;
-    }
 
     @Transactional
     public Channel getOrCreateChannel(Metadata metadata) {

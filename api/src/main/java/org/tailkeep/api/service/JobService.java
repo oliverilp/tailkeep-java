@@ -6,13 +6,12 @@ import org.tailkeep.api.model.Job;
 import org.tailkeep.api.model.Video;
 import org.tailkeep.api.repository.JobRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class JobService {
     private final JobRepository jobRepository;
-
-    public JobService(JobRepository jobRepository) {
-        this.jobRepository = jobRepository;
-    }
 
     @Transactional
     public Job updateJobMetadata(String jobId, Video video) {

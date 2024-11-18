@@ -14,16 +14,14 @@ import org.tailkeep.api.dto.DownloadProgressDto;
 import org.tailkeep.api.service.DownloadService;
 import org.tailkeep.api.dto.DownloadRequestDto;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Validated
 @RestController
 @RequestMapping("api/v1/downloads")
+@RequiredArgsConstructor
 public class DownloadController {
     private final DownloadService downloadService;
-
-    public DownloadController(DownloadService downloadService) {
-        this.downloadService = downloadService;
-    }
 
     @PostMapping
     public ResponseEntity<Void> startDownload(@Valid @RequestBody DownloadRequestDto request) {

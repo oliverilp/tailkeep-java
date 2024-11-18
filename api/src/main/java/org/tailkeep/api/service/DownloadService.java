@@ -25,27 +25,19 @@ import org.tailkeep.api.model.Job;
 import org.tailkeep.api.repository.DownloadProgressRepository;
 import org.tailkeep.api.repository.JobRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class DownloadService {
     private final KafkaTemplate<String, MetadataRequestMessage> kafkaTemplate;
     private final JobRepository jobRepository;
     private final DownloadProgressRepository downloadProgressRepository;
     private final EntityMapper mapper;
 
-    public DownloadService(
-            KafkaTemplate<String, MetadataRequestMessage> kafkaTemplate, 
-            JobRepository jobRepository,
-            DownloadProgressRepository downloadProgressRepository,
-            EntityMapper mapper) {
-        this.kafkaTemplate = kafkaTemplate;
-        this.jobRepository = jobRepository;
-        this.downloadProgressRepository = downloadProgressRepository;
-        this.mapper = mapper;
-    }
-
     public void validateAndStartDownload(DownloadRequestDto request) {
         validateUrl(request.url());
-        
+
         MetadataRequestMessage message = new MetadataRequestMessage(null, request.url());
         try {
             processDownloadRequest(message);
