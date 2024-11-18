@@ -90,7 +90,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleBadCredentialsException(BadCredentialsException e, HttpServletRequest request) {
         ApiError error = new ApiError(
             request.getRequestURI(),
-            "Invalid credentials provided",
+            e.getMessage(),
             HttpStatus.UNAUTHORIZED.value(),
             LocalDateTime.now()
         );

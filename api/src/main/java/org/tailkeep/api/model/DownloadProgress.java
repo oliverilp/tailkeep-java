@@ -19,20 +19,25 @@ public class DownloadProgress {
     private String id;
     
     @OneToOne
-    @MapsId  // Uses the same ID as the Job
-    @JoinColumn(name = "job_id")
+    @MapsId
+    @JoinColumn(name = "job_id", nullable = false)
     private Job job;
 
     @ManyToOne
-    @JoinColumn(name = "video_id")
+    @JoinColumn(name = "video_id", nullable = false)
     private Video video;
     
     private String status;
+
+    @Column(nullable = false)
     private boolean hasEnded;
 
     private double progress;
+
     private String size;
+
     private String speed;
+
     private String eta;
     
     @Column(name = "created_at")

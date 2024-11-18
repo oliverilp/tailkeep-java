@@ -20,14 +20,17 @@ public class Video {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     
-    @Column(name = "youtube_id", unique = true)
+    @Column(name = "youtube_id", unique = true, nullable = false)
     private String youtubeId;
     
-    @ManyToOne
-    @JoinColumn(name = "channel_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "channel_id", nullable = false)
     private Channel channel;
     
+    @Column(nullable = false)
     private String url;
+    
+    @Column(nullable = false)
     private String title;
     
     @Column(name = "duration_string")
@@ -47,6 +50,7 @@ public class Video {
     @Column(name = "comment_count")
     private Long commentCount;
     
+    @Column(nullable = false)
     private String filename;
     
     @OneToMany(mappedBy = "video")
