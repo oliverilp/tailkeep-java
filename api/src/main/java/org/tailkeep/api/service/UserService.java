@@ -18,7 +18,11 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository repository;
+    private final ValidationService validationService;
+
     public void changePassword(ChangePasswordRequestDto request, Principal connectedUser) {
+        validationService.validatePasswordLength(request.newPassword());
+        validationService.validatePasswordLength(request.confirmationPassword());
 
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
 

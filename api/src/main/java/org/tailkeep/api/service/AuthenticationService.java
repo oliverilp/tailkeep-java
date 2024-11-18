@@ -29,8 +29,11 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final ValidationService validationService;
 
     public AuthenticationResponseDto register(RegisterRequestDto request) {
+        validationService.validatePasswordLength(request.getPassword());
+
         var user = User.builder()
                 .nickname(request.getNickname())
                 .username(request.getUsername())
