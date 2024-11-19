@@ -7,7 +7,6 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
-import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,7 +40,7 @@ public class JwtService {
         SecretKey key = Jwts.SIG.HS256.key().build();
         String secretKey = Base64.getEncoder().encodeToString(key.getEncoded());    
         JwtSecret jwtSecret = new JwtSecret(secretKey);
-        
+
         return jwtSecretRepository.save(jwtSecret);
     }
 

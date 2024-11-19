@@ -34,6 +34,7 @@ public class Token {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
+  @Builder.Default
   private TokenType tokenType = TokenType.BEARER;
 
   @Column(nullable = false)
