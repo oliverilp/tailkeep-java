@@ -4,6 +4,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,15 +18,32 @@ import javax.crypto.SecretKey;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.tailkeep.api.model.auth.JwtSecret;
+import org.tailkeep.api.repository.JwtSecretRepository;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
-    // This secret key is only for development purposes
-    // TODO: generate and store the secret key in the database
-    private final String secretKey = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
-    private long jwtExpiration = 86400000;
-    private long refreshExpiration = 604800000;
+    private final JwtSecretRepository jwtSecretRepository;
+    private String currentSecretKey;
+    private final long jwtExpiration = 86400000;
+    private final long refreshExpiration = 604800000;
+
+    @PostConstruct
+    public void init() {
+        currentSecretKey = jwtSecretRepository.findLatestSecret()
+                .orElseGet(this::generateAndSaveNewSecret)
+                .getSecretKey();
+    }
+
+    private JwtSecret generateAndSaveNewSecret() {
+        SecretKey key = Jwts.SIG.HS256.key().build();
+        String secretKey = Base64.getEncoder().encodeToString(key.getEncoded());    
+        JwtSecret jwtSecret = new JwtSecret(secretKey);
+        
+        return jwtSecretRepository.save(jwtSecret);
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -84,7 +106,7 @@ public class JwtService {
     }
 
     private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(currentSecretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

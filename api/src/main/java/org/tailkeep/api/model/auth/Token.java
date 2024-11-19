@@ -1,4 +1,4 @@
-package org.tailkeep.api.model.token;
+package org.tailkeep.api.model.auth;
 
 
 import org.tailkeep.api.model.user.User;
