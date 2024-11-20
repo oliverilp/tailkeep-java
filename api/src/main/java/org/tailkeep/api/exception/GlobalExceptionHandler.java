@@ -149,6 +149,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(VideoNotFoundException.class)
+    public ResponseEntity<ApiError> handleVideoNotFoundException(VideoNotFoundException e, HttpServletRequest request) {
+        ApiError error = new ApiError(
+            request.getRequestURI(),
+            e.getMessage(),
+            HttpStatus.NOT_FOUND.value(),
+            LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleAllExceptions(Exception e, HttpServletRequest request) {
         log.error("Unexpected error occurred", e);

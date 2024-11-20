@@ -6,13 +6,21 @@ import org.tailkeep.api.message.Metadata;
 import org.tailkeep.api.model.Channel;
 import org.tailkeep.api.model.Video;
 import org.tailkeep.api.repository.VideoRepository;
+import org.tailkeep.api.dto.VideoDto;
+import org.tailkeep.api.exception.VideoNotFoundException;
+import org.tailkeep.api.mapper.EntityMapper;
+import org.springframework.data.domain.Sort;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class VideoService {
     private final VideoRepository videoRepository;
+    private final EntityMapper mapper;
 
     @Transactional
     public Video createOrUpdateVideo(Metadata metadata, Channel channel) {
@@ -36,5 +44,18 @@ public class VideoService {
         video.setFilename(metadata.filename());
 
         return videoRepository.save(video);
+    }
+
+    public List<VideoDto> getAllVideos() {
+        return videoRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
+            .stream()
+            .map(mapper::toDto)
+            .collect(Collectors.toList());
+    }
+
+    public VideoDto getVideoById(String id) {
+        return videoRepository.findById(id)
+            .map(mapper::toDto)
+            .orElseThrow(() -> new VideoNotFoundException("Video not found: " + id));
     }
 }
