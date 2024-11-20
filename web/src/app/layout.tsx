@@ -1,13 +1,14 @@
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Providers } from '@/components/providers';
 
+export const dynamic = 'force-dynamic';
+
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
+const siteConfig = {
   title: 'Tailkeep',
   description: 'YouTube Downloader UI'
 };
@@ -20,6 +21,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <title>{siteConfig.title}</title>
+        <meta name="description" content={siteConfig.description} />
         <link
           rel="icon"
           href="/icon?<generated>"

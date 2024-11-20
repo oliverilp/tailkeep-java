@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 // import { getVideos } from '@/server/data/get-videos';
 import { VideoDto } from '@/schemas/video';

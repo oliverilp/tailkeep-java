@@ -1,16 +1,7 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { redirect } from 'next/navigation';
 
 function Dashboard() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.push('/dashboard/download');
-  }, [router]);
-
-  return null;
+  redirect('/dashboard/download');
 }
 
 export default Dashboard;

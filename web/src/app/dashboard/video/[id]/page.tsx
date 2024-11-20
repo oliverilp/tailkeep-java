@@ -1,5 +1,5 @@
 import React from 'react';
-import { getVideoById } from '@/server/data/get-video-by-id';
+// import { getVideoById } from '@/server/data/get-video-by-id';
 import { z } from 'zod';
 import Image from 'next/image';
 import Player from './player';
@@ -19,7 +19,8 @@ async function VideoDetails({ params }: VideoDetailsProps) {
     return <div>404 - cannot be found</div>;
   }
 
-  const video = await getVideoById(parsed.data);
+  // const video = await getVideoById(parsed.data);
+  const video: any = null;
   if (!video) {
     return <div>404 - cannot be found</div>;
   }
@@ -51,7 +52,7 @@ async function VideoDetails({ params }: VideoDetailsProps) {
       </h4>
       <div className="font-semibold">{video.uploader}</div>
       <div className="pb-12 pt-6">
-        {video.description.split('\n').map((line, index) => (
+        {video.description.split('\n').map((line: string, index: number) => (
           <p key={index}>{line}</p>
         ))}
       </div>

@@ -1,5 +1,3 @@
-'use client';
-
 import { ListVideo } from 'lucide-react';
 import React from 'react';
 

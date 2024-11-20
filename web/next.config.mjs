@@ -1,8 +1,9 @@
+// @ts-check
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    unoptimized: true,
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
@@ -14,9 +15,6 @@ const nextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true
-  },
-  experimental: {
-    serverComponentsExternalPackages: ['@node-rs/argon2', 'bullmq']
   },
   output: 'standalone'
 };
