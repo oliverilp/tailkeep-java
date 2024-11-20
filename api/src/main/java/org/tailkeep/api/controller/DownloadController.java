@@ -15,6 +15,7 @@ import org.tailkeep.api.service.DownloadService;
 import org.tailkeep.api.dto.DownloadRequestDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.tailkeep.api.dto.DownloadsDashboardDto;
 
 @Validated
 @RestController
@@ -37,5 +38,10 @@ public class DownloadController {
     @GetMapping("/{id}")
     public ResponseEntity<DownloadProgressDto> getDownloadProgressById(@PathVariable String id) {
         return ResponseEntity.ok(downloadService.getDownloadProgressById(id));
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<DownloadsDashboardDto> getDownloadsDashboard() {
+        return ResponseEntity.ok(downloadService.getDownloadsDashboard());
     }
 }

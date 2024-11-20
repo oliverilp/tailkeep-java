@@ -12,4 +12,7 @@ import java.util.List;
 public interface DownloadProgressRepository extends JpaRepository<DownloadProgress, String> {
     List<DownloadProgress> findByJob(Job job);
     List<DownloadProgress> findByVideo(Video video);
+
+    long countByHasEndedTrue();
+    long countByHasEndedFalse();
 }

@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tailkeep.api.config.KafkaTopicNames;
 import org.tailkeep.api.dto.DownloadProgressDto;
 import org.tailkeep.api.dto.DownloadRequestDto;
+import org.tailkeep.api.dto.DownloadsDashboardDto;
+import org.tailkeep.api.dto.QueueInfoDto;
 import org.tailkeep.api.exception.InvalidUrlException;
 import org.tailkeep.api.mapper.EntityMapper;
 import org.tailkeep.api.message.DownloadProgressMessage;
@@ -181,5 +183,17 @@ public class DownloadService {
                 connection.disconnect();
             }
         }
+    }
+
+    public DownloadsDashboardDto getDownloadsDashboard() {
+        QueueInfoDto queueInfo = new QueueInfoDto(
+            jobRepository.countQueuedJobs(),
+            downloadProgressRepository.countByHasEndedFalse(),
+            downloadProgressRepository.countByHasEndedTrue()
+        );
+
+        List<DownloadProgressDto> downloads = getAllDownloadProgress();
+
+        return new DownloadsDashboardDto(queueInfo, downloads);
     }
 }
