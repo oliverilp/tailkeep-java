@@ -2,9 +2,8 @@ import { z } from 'zod';
 import { videoDtoSchema } from '@/schemas/video';
 
 export const downloadProgressSchema = z.object({
-  videoId: z.string(),
-  jobId: z.number(),
   status: z.string().nullable(),
+  hasEnded: z.boolean(),
   progress: z.number(),
   size: z.string().nullable(),
   speed: z.string().nullable(),

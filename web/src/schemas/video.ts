@@ -1,12 +1,11 @@
 import { z } from 'zod';
+import { channelDtoSchema } from './channel';
 
 export const videoSchema = z.object({
   youtubeId: z.string(),
   url: z.string(),
   title: z.string(),
-  uploader: z.string(),
-  channelId: z.string(),
-  channelUrl: z.string(),
+  channel: channelDtoSchema,
   durationString: z.string(),
   duration: z.number(),
   thumbnailUrl: z.string(),

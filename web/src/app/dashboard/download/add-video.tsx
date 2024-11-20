@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Plus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-// import { useAction } from 'next-safe-action/hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -21,7 +21,7 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-// import { addVideoAction } from '@/server/actions/add-video';
+import { startDownload } from '@/api/downloads';
 
 const formSchema = z.object({
   url: z.string().url({
@@ -32,8 +32,14 @@ const formSchema = z.object({
 type FormType = z.infer<typeof formSchema>;
 
 function AddVideo() {
-  // const { execute: addVideo, isExecuting } = useAction(addVideoAction);
-  const isExecuting = false;
+  const queryClient = useQueryClient();
+  
+  const { mutate: addVideo, isPending } = useMutation({
+    mutationFn: (data: FormType) => startDownload(data.url),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['downloads-dashboard'] });
+    }
+  });
 
   const form = useForm<FormType>({
     resolver: zodResolver(formSchema),
@@ -42,10 +48,8 @@ function AddVideo() {
     }
   });
 
-  function onSubmit({ url }: FormType): void {
-    console.log('Adding video', url);
-    // addVideo({ url });
-
+  function onSubmit(data: FormType): void {
+    addVideo(data);
     form.reset();
   }
 
@@ -78,7 +82,7 @@ function AddVideo() {
                 )}
               />
             </div>
-            {isExecuting ? (
+            {isPending ? (
               <Button disabled>
                 <Loader2 className="h-5 w-5 animate-spin" />
               </Button>

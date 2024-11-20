@@ -9,7 +9,7 @@ interface DownloadsInfoProps {
 }
 
 function DownloadsInfo({
-  queueInfo: { queue, active, finished, failed }
+  queueInfo: { queue, active, finished }
 }: DownloadsInfoProps) {
   const cards = [
     {
@@ -29,17 +29,17 @@ function DownloadsInfo({
       icon: <Check className="h-4 w-4 text-muted-foreground" />,
       value: finished,
       description: 'Completed successfully.'
-    },
-    {
-      title: 'Failed',
-      icon: <TriangleAlert className="h-4 w-4 text-muted-foreground" />,
-      value: failed,
-      description: 'Did not finish.'
     }
+    // {
+    //   title: 'Failed',
+    //   icon: <TriangleAlert className="h-4 w-4 text-muted-foreground" />,
+    //   value: failed,
+    //   description: 'Did not finish.'
+    // }
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6 lg:gap-8">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:gap-8">
       {cards.map((card, index) => (
         <Card
           className={cn('hidden sm:block', { block: index <= 1 })}

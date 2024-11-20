@@ -1,24 +1,28 @@
 'use client';
 
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import AddVideo from '@/app/dashboard/download/add-video';
 import DownloadsTableLayout from '@/app/dashboard/download/table/table-layout';
-import { useServerEvents } from '@/lib/use-server-events';
 import DownloadsInfo from './downloads-info';
-import type { DownloadsDashboard } from '@/schemas/downloads-dashboard';
+import { getDownloadsDashboard } from '@/api/downloads';
 
-interface DownloadsProps {
-  dashboardData: DownloadsDashboard;
-}
+function Downloads() {
+  const { data: dashboardData } = useQuery({
+    queryKey: ['downloads-dashboard'],
+    queryFn: getDownloadsDashboard,
+    refetchInterval: 1000 // Poll every second
+  });
 
-function Downloads({ dashboardData }: DownloadsProps) {
-  const { queueInfo, downloads } = useServerEvents(dashboardData);
+  if (!dashboardData) {
+    return null;
+  }
 
   return (
     <>
       <AddVideo />
-      <DownloadsInfo queueInfo={queueInfo} />
-      <DownloadsTableLayout items={downloads} />
+      <DownloadsInfo queueInfo={dashboardData.queueInfo} />
+      <DownloadsTableLayout items={dashboardData.downloads} />
     </>
   );
 }
