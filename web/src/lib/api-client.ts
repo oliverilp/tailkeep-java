@@ -23,26 +23,44 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    // Only attempt token refresh if:
+    // 1. It's a 401 error
+    // 2. We haven't tried refreshing already
+    // 3. The request URL is not the authentication endpoint
+    // 4. We have a refresh token
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/auth/authenticate') &&
+      refreshToken
+    ) {
       originalRequest._retry = true;
+
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
         const response = await apiClient.post('/auth/refresh-token', null, {
           headers: {
             Authorization: `Bearer ${refreshToken}`
           }
         });
+
         const { access_token } = response.data;
+        if (!access_token) {
+          return Promise.reject(error);
+        }
+
         localStorage.setItem('accessToken', access_token);
         originalRequest.headers.Authorization = `Bearer ${access_token}`;
         return apiClient(originalRequest);
       } catch (error) {
+        // Clear tokens on refresh failure
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        // window.location.href = '/login';
-        alert('Please login again');
+        console.error('Token refresh failed:', error);
       }
     }
+
     return Promise.reject(error);
   }
 );

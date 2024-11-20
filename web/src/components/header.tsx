@@ -27,13 +27,15 @@ import { cn } from '@/lib/utils';
 import NavIcon from '@/components/nav-icon';
 // import { logoutAction } from '@/server/actions/logout';
 import BreadcrumbLinks from './breadcrumb-links';
+import { useLogout } from '@/lib/use-auth';
 
 function header() {
   const pathname = usePathname();
+  const { mutate: logout } = useLogout();
 
   const handleLogout = () => {
     console.log('logging out');
-    // void logoutAction({});
+    void logout();
   };
 
   return (

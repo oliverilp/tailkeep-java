@@ -14,6 +14,7 @@ import org.tailkeep.api.dto.AuthenticationRequestDto;
 import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.RegisterRequestDto;
 import org.tailkeep.api.service.AuthenticationService;
+import org.tailkeep.api.service.LogoutService;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,6 +25,7 @@ import java.util.Arrays;
 public class AuthenticationController {
 
     private final AuthenticationService service;
+    private final LogoutService logoutService;
     private final Environment env;
 
     @PostMapping("/register")
@@ -46,5 +48,10 @@ public class AuthenticationController {
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
         service.refreshToken(request, response);
+    }
+
+    @PostMapping("/logout")
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        logoutService.logout(request, response, null);
     }
 }

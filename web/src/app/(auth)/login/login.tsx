@@ -39,9 +39,9 @@ function Login({ isDemo }: LoginProps) {
   const { mutate: login, isPending } = useLogin();
 
   useEffect(() => {
-    if (user && !isLoading) {
-      router.push('/dashboard');
-    }
+    // if (user && !isLoading) {
+    //   router.push('/dashboard');
+    // }
   }, [user, isLoading, router]);
 
   const form = useForm<LoginType>({
