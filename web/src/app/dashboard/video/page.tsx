@@ -1,12 +1,21 @@
+'use client';
+
 import React from 'react';
-// import { getVideos } from '@/server/data/get-videos';
-import { VideoDto } from '@/schemas/video';
+import { useQuery } from '@tanstack/react-query';
+import { getVideos } from '@/api/video';
 import VideoGrid from './video-grid';
 
 function Videos() {
-  // const videos: VideoDto[] = await getVideos();
+  const { data: videos, isLoading } = useQuery({
+    queryKey: ['videos'],
+    queryFn: getVideos
+  });
 
-  return <VideoGrid videos={[]} />;
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return <VideoGrid videos={videos} />;
 }
 
 export default Videos;
