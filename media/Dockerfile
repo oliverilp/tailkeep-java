@@ -12,6 +12,6 @@ WORKDIR /app
 
 COPY --from=build /app/bin .
 
-EXPOSE 4000
+EXPOSE 5000
 
 CMD [ "/app/tailkeep_media" ]
