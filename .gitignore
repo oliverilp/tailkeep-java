@@ -91,7 +91,6 @@ next-env.d.ts
 /docker/postgres_data
 /docker/redis_data
 **/videos
-**/media
 **/youtube
 **/cf_api_token.txt
 **/acme.json
