@@ -4,7 +4,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import Image from 'next/image';
-import { getVideoById } from '@/api/video';
+import { getVideoById } from '@/api/videos';
 import Player from './player';
 
 interface VideoDetailsProps {

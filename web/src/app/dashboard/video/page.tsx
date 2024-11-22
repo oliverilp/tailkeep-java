@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getVideos } from '@/api/video';
+import { getVideos } from '@/api/videos';
 import VideoGrid from './video-grid';
 
 function Videos() {
