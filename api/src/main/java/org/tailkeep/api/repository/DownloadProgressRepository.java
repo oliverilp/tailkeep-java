@@ -15,4 +15,6 @@ public interface DownloadProgressRepository extends JpaRepository<DownloadProgre
 
     long countByHasEndedTrue();
     long countByHasEndedFalse();
+    long countByVideo(Video video);
+    long countByVideoAndHasEndedTrue(Video video);
 }

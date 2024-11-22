@@ -1,6 +1,7 @@
 package org.tailkeep.api.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.tailkeep.api.dto.*;
 import org.tailkeep.api.model.*;
@@ -11,6 +12,9 @@ public interface EntityMapper {
     VideoDto toDto(Video video);
     JobDto toDto(Job job);
     DownloadProgressDto toDto(DownloadProgress downloadProgress);
+
+    @Mapping(target = "doneDownloading", ignore = true)
+    VideoByIdDto toDetailedDto(Video video);
 
     Channel toEntity(ChannelDto dto);
     Video toEntity(VideoDto dto);

@@ -1,26 +1,36 @@
+'use client';
+
 import React from 'react';
-// import { getVideoById } from '@/server/data/get-video-by-id';
+import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import Image from 'next/image';
+import { getVideoById } from '@/api/video';
 import Player from './player';
 
 interface VideoDetailsProps {
   params: {
-    id: number;
+    id: string;
   };
 }
 
 const idSchema = z.string();
 
-async function VideoDetails({ params }: VideoDetailsProps) {
+function VideoDetails({ params }: VideoDetailsProps) {
   const parsed = idSchema.safeParse(params.id);
 
   if (!parsed.success) {
     return <div>404 - cannot be found</div>;
   }
 
-  // const video = await getVideoById(parsed.data);
-  const video: any = null;
+  const { data: video, isLoading } = useQuery({
+    queryKey: ['video', parsed.data],
+    queryFn: () => getVideoById(parsed.data)
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   if (!video) {
     return <div>404 - cannot be found</div>;
   }
@@ -48,9 +58,9 @@ async function VideoDetails({ params }: VideoDetailsProps) {
         )}
       </div>
       <h4 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-        {video?.title}
+        {video.title}
       </h4>
-      <div className="font-semibold">{video.uploader}</div>
+      <div className="font-semibold">{video.channel.name}</div>
       <div className="pb-12 pt-6">
         {video.description.split('\n').map((line: string, index: number) => (
           <p key={index}>{line}</p>

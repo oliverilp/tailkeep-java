@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.tailkeep.api.dto.VideoByIdDto;
 import org.tailkeep.api.dto.VideoDto;
 import org.tailkeep.api.service.VideoService;
 
@@ -24,7 +25,7 @@ public class VideoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<VideoDto> getVideoById(@PathVariable("id") String id) {
+    public ResponseEntity<VideoByIdDto> getVideoById(@PathVariable("id") String id) {
         return ResponseEntity.ok(videoService.getVideoById(id));
     }
 } 

@@ -5,7 +5,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tailkeep.api.message.Metadata;
 import org.tailkeep.api.model.Channel;
 import org.tailkeep.api.model.Video;
+import org.tailkeep.api.repository.DownloadProgressRepository;
 import org.tailkeep.api.repository.VideoRepository;
+import org.tailkeep.api.dto.VideoByIdDto;
 import org.tailkeep.api.dto.VideoDto;
 import org.tailkeep.api.exception.VideoNotFoundException;
 import org.tailkeep.api.mapper.EntityMapper;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class VideoService {
     private final VideoRepository videoRepository;
+    private final DownloadProgressRepository downloadProgressRepository;
     private final EntityMapper mapper;
 
     @Transactional
@@ -53,9 +56,19 @@ public class VideoService {
             .collect(Collectors.toList());
     }
 
-    public VideoDto getVideoById(String id) {
-        return videoRepository.findById(id)
-            .map(mapper::toDto)
+     public VideoByIdDto getVideoById(String id) {
+        Video video = videoRepository.findById(id)
             .orElseThrow(() -> new VideoNotFoundException("Video not found: " + id));
+
+        VideoByIdDto dto = mapper.toDetailedDto(video);
+        
+        long totalProgressCount = downloadProgressRepository.countByVideo(video);
+        long completedProgressCount = downloadProgressRepository.countByVideoAndHasEndedTrue(video);
+        
+        boolean doneDownloading = totalProgressCount > 0 && totalProgressCount == completedProgressCount;
+        
+        dto.setDoneDownloading(doneDownloading);
+        
+        return dto;
     }
 }
