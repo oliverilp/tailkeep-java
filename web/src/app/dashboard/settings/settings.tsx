@@ -31,6 +31,8 @@ import {
   changePasswordSchema
 } from '@/schemas/change-password';
 import { changePassword } from '@/api/users';
+import ErrorMessage from '@/components/display-error-message';
+import { AxiosError } from 'axios';
 
 interface SettingsProps {
   isDemo: boolean;
@@ -46,18 +48,14 @@ function Settings({ isDemo }: SettingsProps) {
     }
   });
 
-  const { mutate, isPending } = useMutation({
+  const { mutate, isPending, error } = useMutation({
     mutationFn: changePassword,
     onSuccess: () => {
       toast.success('Password changed successfully');
       form.reset();
     },
-    onError: (error: any) => {
-      if (error.response?.status >= 400) {
-        toast.error(error.response.data?.message ?? 'Invalid input');
-      } else {
-        toast.error('Failed to change password');
-      }
+    onError: () => {
+      toast.error('Failed to change password');
     }
   });
 
@@ -155,6 +153,13 @@ function Settings({ isDemo }: SettingsProps) {
                           </FormItem>
                         )}
                       />
+                      {error && (
+                        <ErrorMessage
+                          text={
+                            (error as AxiosError<any>).response?.data.message
+                          }
+                        />
+                      )}
                     </CardContent>
                     <CardFooter className="flex flex-col items-start border-t px-6 py-4">
                       <Button

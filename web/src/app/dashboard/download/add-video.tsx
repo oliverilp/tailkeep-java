@@ -23,6 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { startDownload } from '@/api/downloads';
 import { toast } from 'sonner';
+import { AxiosError } from 'axios';
 
 const formSchema = z.object({
   url: z.string().url({
@@ -41,8 +42,11 @@ function AddVideo() {
       queryClient.invalidateQueries({ queryKey: ['downloads-dashboard'] });
       toast.success('Download added to queue successfully');
     },
-    onError: () => {
-      toast.error('Failed to add download to queue');
+    onError: (error: AxiosError<any>) => {
+      toast.error('Failed to add download to queue', {
+        description: error.response?.data.message,
+        duration: 7000
+      });
     }
   });
 

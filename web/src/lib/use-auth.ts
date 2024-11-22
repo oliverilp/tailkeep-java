@@ -6,6 +6,7 @@ import { LoginCredentials, AuthResponse } from './auth';
 import { useAuth } from './auth-context';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
+import { toast } from 'sonner';
 
 interface DecodedToken {
   sub: string;
@@ -25,6 +26,9 @@ export function useLogin() {
         credentials
       );
       return data;
+    },
+    onError: () => {
+      toast.error('Failed to change password');
     },
     onSuccess: (data) => {
       localStorage.setItem('accessToken', data.access_token);

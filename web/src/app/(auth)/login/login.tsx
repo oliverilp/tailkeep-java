@@ -26,23 +26,15 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { useLogin } from '@/lib/use-auth';
-import { useAuth } from '@/lib/auth-context';
-import DisplayActionResponse from '@/components/display-action-response';
+import ErrorMessage from '@/components/display-error-message';
+import { AxiosError } from 'axios';
 
 interface LoginProps {
   isDemo: boolean;
 }
 
 function Login({ isDemo }: LoginProps) {
-  const { user, isLoading } = useAuth();
-  const router = useRouter();
-  const { mutate: login, isPending } = useLogin();
-
-  useEffect(() => {
-    // if (user && !isLoading) {
-    //   router.push('/dashboard');
-    // }
-  }, [user, isLoading, router]);
+  const { mutate: login, isPending, error } = useLogin();
 
   const form = useForm<LoginType>({
     resolver: zodResolver(loginSchema),
@@ -55,8 +47,6 @@ function Login({ isDemo }: LoginProps) {
   function onSubmit(data: LoginType): void {
     console.log('Login username:', data.username);
     login(data);
-
-    form.reset();
   }
 
   return (
@@ -133,9 +123,11 @@ function Login({ isDemo }: LoginProps) {
               ) : (
                 <Button className="w-full">Sign in</Button>
               )}
-              <div className="self-start">
-                {/* <DisplayActionResponse result={result} /> */}
-              </div>
+              {error && (
+                <ErrorMessage
+                  text={(error as AxiosError<any>).response?.data.message}
+                />
+              )}
             </CardFooter>
           </form>
         </Form>
