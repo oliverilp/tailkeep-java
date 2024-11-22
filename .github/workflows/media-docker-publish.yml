@@ -1,18 +1,18 @@
-name: Web Docker Publish
+name: Media Docker Publish
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'web/**'
+      - 'media/**'
     # Publish semver tags as releases.
     tags: ['v*.*.*']
   workflow_dispatch:
 
 env:
   # github.repository as <account>/<repo>
-  IMAGE_NAME: tailkeep-web
+  IMAGE_NAME: tailkeep-media
 
 jobs:
   build:
@@ -54,7 +54,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: ./web
+          context: ./media
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
