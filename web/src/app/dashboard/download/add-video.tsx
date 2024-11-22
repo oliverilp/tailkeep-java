@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { startDownload } from '@/api/downloads';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
   url: z.string().url({
@@ -33,11 +34,15 @@ type FormType = z.infer<typeof formSchema>;
 
 function AddVideo() {
   const queryClient = useQueryClient();
-  
+
   const { mutate: addVideo, isPending } = useMutation({
     mutationFn: (data: FormType) => startDownload(data.url),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['downloads-dashboard'] });
+      toast.success('Download added to queue successfully');
+    },
+    onError: () => {
+      toast.error('Failed to add download to queue');
     }
   });
 
