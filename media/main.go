@@ -10,11 +10,33 @@ import (
 	"time"
 )
 
-const (
-	mediaDir = "/home/oliver/Videos"
-	port     = ":5000"
-	apiURL   = "http://10.0.0.30:8080/api/v1/videos/%s"
+var (
+	mediaPath string
+	port     string
+	apiHost  string
 )
+
+func init() {
+	var ok bool
+	mediaPath, ok = os.LookupEnv("MEDIA_PATH")
+	if !ok {
+		log.Fatal("MEDIA_PATH environment variable is required")
+	}
+
+	port, ok = os.LookupEnv("PORT")
+	if !ok {
+		log.Fatal("PORT environment variable is required")
+	}
+	// Add colon prefix if not provided
+	if port[0] != ':' {
+		port = ":" + port
+	}
+
+	apiHost, ok = os.LookupEnv("API_HOST")
+	if !ok {
+		log.Fatal("API_HOST environment variable is required")
+	}
+}
 
 type FileResponse struct {
 	Filename string `json:"filename"`
@@ -65,7 +87,7 @@ func serveMedia(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create request to Java API
-	apiReq, err := http.NewRequest("GET", fmt.Sprintf(apiURL, uuid), nil)
+	apiReq, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/videos/%s", apiHost, uuid), nil)
 	if err != nil {
 		writeError(w, r.URL.Path, "Internal server error", http.StatusInternalServerError)
 		log.Printf("Failed to create request: %v", err)
@@ -101,7 +123,7 @@ func serveMedia(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Construct full path to file using the real filename
-	filePath := filepath.Join(mediaDir, fileInfo.Filename)
+	filePath := filepath.Join(mediaPath, fileInfo.Filename)
 
 	// Check if file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
@@ -114,7 +136,7 @@ func serveMedia(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// Create media directory if it doesn't exist
-	if err := os.MkdirAll(mediaDir, 0755); err != nil {
+	if err := os.MkdirAll(mediaPath, 0755); err != nil {
 		log.Fatalf("Failed to create media directory: %v", err)
 	}
 
