@@ -24,7 +24,7 @@ public class VideoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<VideoDto> getVideoById(@PathVariable String id) {
+    public ResponseEntity<VideoDto> getVideoById(@PathVariable("id") String id) {
         return ResponseEntity.ok(videoService.getVideoById(id));
     }
 } 
