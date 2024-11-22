@@ -4,6 +4,8 @@ import React from 'react';
 import { CircleAlert, Loader2 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,26 +26,17 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-// import { useAction } from 'next-safe-action/hooks';
 import {
   ChangePassword,
   changePasswordSchema
 } from '@/schemas/change-password';
-import DisplayActionResponse from '@/components/display-action-response';
-// import { changePasswordAction } from '@/server/actions/change.password';
+import { changePassword } from '@/api/users';
 
 interface SettingsProps {
   isDemo: boolean;
 }
 
 function Settings({ isDemo }: SettingsProps) {
-  // const {
-  //   execute: changePassword,
-  //   result,
-  //   isExecuting
-  // } = useAction(changePasswordAction);
-  const isExecuting = false;
-
   const form = useForm<ChangePassword>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
@@ -53,28 +46,35 @@ function Settings({ isDemo }: SettingsProps) {
     }
   });
 
-  function onSubmit(data: ChangePassword): void {
-    // changePassword(data);
-    form.reset();
+  const { mutate, isPending } = useMutation({
+    mutationFn: changePassword,
+    onSuccess: () => {
+      toast.success('Password changed successfully');
+      form.reset();
+    },
+    onError: (error: any) => {
+      if (error.response?.status >= 400) {
+        toast.error(error.response.data?.message ?? 'Invalid input');
+      } else {
+        toast.error('Failed to change password');
+      }
+    }
+  });
+
+  function onSubmit(data: ChangePassword) {
+    mutate(data);
   }
 
   return (
     <main className="mb-24 grid items-start gap-4 p-4 sm:px-8 sm:py-0 md:gap-8">
       <div className="flex w-full flex-col">
-        {/* <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10"> */}
         <div className="flex flex-1 flex-col gap-4 md:gap-8">
           <div className="mx-auto grid w-full max-w-6xl gap-2">
             <h1 className="text-3xl font-semibold">Settings</h1>
           </div>
           <div className="mx-auto grid w-full max-w-6xl items-start gap-6">
-            {/* <nav className="text-muted-foreground grid gap-4 text-sm">
-              <Link href="#" className="text-primary font-semibold">
-                Security
-              </Link>
-              <Link href="#">Security</Link>
-            </nav> */}
             <div className="grid gap-6">
-              <Card x-chunk="dashboard-04-chunk-1">
+              <Card>
                 <Form {...form}>
                   <form
                     className="flex flex-col gap-4"
@@ -155,24 +155,19 @@ function Settings({ isDemo }: SettingsProps) {
                           </FormItem>
                         )}
                       />
-                      <div className="self-start">
-                        {/* <DisplayActionResponse result={result} /> */}
-                      </div>
                     </CardContent>
                     <CardFooter className="flex flex-col items-start border-t px-6 py-4">
-                      {isExecuting ? (
-                        <Button className="w-16" disabled>
+                      <Button
+                        className="w-16"
+                        type="submit"
+                        disabled={isDemo || isPending}
+                      >
+                        {isPending ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
-                        </Button>
-                      ) : (
-                        <Button
-                          className="w-16"
-                          type="submit"
-                          disabled={isDemo}
-                        >
-                          Save
-                        </Button>
-                      )}
+                        ) : (
+                          'Save'
+                        )}
+                      </Button>
                     </CardFooter>
                   </form>
                 </Form>

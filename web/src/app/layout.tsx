@@ -3,6 +3,7 @@ import './globals.css';
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Providers } from '@/components/providers';
+import { Toaster } from 'sonner';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +35,7 @@ export default function RootLayout({
         className={cn('bg-background font-sans antialiased', inter.className)}
       >
         <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   );
