@@ -42,13 +42,24 @@ func writeError(w http.ResponseWriter, path, message string, statusCode int) {
 }
 
 func serveMedia(w http.ResponseWriter, r *http.Request) {
+	// Add CORS headers
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
+	// Handle preflight OPTIONS request
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	log.Printf("Received request from: %s", r.RemoteAddr)
 
 	uuid := filepath.Base(r.URL.Path)
 
-	// Get authorization header from the original request
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" {
+	// Get token from query parameter instead of header
+	token := r.URL.Query().Get("token")
+	if token == "" {
 		writeError(w, r.URL.Path, "Authentication is required to access this resource", http.StatusUnauthorized)
 		return
 	}
@@ -61,8 +72,8 @@ func serveMedia(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Forward the authorization header
-	apiReq.Header.Set("Authorization", authHeader)
+	// Forward the authorization header with the token from query param
+	apiReq.Header.Set("Authorization", "Bearer "+token)
 
 	// Make the request to Java API
 	client := &http.Client{}

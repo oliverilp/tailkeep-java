@@ -6,6 +6,9 @@ interface PlayerProps {
 }
 
 function Player({ video }: PlayerProps) {
+  const token = localStorage.getItem('accessToken');
+  const videoUrl = `http://localhost:5000/media/${video.id}?token=${token}`;
+
   return (
     <video
       className="aspect-video h-full w-full rounded-xl object-cover"
@@ -13,7 +16,7 @@ function Player({ video }: PlayerProps) {
       controls
       autoPlay={false}
     >
-      <source src={`/video/${video.id}`} type="video/mp4" />
+      <source src={videoUrl} type="video/mp4" />
     </video>
   );
 }
