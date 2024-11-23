@@ -1,4 +1,4 @@
-BINARY_NAME = online_sandbox
+BINARY_NAME = tailkeep_media
 
 help: ## This help dialog.
 	@grep -F -h "##" $(MAKEFILE_LIST) | grep -F -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
