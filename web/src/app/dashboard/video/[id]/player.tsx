@@ -1,3 +1,5 @@
+import { useApiClient } from '@/lib/use-api-client';
+import { useConfig } from '@/lib/use-config';
 import { VideoByIdDto } from '@/schemas/video-by-id';
 import React from 'react';
 
@@ -7,7 +9,13 @@ interface PlayerProps {
 
 function Player({ video }: PlayerProps) {
   const token = localStorage.getItem('accessToken');
-  const videoUrl = `http://localhost:5000/media/${video.id}?token=${token}`;
+  const config = useConfig();
+  if (!config) {
+    return null;
+  }
+
+  const { mediaUrl } = config;
+  const videoUrl = `${mediaUrl}/media/${video.id}?token=${token}`;
 
   return (
     <video
