@@ -7,6 +7,55 @@ volumes:
   postgres: null
 
 services:
+  web:
+    container_name: tailkeep-web
+    image: ghcr.io/oliverilp/tailkeep-java-web:latest
+    environment:
+      - DEMO_MODE=false
+      - MEDIA_URL=http://10.0.0.30:5000
+      - API_URL=http://10.0.0.30:8080
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    networks:
+      - tailkeep_network
+  api:
+    container_name: tailkeep-api
+    image: ghcr.io/oliverilp/tailkeep-java-api:latest
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:19092
+      - DATABASE_URL=jdbc:postgresql://db:5432/tailkeep
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    networks:
+      - tailkeep_network
+  worker:
+    container_name: tailkeep-worker
+    image: ghcr.io/oliverilp/tailkeep-java-worker:latest
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:19092
+    ports:
+      - 8090:8090
+    restart: unless-stopped
+    networks:
+      - tailkeep_network
+  media:
+    container_name: tailkeep-media
+    image: ghcr.io/oliverilp/tailkeep-java-media:latest
+    environment:
+      - PORT=5000
+      - API_HOST=http://api:8080
+      - MEDIA_PATH=/vide
+    volumes:
+      - /home/oliver/Videos:/videos
+    ports:
+      - 5000:5000
+    restart: unless-stopped
+    networks:
+      - tailkeep_network
   db:
     container_name: tailkeep-postgres
     image: postgres:alpine
@@ -76,7 +125,7 @@ services:
             enabled: true
             urls: ["http://redpanda:9644"]
     ports:
-      - 8000:8080
+      - 7000:8080
     restart: unless-stopped
     depends_on:
       - redpanda
