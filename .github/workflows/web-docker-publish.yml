@@ -12,7 +12,7 @@ on:
 
 env:
   # github.repository as <account>/<repo>
-  IMAGE_NAME: tailkeep-web
+  IMAGE_NAME: tailkeep-java-web
 
 jobs:
   build:
