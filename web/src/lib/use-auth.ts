@@ -6,7 +6,7 @@ import { useAuth } from './auth-context';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import { toast } from 'sonner';
-import { useApiClient } from '@/lib/use-api-client';
+import { apiClient } from '@/lib/api-client';
 
 interface DecodedToken {
   sub: string;
@@ -18,11 +18,12 @@ export function useLogin() {
   const { setUser } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const apiClient = useApiClient();
 
   return useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
       if (!apiClient) throw new Error('API client not initialized');
+
+      console.log('credentials', credentials);
 
       const { data } = await apiClient.post<AuthResponse>(
         '/auth/authenticate',
@@ -30,8 +31,9 @@ export function useLogin() {
       );
       return data;
     },
-    onError: () => {
+    onError: (error) => {
       toast.error('Failed to login');
+      console.error('Login error:', error);
     },
     onSuccess: (data) => {
       localStorage.setItem('accessToken', data.access_token);
@@ -55,7 +57,6 @@ export function useLogout() {
   const { setUser } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const apiClient = useApiClient();
 
   return useMutation({
     mutationFn: async () => {

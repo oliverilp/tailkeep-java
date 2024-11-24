@@ -2,6 +2,7 @@
 
 import axios, {
   AxiosError,
+  AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
   InternalAxiosRequestConfig
@@ -14,13 +15,11 @@ interface RetryableRequest extends InternalAxiosRequestConfig {
 
 let apiClientInstance: any = null;
 
-export async function getApiClient() {
-  if (apiClientInstance) {
-    return apiClientInstance;
-  }
-
-  const { apiUrl: host } = await getRuntimeConfig();
+export function getApiClient(): AxiosInstance {
+  const { apiUrl: host } = getRuntimeConfig();
   const API_URL = `${host}/api/v1`;
+
+  console.log('API_URL', API_URL);
 
   apiClientInstance = axios.create({
     baseURL: API_URL,
@@ -94,4 +93,8 @@ export async function getApiClient() {
       return Promise.reject(error);
     }
   );
+
+  return apiClientInstance;
 }
+
+export const apiClient = getApiClient();

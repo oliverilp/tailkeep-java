@@ -18,6 +18,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PUBLIC_API_URL=""
+ENV NEXT_PUBLIC_MEDIA_URL=""
 
 RUN corepack enable pnpm
 RUN pnpm run build

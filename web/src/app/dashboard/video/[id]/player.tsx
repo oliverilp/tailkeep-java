@@ -1,5 +1,6 @@
-import { useApiClient } from '@/lib/use-api-client';
-import { useConfig } from '@/lib/use-config';
+// import { useApiClient } from '@/lib/use-api-client';
+// import { useConfig } from '@/lib/use-config';
+import { getRuntimeConfig } from '@/lib/config';
 import { VideoByIdDto } from '@/schemas/video-by-id';
 import React from 'react';
 
@@ -9,7 +10,7 @@ interface PlayerProps {
 
 function Player({ video }: PlayerProps) {
   const token = localStorage.getItem('accessToken');
-  const config = useConfig();
+  const config = getRuntimeConfig();
   if (!config) {
     return null;
   }

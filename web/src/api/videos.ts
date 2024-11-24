@@ -1,15 +1,13 @@
-import { getApiClient } from '@/lib/api-client';
 import { VideoDto, videoDtoSchema } from '@/schemas/video';
 import { VideoByIdDto, videoByIdDtoSchema } from '@/schemas/video-by-id';
+import { apiClient } from '@/lib/api-client';
 
 export async function getVideos(): Promise<VideoDto[]> {
-  const apiClient = await getApiClient();
   const { data } = await apiClient.get('/videos');
   return videoDtoSchema.array().parse(data);
 }
 
 export async function getVideoById(id: string): Promise<VideoByIdDto> {
-  const apiClient = await getApiClient();
   const { data } = await apiClient.get(`/videos/${id}`);
   return videoByIdDtoSchema.parse(data);
 }
