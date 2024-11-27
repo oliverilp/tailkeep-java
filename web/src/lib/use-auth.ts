@@ -34,6 +34,10 @@ export function useLogin() {
     onError: (error) => {
       toast.error('Failed to login');
       console.error('Login error:', error);
+
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      setUser(null);
     },
     onSuccess: (data) => {
       localStorage.setItem('accessToken', data.access_token);
