@@ -75,7 +75,10 @@ const config = {
     }
   },
   // eslint-disable-next-line global-require
-  plugins: [require('tailwindcss-animate')]
+  plugins: [
+    require('tailwindcss-animate'),
+    require('@vidstack/react/tailwind.cjs')
+  ]
 } satisfies Config;
 
 export default config;
