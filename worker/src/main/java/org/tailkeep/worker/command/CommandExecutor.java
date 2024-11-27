@@ -37,6 +37,8 @@ public class CommandExecutor {
                 commandWithArgs.add("yt-dlp");
                 commandWithArgs.addAll(args);
 
+                log.info("Executing command: " + commandWithArgs.toString());
+
                 ProcessBuilder processBuilder = new ProcessBuilder(commandWithArgs)
                         .directory(new File(mediaPath));
 
@@ -59,6 +61,7 @@ public class CommandExecutor {
                 log.info("Command process completed successfully");
 
             } catch (IOException | InterruptedException e) {
+                log.error("Command execution failed", e);
                 throw new RuntimeException("Command execution failed", e);
             } finally {
                 currentProcess.set(null);

@@ -63,6 +63,9 @@ services:
     image: ghcr.io/oliverilp/tailkeep-java-worker:latest
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+      - MEDIA_PATH=/videos
+    volumes:
+      - ./videos:/videos
     ports:
       - 8090:8090
     restart: unless-stopped
