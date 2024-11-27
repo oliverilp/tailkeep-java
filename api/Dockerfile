@@ -13,7 +13,7 @@ COPY --from=builder /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 
-# Set the active profile through environment variable
 ENV SPRING_PROFILES_ACTIVE=prod
+ENV KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
