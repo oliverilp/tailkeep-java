@@ -10,6 +10,7 @@ FROM eclipse-temurin:21-jre-noble
 
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
+COPY yt-dlp.conf /etc/yt-dlp.conf
 
 # Upgrade deps
 RUN apt-get update && apt-get -y upgrade
