@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import { CircleAlert, Loader2 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -68,10 +67,10 @@ function Login({ isDemo }: LoginProps) {
                   <AlertDescription>
                     <div className="mt-3 flex flex-col gap-1">
                       <span className="text-sm font-medium leading-none">
-                        Username is admin
+                        Username is demo
                       </span>
                       <span className="text-sm font-medium leading-none">
-                        Password is Admin1Admin1
+                        Password is Demo1Demo1
                       </span>
                     </div>
                   </AlertDescription>
