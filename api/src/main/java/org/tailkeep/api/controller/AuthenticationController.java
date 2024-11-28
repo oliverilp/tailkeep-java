@@ -30,8 +30,8 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponseDto> register(@RequestBody RegisterRequestDto request) {
-        // Only allow registration in development
-        if (!Arrays.asList(env.getActiveProfiles()).contains("dev")) {
+        boolean isProduction = Arrays.asList(env.getActiveProfiles()).contains("prod");
+        if (isProduction) {
             throw new UnsupportedOperationException("Registration is disabled in production");
         }
         return ResponseEntity.ok(service.register(request));
