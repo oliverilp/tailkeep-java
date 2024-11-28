@@ -87,6 +87,7 @@ export function getApiClient(): AxiosInstance {
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
           console.error('Token refresh failed:', error);
+          window.location.href = '/login';
         }
       }
 
