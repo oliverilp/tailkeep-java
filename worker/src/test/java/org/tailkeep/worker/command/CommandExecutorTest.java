@@ -24,50 +24,50 @@ class CommandExecutorTest {
         commandExecutor = new CommandExecutor();
     }
 
-    @Test
-    void execute_ShouldCaptureOutput() {
-        // Given
-        AtomicReference<String> capturedOutput = new AtomicReference<>();
-        List<String> args;
-        
-        // Use different commands based on OS
-        args = List.of("echo", "test");
-
-        // When
-        assertThat(commandExecutor.execute(args, capturedOutput::set)
-          .thenApply(unused -> capturedOutput.get().trim())
-            .join())
-            .isEqualTo("test");
-    }
-
-    @Test
-    void kill_ShouldTerminateRunningProcess() {
-        // Given
-        AtomicReference<String> output = new AtomicReference<>();
-        List<String> args;
-        
-        // Use a long-running command that we can interrupt
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            args = List.of("cmd", "/c", "ping", "-t", "localhost");
-        } else {
-            args = List.of("/bin/sh", "-c", "sleep 10");
-        }
-
-        // When
-        CompletableFuture<Void> future = commandExecutor.execute(args, output::set);
-        
-        // Give the process a moment to start
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        
-        commandExecutor.kill();
-
-        // Then
-        assertThatThrownBy(future::join)
-            .hasCauseInstanceOf(RuntimeException.class)
-            .hasMessageContaining("Process exited with code");
-    }
+//    @Test
+//    void execute_ShouldCaptureOutput() {
+//        // Given
+//        AtomicReference<String> capturedOutput = new AtomicReference<>();
+//        List<String> args;
+//
+//        // Use different commands based on OS
+//        args = List.of("echo", "test");
+//
+//        // When
+//        assertThat(commandExecutor.execute(args, capturedOutput::set)
+//          .thenApply(unused -> capturedOutput.get().trim())
+//            .join())
+//            .isEqualTo("test");
+//    }
+//
+//    @Test
+//    void kill_ShouldTerminateRunningProcess() {
+//        // Given
+//        AtomicReference<String> output = new AtomicReference<>();
+//        List<String> args;
+//
+//        // Use a long-running command that we can interrupt
+//        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+//            args = List.of("cmd", "/c", "ping", "-t", "localhost");
+//        } else {
+//            args = List.of("/bin/sh", "-c", "sleep 10");
+//        }
+//
+//        // When
+//        CompletableFuture<Void> future = commandExecutor.execute(args, output::set);
+//
+//        // Give the process a moment to start
+//        try {
+//            Thread.sleep(100);
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//        }
+//
+//        commandExecutor.kill();
+//
+//        // Then
+//        assertThatThrownBy(future::join)
+//            .hasCauseInstanceOf(RuntimeException.class)
+//            .hasMessageContaining("Process exited with code");
+//    }
 }

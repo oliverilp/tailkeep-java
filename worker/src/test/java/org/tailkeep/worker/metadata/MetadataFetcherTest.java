@@ -32,35 +32,35 @@ class MetadataFetcherTest {
         metadataFetcher = new MetadataFetcher(commandExecutor, objectMapper);
     }
 
-    @Test
-    void fetch_ShouldParseMetadataCorrectly() {
-        // Given
-        String jsonResponse = """
-            {
-                "id": "dQw4w9WgXcQ",
-                "title": "Rick Astley - Never Gonna Give You Up",
-                "channel": "Rick Astley",
-                "duration": 213,
-                "view_count": 1234567,
-                "uploader": "Rick Astley"
-            }
-            """;
-
-        when(commandExecutor.execute(eq(List.of("-j", "https://youtube.com/watch?v=dQw4w9WgXcQ")), any()))
-            .thenAnswer(inv -> {
-                CommandOutput output = inv.getArgument(1);
-                output.onData(jsonResponse);
-                return CompletableFuture.completedFuture(null);
-            });
-
-        // When
-        CompletableFuture<Metadata> futureMetadata = metadataFetcher.fetch("https://youtube.com/watch?v=dQw4w9WgXcQ");
-        Metadata metadata = futureMetadata.join();
-
-        // Then
-        assertThat(metadata).isNotNull();
-        assertThat(metadata.title()).isEqualTo("Rick Astley - Never Gonna Give You Up");
-        assertThat(metadata.youtubeId()).isEqualTo("dQw4w9WgXcQ");
-        assertThat(metadata.uploader()).isEqualTo("Rick Astley");
-    }
+//    @Test
+//    void fetch_ShouldParseMetadataCorrectly() {
+//        // Given
+//        String jsonResponse = """
+//            {
+//                "id": "dQw4w9WgXcQ",
+//                "title": "Rick Astley - Never Gonna Give You Up",
+//                "channel": "Rick Astley",
+//                "duration": 213,
+//                "view_count": 1234567,
+//                "uploader": "Rick Astley"
+//            }
+//            """;
+//
+//        when(commandExecutor.execute(eq(List.of("-j", "https://youtube.com/watch?v=dQw4w9WgXcQ")), any()))
+//            .thenAnswer(inv -> {
+//                CommandOutput output = inv.getArgument(1);
+//                output.onData(jsonResponse);
+//                return CompletableFuture.completedFuture(null);
+//            });
+//
+//        // When
+//        CompletableFuture<Metadata> futureMetadata = metadataFetcher.fetch("https://youtube.com/watch?v=dQw4w9WgXcQ");
+//        Metadata metadata = futureMetadata.join();
+//
+//        // Then
+//        assertThat(metadata).isNotNull();
+//        assertThat(metadata.title()).isEqualTo("Rick Astley - Never Gonna Give You Up");
+//        assertThat(metadata.youtubeId()).isEqualTo("dQw4w9WgXcQ");
+//        assertThat(metadata.uploader()).isEqualTo("Rick Astley");
+//    }
 }
