@@ -2,10 +2,15 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id 'application'
 }
 
 group = 'ee.oliverilp'
 version = '0.0.1-SNAPSHOT'
+
+springBoot {
+	mainClass.set('org.tailkeep.api.TailkeepApiApplication')
+}
 
 java {
 	toolchain {
@@ -56,4 +61,8 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+wrapper {
+	gradleVersion = '8.11.1'
 }
