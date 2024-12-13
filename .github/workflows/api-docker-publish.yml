@@ -18,10 +18,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
-      # Set up Docker service for Testcontainers
       docker:
         image: docker:dind
-        options: --privileged
+        options: >-
+          --privileged
+          --health-cmd "docker info"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
         ports:
           - 2375:2375
 
@@ -45,6 +49,7 @@ jobs:
         env:
           TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
           DOCKER_HOST: tcp://localhost:2375
+          TESTCONTAINERS_REUSE_ENABLE: true
 
   build:
     needs: test
