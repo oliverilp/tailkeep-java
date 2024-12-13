@@ -15,7 +15,23 @@ env:
   IMAGE_NAME: tailkeep-java-api
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Run tests
+        working-directory: ./api
+        run: ./gradlew test
+
   build:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
