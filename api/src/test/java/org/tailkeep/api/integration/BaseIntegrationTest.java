@@ -1,6 +1,7 @@
 package org.tailkeep.api.integration;
 
 import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,7 +9,11 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.tailkeep.api.config.KafkaMockConfig;
 import org.tailkeep.api.config.TestConfig;
 import org.tailkeep.api.config.TestContainersConfig;
@@ -17,6 +22,8 @@ import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.RegisterRequestDto;
 import org.tailkeep.api.repository.*;
 import org.tailkeep.api.service.AuthenticationService;
+
+import java.io.IOException;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import({
@@ -57,10 +64,7 @@ public abstract class BaseIntegrationTest {
 
     @PostConstruct
     void init() {
-        // Configure RestTemplate to handle authentication errors properly and use the correct root URL
-        restTemplate = new TestRestTemplate(new RestTemplateBuilder()
-            .rootUri("http://localhost:" + port)
-            .errorHandler(new TestRestTemplateResponseErrorHandler()));
+        setupRestTemplate();
     }
 
     @BeforeEach
@@ -88,5 +92,21 @@ public abstract class BaseIntegrationTest {
 
     protected TestRestTemplate getRestTemplate() {
         return restTemplate;
+    }
+
+    @PostConstruct
+    void setupRestTemplate() {
+        RestTemplateBuilder builder = new RestTemplateBuilder()
+            .rootUri("http://localhost:" + port)
+            .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
+            .errorHandler(new DefaultResponseErrorHandler() {
+                @Override
+                public boolean hasError(@NotNull ClientHttpResponse response) throws IOException {
+                    HttpStatusCode statusCode = response.getStatusCode();
+                    return statusCode.is5xxServerError();
+                }
+            });
+            
+        restTemplate = new TestRestTemplate(builder);
     }
 } 

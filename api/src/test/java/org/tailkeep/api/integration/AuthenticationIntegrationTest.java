@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.tailkeep.api.dto.AuthenticationRequestDto;
 import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.RegisterRequestDto;
+import org.tailkeep.api.exception.ApiError;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,23 +59,24 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
         assertThat(response.getBody().getRefreshToken()).isNotBlank();
     }
 
-//     @Test
-//     void authenticate_WithInvalidCredentials_ShouldFail() {
-//         // Arrange
-//         AuthenticationRequestDto request = AuthenticationRequestDto.builder()
-//                 .username("nonexistent")
-//                 .password("wrongpassword")
-//                 .build();
+    @Test
+    void authenticate_WithInvalidCredentials_ShouldFail() {
+        // Arrange
+        AuthenticationRequestDto request = AuthenticationRequestDto.builder()
+                .username("nonexistent")
+                .password("wrongpassword")
+                .build();
 
-//         // Act & Assert
-//         HttpClientErrorException exception = assertThrows(HttpClientErrorException.class, () -> {
-//             restTemplate.postForEntity(
-//                     "/api/v1/auth/authenticate",
-//                     request,
-//                     AuthenticationResponseDto.class
-//             );
-//         });
-        
-//         assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-//     }
-} 
+        // Act
+        ResponseEntity<ApiError> response = getRestTemplate().postForEntity(
+                "/api/v1/auth/authenticate",
+                request,
+                ApiError.class
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+}
