@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -72,6 +73,8 @@ public class JwtService {
             Map<String, Object> extraClaims,
             UserDetails userDetails,
             long expiration) {
+        extraClaims.put("jti", UUID.randomUUID().toString());
+        
         return Jwts
                 .builder()
                 .claims(extraClaims)
