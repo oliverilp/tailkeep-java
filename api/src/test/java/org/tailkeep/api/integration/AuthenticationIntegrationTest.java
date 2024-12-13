@@ -30,9 +30,12 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getAccessToken()).isNotBlank();
-        assertThat(response.getBody().getRefreshToken()).isNotBlank();
+        assertThat(response.getBody())
+            .isNotNull()
+            .satisfies(body -> {
+                assertThat(body.getAccessToken()).isNotBlank();
+                assertThat(body.getRefreshToken()).isNotBlank();
+            });
     }
 
     @Test
@@ -54,9 +57,12 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getAccessToken()).isNotBlank();
-        assertThat(response.getBody().getRefreshToken()).isNotBlank();
+        assertThat(response.getBody())
+            .isNotNull()
+            .satisfies(body -> {
+                assertThat(body.getAccessToken()).isNotBlank();
+                assertThat(body.getRefreshToken()).isNotBlank();
+            });
     }
 
     @Test
@@ -75,8 +81,11 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
         );
 
         // Assert
+        assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+        assertThat(response.getBody())
+            .isNotNull()
+            .extracting(ApiError::statusCode)
+            .isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 }

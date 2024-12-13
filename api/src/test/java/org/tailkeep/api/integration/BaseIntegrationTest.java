@@ -1,7 +1,8 @@
 package org.tailkeep.api.integration;
 
 import jakarta.annotation.PostConstruct;
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.constraints.NotNull;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +21,7 @@ import org.tailkeep.api.config.TestContainersConfig;
 import org.tailkeep.api.config.TestJwtConfig;
 import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.RegisterRequestDto;
+import org.tailkeep.api.model.user.Role;
 import org.tailkeep.api.repository.*;
 import org.tailkeep.api.service.AuthenticationService;
 
@@ -82,12 +84,16 @@ public abstract class BaseIntegrationTest {
     }
 
     protected AuthenticationResponseDto createTestUser(String username, String password) {
+        return createTestUser(username, password, Role.USER);
+    }
+
+    protected AuthenticationResponseDto createTestUser(String username, String password, Role role) {
         RegisterRequestDto request = RegisterRequestDto.builder()
                 .nickname("Test User")
                 .username(username)
                 .password(password)
                 .build();
-        return authenticationService.register(request);
+        return authenticationService.registerWithRole(request, role);
     }
 
     protected TestRestTemplate getRestTemplate() {
