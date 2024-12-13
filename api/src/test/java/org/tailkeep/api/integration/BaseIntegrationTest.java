@@ -1,23 +1,22 @@
 package org.tailkeep.api.integration;
 
+import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Import;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
-import org.tailkeep.api.config.TestContainersConfig;
 import org.tailkeep.api.config.KafkaMockConfig;
 import org.tailkeep.api.config.TestConfig;
+import org.tailkeep.api.config.TestContainersConfig;
 import org.tailkeep.api.config.TestJwtConfig;
-import org.tailkeep.api.repository.*;
-import org.tailkeep.api.service.AuthenticationService;
 import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.RegisterRequestDto;
-
-import jakarta.annotation.PostConstruct;
+import org.tailkeep.api.repository.*;
+import org.tailkeep.api.service.AuthenticationService;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import({
@@ -85,5 +84,9 @@ public abstract class BaseIntegrationTest {
                 .password(password)
                 .build();
         return authenticationService.register(request);
+    }
+
+    protected TestRestTemplate getRestTemplate() {
+        return restTemplate;
     }
 } 

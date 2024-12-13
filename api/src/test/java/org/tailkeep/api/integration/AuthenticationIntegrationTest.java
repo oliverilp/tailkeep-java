@@ -1,14 +1,13 @@
 package org.tailkeep.api.integration;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.http.*;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.tailkeep.api.dto.AuthenticationRequestDto;
 import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.RegisterRequestDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AuthenticationIntegrationTest extends BaseIntegrationTest {
 
@@ -22,7 +21,7 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
                 .build();
 
         // Act
-        ResponseEntity<AuthenticationResponseDto> response = restTemplate.postForEntity(
+        ResponseEntity<AuthenticationResponseDto> response = getRestTemplate().postForEntity(
                 "/api/v1/auth/register",
                 request,
                 AuthenticationResponseDto.class
@@ -46,7 +45,7 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
                 .build();
 
         // Act
-        ResponseEntity<AuthenticationResponseDto> response = restTemplate.postForEntity(
+        ResponseEntity<AuthenticationResponseDto> response = getRestTemplate().postForEntity(
                 "/api/v1/auth/authenticate",
                 request,
                 AuthenticationResponseDto.class

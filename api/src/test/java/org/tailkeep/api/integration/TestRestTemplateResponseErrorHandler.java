@@ -7,10 +7,12 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
 
+import org.springframework.lang.NonNull;
+
 public class TestRestTemplateResponseErrorHandler extends DefaultResponseErrorHandler {
     
     @Override
-    public void handleError(ClientHttpResponse response) throws IOException {
+    public void handleError(@NonNull ClientHttpResponse response) throws IOException {
         if (response.getStatusCode() == HttpStatus.UNAUTHORIZED) {
             throw HttpClientErrorException.create(
                 HttpStatus.UNAUTHORIZED,
