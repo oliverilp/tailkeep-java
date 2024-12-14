@@ -61,6 +61,9 @@ public abstract class BaseIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        // Clear any system properties that might affect tests
+        System.clearProperty("DEMO_MODE");
+
         cleanupDatabase();
     }
 
