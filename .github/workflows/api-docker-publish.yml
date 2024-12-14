@@ -17,18 +17,6 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      docker:
-        image: docker:dind
-        options: >-
-          --privileged
-          --health-cmd "docker info"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 2375:2375
-
     steps:
       - uses: actions/checkout@v4
 
@@ -46,10 +34,6 @@ jobs:
       - name: Run tests
         working-directory: ./api
         run: ./gradlew test
-        env:
-          TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
-          DOCKER_HOST: tcp://localhost:2375
-          TESTCONTAINERS_REUSE_ENABLE: true
 
   build:
     needs: test
