@@ -11,8 +11,8 @@ import org.tailkeep.api.config.TestContainersConfig;
 @Import(TestContainersConfig.class)
 class TailkeepApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }

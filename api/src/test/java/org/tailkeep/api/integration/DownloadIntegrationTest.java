@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.DownloadProgressDto;
@@ -12,6 +13,7 @@ import org.tailkeep.api.dto.DownloadsDashboardDto;
 import org.tailkeep.api.exception.ApiError;
 import org.tailkeep.api.model.user.Role;
 
+import java.util.List;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +28,7 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
     @Test
     void startDownload_WithValidUrlAndAuth_ShouldAcceptRequest() {
         // Arrange
-        AuthenticationResponseDto auth = createTestUser("admin", "password12345", Role.ADMIN);
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(auth.getAccessToken());
@@ -69,7 +71,7 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
     @Test
     void startDownload_WithoutAdminPermission_ShouldFail() {
         // Arrange
-        AuthenticationResponseDto auth = createTestUser("user", "password12345", Role.USER);
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(auth.getAccessToken());
@@ -91,7 +93,7 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
     @Test
     void startDownload_WithInvalidUrl_ShouldFail() {
         // Arrange
-        AuthenticationResponseDto auth = createTestUser("admin", "password12345678", Role.ADMIN);
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345678", Role.ADMIN);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(auth.getAccessToken());
@@ -113,7 +115,7 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
     @Test
     void startDownload_WithNonHttpsUrl_ShouldFail() {
         // Arrange
-        AuthenticationResponseDto auth = createTestUser("admin", "password12345", Role.ADMIN);
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(auth.getAccessToken());
@@ -132,15 +134,13 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody())
                 .isNotNull()
-                .satisfies(body -> {
-                    assertThat(body.message()).isEqualTo("URL must use HTTPS protocol");
-                });
+                .satisfies(body -> assertThat(body.message()).isEqualTo("URL must use HTTPS protocol"));
     }
 
     @Test
     void startDownload_WithEmptyHost_ShouldFail() {
         // Arrange
-        AuthenticationResponseDto auth = createTestUser("admin", "password12345", Role.ADMIN);
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(auth.getAccessToken());
@@ -159,15 +159,13 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody())
                 .isNotNull()
-                .satisfies(body -> {
-                    assertThat(body.message()).isEqualTo("URL must have a valid host");
-                });
+                .satisfies(body -> assertThat(body.message()).isEqualTo("URL must have a valid host"));
     }
 
     @Test
     void getDownloadProgress_WithValidId_ShouldSucceed() {
         // Arrange
-        AuthenticationResponseDto auth = createTestUser("admin", "password12345", Role.ADMIN);
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(auth.getAccessToken());
 
@@ -200,7 +198,7 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
     @Test
     void getDownloadProgress_WithInvalidId_ShouldFail() {
         // Arrange
-        AuthenticationResponseDto auth = createTestUser("admin", "password12345", Role.ADMIN);
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(auth.getAccessToken());
 
@@ -221,11 +219,11 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
     @Test
     void getDashboard_ShouldReturnCorrectCounts() {
         // Arrange
-        AuthenticationResponseDto auth = createTestUser("admin", "password12345", Role.ADMIN);
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(auth.getAccessToken());
 
-        TestEntities testData = testDataFactory.createCompleteTestData();
+        testDataFactory.createCompleteTestData();
 
         // Act
         ResponseEntity<DownloadsDashboardDto> response = restTemplate.exchange(
@@ -240,8 +238,8 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
         assertThat(response.getBody())
                 .isNotNull()
                 .satisfies(body -> {
-                        assertThat(body.queueInfo().queue()).isEqualTo(0);
-                        assertThat(body.downloads()).hasSize(1);
+                    assertThat(body.queueInfo().queue()).isEqualTo(0);
+                    assertThat(body.downloads()).hasSize(1);
                 });
 
     }

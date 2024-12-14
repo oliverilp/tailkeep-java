@@ -2,7 +2,6 @@ package org.tailkeep.api.integration;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotNull;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,19 +17,15 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.tailkeep.api.config.TestConfig;
 import org.tailkeep.api.config.TestContainersConfig;
 import org.tailkeep.api.config.TestJwtConfig;
-import org.tailkeep.api.dto.AuthenticationResponseDto;
-import org.tailkeep.api.dto.RegisterRequestDto;
-import org.tailkeep.api.model.user.Role;
 import org.tailkeep.api.repository.*;
-import org.tailkeep.api.service.AuthenticationService;
 
 import java.io.IOException;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import({
-    TestContainersConfig.class,
-    TestConfig.class,
-    TestJwtConfig.class
+        TestContainersConfig.class,
+        TestConfig.class,
+        TestJwtConfig.class
 })
 @ActiveProfiles("test")
 public abstract class BaseIntegrationTest {
@@ -59,9 +54,6 @@ public abstract class BaseIntegrationTest {
     @Autowired
     protected DownloadProgressRepository downloadProgressRepository;
 
-    @Autowired
-    protected AuthenticationService authenticationService;
-
     @PostConstruct
     void init() {
         setupRestTemplate();
@@ -81,19 +73,6 @@ public abstract class BaseIntegrationTest {
         userRepository.deleteAll();
     }
 
-    protected AuthenticationResponseDto createTestUser(String username, String password) {
-        return createTestUser(username, password, Role.USER);
-    }
-
-    protected AuthenticationResponseDto createTestUser(String username, String password, Role role) {
-        RegisterRequestDto request = RegisterRequestDto.builder()
-                .nickname("Test User")
-                .username(username)
-                .password(password)
-                .build();
-        return authenticationService.registerWithRole(request, role);
-    }
-
     protected TestRestTemplate getRestTemplate() {
         return restTemplate;
     }
@@ -101,16 +80,16 @@ public abstract class BaseIntegrationTest {
     @PostConstruct
     void setupRestTemplate() {
         RestTemplateBuilder builder = new RestTemplateBuilder()
-            .rootUri("http://localhost:" + port)
-            .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
-            .errorHandler(new DefaultResponseErrorHandler() {
-                @Override
-                public boolean hasError(@NotNull ClientHttpResponse response) throws IOException {
-                    HttpStatusCode statusCode = response.getStatusCode();
-                    return statusCode.is5xxServerError();
-                }
-            });
-            
+                .rootUri("http://localhost:" + port)
+                .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
+                .errorHandler(new DefaultResponseErrorHandler() {
+                    @Override
+                    public boolean hasError(@NotNull ClientHttpResponse response) throws IOException {
+                        HttpStatusCode statusCode = response.getStatusCode();
+                        return statusCode.is5xxServerError();
+                    }
+                });
+
         restTemplate = new TestRestTemplate(builder);
     }
 } 

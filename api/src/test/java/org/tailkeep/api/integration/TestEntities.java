@@ -6,8 +6,9 @@ import org.tailkeep.api.model.Job;
 import org.tailkeep.api.model.Video;
 
 public record TestEntities(
-  Channel channel,
-  Video video,
-  Job job,
-  DownloadProgress progress
-) {} 
+        Channel channel,
+        Video video,
+        Job job,
+        DownloadProgress progress
+) {
+}

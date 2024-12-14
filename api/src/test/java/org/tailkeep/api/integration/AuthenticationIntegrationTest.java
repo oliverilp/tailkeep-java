@@ -1,6 +1,7 @@
 package org.tailkeep.api.integration;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.tailkeep.api.dto.AuthenticationRequestDto;
@@ -11,6 +12,9 @@ import org.tailkeep.api.exception.ApiError;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AuthenticationIntegrationTest extends BaseIntegrationTest {
+
+    @Autowired
+    private TestDataFactory testDataFactory;
 
     @Test
     void register_WithValidCredentials_ShouldSucceed() {
@@ -31,17 +35,17 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody())
-            .isNotNull()
-            .satisfies(body -> {
-                assertThat(body.getAccessToken()).isNotBlank();
-                assertThat(body.getRefreshToken()).isNotBlank();
-            });
+                .isNotNull()
+                .satisfies(body -> {
+                    assertThat(body.getAccessToken()).isNotBlank();
+                    assertThat(body.getRefreshToken()).isNotBlank();
+                });
     }
 
     @Test
     void authenticate_WithValidCredentials_ShouldSucceed() {
         // Arrange
-        createTestUser("testuser", "password12345");
+        testDataFactory.createTestUser("testuser", "password12345");
 
         AuthenticationRequestDto request = AuthenticationRequestDto.builder()
                 .username("testuser")
@@ -58,11 +62,11 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody())
-            .isNotNull()
-            .satisfies(body -> {
-                assertThat(body.getAccessToken()).isNotBlank();
-                assertThat(body.getRefreshToken()).isNotBlank();
-            });
+                .isNotNull()
+                .satisfies(body -> {
+                    assertThat(body.getAccessToken()).isNotBlank();
+                    assertThat(body.getRefreshToken()).isNotBlank();
+                });
     }
 
     @Test
@@ -84,8 +88,8 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody())
-            .isNotNull()
-            .extracting(ApiError::statusCode)
-            .isEqualTo(HttpStatus.UNAUTHORIZED.value());
+                .isNotNull()
+                .extracting(ApiError::statusCode)
+                .isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 }
