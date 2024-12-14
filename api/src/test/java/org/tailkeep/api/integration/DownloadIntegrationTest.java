@@ -243,4 +243,57 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
                 });
 
     }
+
+    @Test
+    void getAllDownloadProgress_WithAuth_ShouldReturnEmptyList() {
+        // Arrange
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(auth.getAccessToken());
+
+        // Act
+        ResponseEntity<List<DownloadProgressDto>> response = restTemplate.exchange(
+                "/api/v1/downloads",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody())
+                .isNotNull()
+                .isEmpty();
+    }
+
+    @Test
+    void getAllDownloadProgress_WithData_ShouldReturnList() {
+        // Arrange
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(auth.getAccessToken());
+
+        // Create test data
+        testDataFactory.createCompleteTestData(0);
+        testDataFactory.createCompleteTestData(1);
+        testDataFactory.createCompleteTestData(2);
+
+        // Act
+        ResponseEntity<List<DownloadProgressDto>> response = restTemplate.exchange(
+                "/api/v1/downloads",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody())
+                .isNotNull()
+                .hasSize(3)
+                .extracting(DownloadProgressDto::status)
+                .containsOnly("downloading");
+    }
 } 

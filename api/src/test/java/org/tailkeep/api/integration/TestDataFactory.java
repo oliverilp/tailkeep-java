@@ -32,7 +32,7 @@ public class TestDataFactory {
         String uniqueId = String.format("%s-%d", youtubeId, counter);
         Channel channel = new Channel();
         channel.setId(UUID.randomUUID().toString());
-        channel.setName(name);
+        channel.setName(name + "-" + counter);
         channel.setYoutubeId(uniqueId);
         channel.setChannelUrl("https://www.youtube.com/channel/" + uniqueId);
         return channelRepository.save(channel);
@@ -44,7 +44,7 @@ public class TestDataFactory {
         Video video = new Video();
         video.setId(UUID.randomUUID().toString());
         video.setFilename(uniqueId + ".mp4");
-        video.setTitle(title);
+        video.setTitle(title + "-" + counter);
         video.setUrl("https://www.youtube.com/watch?v=" + uniqueId);
         video.setYoutubeId(uniqueId);
         video.setChannel(channel);
