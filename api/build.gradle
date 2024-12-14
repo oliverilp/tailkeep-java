@@ -5,7 +5,7 @@ plugins {
 	id 'application'
 }
 
-group = 'ee.oliverilp'
+group = 'org.tailkeep'
 version = '0.0.1-SNAPSHOT'
 
 springBoot {
@@ -51,9 +51,12 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 	implementation 'org.bouncycastle:bcprov-jdk18on:1.79'
-	testImplementation 'org.testcontainers:testcontainers:1.19.8'
-	testImplementation 'org.testcontainers:junit-jupiter:1.19.8'
-	testImplementation 'org.testcontainers:postgresql:1.19.8'
+	testImplementation 'org.testcontainers:testcontainers-bom:1.19.8'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:testcontainers'
+	testImplementation 'org.testcontainers:postgresql'
+	testImplementation 'org.testcontainers:kafka'
+	testImplementation 'org.testcontainers:redpanda'
 	testImplementation 'org.mockito:mockito-core:5.11.0'
 	testImplementation 'org.awaitility:awaitility:4.2.1'
 	testImplementation 'org.assertj:assertj-core:3.25.3'

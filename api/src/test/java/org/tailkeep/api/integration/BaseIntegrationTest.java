@@ -15,7 +15,6 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.DefaultResponseErrorHandler;
-import org.tailkeep.api.config.KafkaMockConfig;
 import org.tailkeep.api.config.TestConfig;
 import org.tailkeep.api.config.TestContainersConfig;
 import org.tailkeep.api.config.TestJwtConfig;
@@ -30,7 +29,6 @@ import java.io.IOException;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import({
     TestContainersConfig.class,
-    KafkaMockConfig.class,
     TestConfig.class,
     TestJwtConfig.class
 })
