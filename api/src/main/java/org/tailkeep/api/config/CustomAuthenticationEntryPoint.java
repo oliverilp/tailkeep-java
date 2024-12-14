@@ -1,7 +1,6 @@
 package org.tailkeep.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.tailkeep.api.exception.ApiError;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Component
@@ -34,7 +34,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             request.getRequestURI(),
             "Authentication is required to access this resource",
             HttpServletResponse.SC_UNAUTHORIZED,
-            null
+            LocalDateTime.now().toString()
         );
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

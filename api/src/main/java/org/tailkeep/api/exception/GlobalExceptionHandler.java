@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             e.getMessage(),
             HttpStatus.BAD_REQUEST.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.badRequest().body(error);
@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             message,
             HttpStatus.BAD_REQUEST.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.badRequest().body(error);
@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             "Invalid request body: JSON is required",
             HttpStatus.BAD_REQUEST.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.badRequest().body(error);
@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             "The requested resource was not found",
             HttpStatus.NOT_FOUND.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
@@ -80,7 +80,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             "Authentication is required to access this resource",
             HttpStatus.UNAUTHORIZED.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
@@ -92,7 +92,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             e.getMessage(),
             HttpStatus.UNAUTHORIZED.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
@@ -107,7 +107,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             e.getMessage(),
             HttpStatus.CONFLICT.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
@@ -119,7 +119,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             e.getMessage(),
             HttpStatus.BAD_REQUEST.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.badRequest().body(error);
@@ -131,7 +131,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             e.getMessage(),
             HttpStatus.UNAUTHORIZED.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
@@ -143,7 +143,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             e.getMessage(),
             HttpStatus.BAD_REQUEST.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -158,7 +158,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             e.getMessage(),
             HttpStatus.NOT_FOUND.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
@@ -172,7 +172,7 @@ public class GlobalExceptionHandler {
             request.getRequestURI(),
             "Something went wrong while executing the operation.",
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            LocalDateTime.now()
+            LocalDateTime.now().toString()
         );
 
         return ResponseEntity.internalServerError().body(error);

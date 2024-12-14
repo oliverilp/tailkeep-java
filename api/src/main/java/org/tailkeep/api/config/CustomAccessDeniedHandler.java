@@ -34,7 +34,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                 request.getRequestURI(),
                 "You don't have permission to access this resource",
                 HttpServletResponse.SC_FORBIDDEN,
-                null
+                LocalDateTime.now().toString()
         );
 
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
