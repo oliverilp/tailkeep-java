@@ -40,42 +40,42 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
       assertThat(Objects.requireNonNull(jobRepository.findAll().getFirst().getInputUrl()))
               .contains("dQw4w9WgXcQ");
   }
-//
-//   @Test
-//   void startDownload_WithoutAuth_ShouldFail() {
-//       // Arrange
-//       DownloadRequestDto request = new DownloadRequestDto("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-//
-//       // Act
-//       ResponseEntity<Void> response = restTemplate.postForEntity(
-//               "/api/v1/downloads",
-//               request,
-//               Void.class
-//       );
-//
-//       // Assert
-//       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-//   }
-//
-//   @Test
-//   void startDownload_WithInvalidUrl_ShouldFail() {
-//       // Arrange
-//       AuthenticationResponseDto auth = createTestUser("admin", "password12345");
-//
-//       HttpHeaders headers = new HttpHeaders();
-//       headers.setBearerAuth(auth.getAccessToken());
-//
-//       DownloadRequestDto request = new DownloadRequestDto("not-a-url");
-//
-//       // Act
-//       ResponseEntity<Void> response = restTemplate.exchange(
-//               "/api/v1/downloads",
-//               HttpMethod.POST,
-//               new HttpEntity<>(request, headers),
-//               Void.class
-//       );
-//
-//       // Assert
-//       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-//   }
+
+   @Test
+   void startDownload_WithoutAuth_ShouldFail() {
+       // Arrange
+       DownloadRequestDto request = new DownloadRequestDto("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+
+       // Act
+       ResponseEntity<Void> response = restTemplate.postForEntity(
+               "/api/v1/downloads",
+               request,
+               Void.class
+       );
+
+       // Assert
+       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+   }
+
+   @Test
+   void startDownload_WithInvalidUrl_ShouldFail() {
+       // Arrange
+       AuthenticationResponseDto auth = createTestUser("admin", "password12345678", Role.ADMIN);
+
+       HttpHeaders headers = new HttpHeaders();
+       headers.setBearerAuth(auth.getAccessToken());
+
+       DownloadRequestDto request = new DownloadRequestDto("not-a-url");
+
+       // Act
+       ResponseEntity<Void> response = restTemplate.exchange(
+               "/api/v1/downloads",
+               HttpMethod.POST,
+               new HttpEntity<>(request, headers),
+               Void.class
+       );
+
+       // Assert
+       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+   }
 } 
