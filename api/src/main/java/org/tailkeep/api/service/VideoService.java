@@ -9,7 +9,7 @@ import org.tailkeep.api.repository.DownloadProgressRepository;
 import org.tailkeep.api.repository.VideoRepository;
 import org.tailkeep.api.dto.VideoByIdDto;
 import org.tailkeep.api.dto.VideoDto;
-import org.tailkeep.api.exception.VideoNotFoundException;
+import org.tailkeep.api.exception.ResourceNotFoundException;
 import org.tailkeep.api.mapper.EntityMapper;
 import org.springframework.data.domain.Sort;
 
@@ -58,7 +58,7 @@ public class VideoService {
 
      public VideoByIdDto getVideoById(String id) {
         Video video = videoRepository.findById(id)
-            .orElseThrow(() -> new VideoNotFoundException("Video not found: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Video", id));
 
         VideoByIdDto dto = mapper.toDetailedDto(video);
         

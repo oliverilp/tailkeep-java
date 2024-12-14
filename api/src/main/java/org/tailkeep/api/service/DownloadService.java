@@ -19,6 +19,7 @@ import org.tailkeep.api.dto.DownloadRequestDto;
 import org.tailkeep.api.dto.DownloadsDashboardDto;
 import org.tailkeep.api.dto.QueueInfoDto;
 import org.tailkeep.api.exception.InvalidUrlException;
+import org.tailkeep.api.exception.ResourceNotFoundException;
 import org.tailkeep.api.mapper.EntityMapper;
 import org.tailkeep.api.message.DownloadProgressMessage;
 import org.tailkeep.api.message.MetadataRequestMessage;
@@ -63,7 +64,7 @@ public class DownloadService {
     @Transactional
     public DownloadProgressDto upsertDownloadProgress(DownloadProgressMessage message) {
         Job job = jobRepository.findById(message.jobId())
-            .orElseThrow(() -> new RuntimeException("Job not found: " + message.jobId()));
+            .orElseThrow(() -> new ResourceNotFoundException("Job", message.jobId()));
 
         DownloadProgress progress = job.getDownloadProgress();
         if (progress == null) {
@@ -89,7 +90,7 @@ public class DownloadService {
     @Transactional
     public DownloadProgressDto markDownloadComplete(DownloadProgressMessage message) {
         DownloadProgress progress = downloadProgressRepository.findById(message.jobId())
-            .orElseThrow(() -> new RuntimeException("Download progress not found for job: " + message.jobId()));
+            .orElseThrow(() -> new ResourceNotFoundException("Download progress", message.jobId()));
         
         // Update completion fields
         progress.setStatus("done");
@@ -113,7 +114,7 @@ public class DownloadService {
     public DownloadProgressDto getDownloadProgressById(String id) {
         return downloadProgressRepository.findById(id)
             .map(mapper::toDto)
-            .orElseThrow(() -> new RuntimeException("Download progress not found: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Download progress", id));
     }
 
     private String cleanUrl(String url) throws Exception {
