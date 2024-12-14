@@ -130,11 +130,11 @@ public class GlobalExceptionHandler {
         ApiError error = new ApiError(
             request.getRequestURI(),
             e.getMessage(),
-            HttpStatus.UNAUTHORIZED.value(),
+            HttpStatus.BAD_REQUEST.value(),
             LocalDateTime.now().toString()
         );
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(PasswordLengthException.class)
@@ -176,5 +176,17 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.internalServerError().body(error);
+    }
+
+    @ExceptionHandler(UnsupportedOperationException.class)
+    public ResponseEntity<ApiError> handleUnsupportedOperation(UnsupportedOperationException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+            request.getRequestURI(),
+            ex.getMessage(),
+            HttpStatus.BAD_REQUEST.value(),
+            LocalDateTime.now().toString()
+        );
+
+        return ResponseEntity.badRequest().body(error);
     }
 }
