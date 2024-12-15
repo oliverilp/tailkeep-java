@@ -8,14 +8,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class LogoutService implements LogoutHandler {
 
     private final TokenRepository tokenRepository;
+    private final JwtService jwtService;
 
     @Override
+    @Transactional
     public void logout(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -27,18 +30,31 @@ public class LogoutService implements LogoutHandler {
         }
         
         final String jwt = authHeader.substring(7);
-        var storedToken = tokenRepository.findByToken(jwt)
-                .orElse(null);
-                
-        if (storedToken == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
+        
+        try {
+            // Validate token signature and format
+            String username = jwtService.extractUsername(jwt);
+            if (username == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
 
-        storedToken.setExpired(true);
-        storedToken.setRevoked(true);
-        tokenRepository.save(storedToken);
-        SecurityContextHolder.clearContext();
-        response.setStatus(HttpServletResponse.SC_OK);
+            var storedToken = tokenRepository.findByToken(jwt)
+                    .orElse(null);
+                    
+            if (storedToken == null || storedToken.isExpired() || storedToken.isRevoked()) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+
+            storedToken.setExpired(true);
+            storedToken.setRevoked(true);
+            tokenRepository.save(storedToken);
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_OK);
+            
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }
     }
 }
