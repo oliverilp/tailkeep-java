@@ -16,8 +16,8 @@ import org.tailkeep.api.dto.RegisterRequestDto;
 import org.tailkeep.api.service.AuthenticationService;
 import org.tailkeep.api.service.LogoutService;
 
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -44,10 +44,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh-token")
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
-        service.refreshToken(request, response);
+    public ResponseEntity<AuthenticationResponseDto> refreshToken(
+            @RequestBody Map<String, String> request
+    ) {
+        return ResponseEntity.ok(
+            service.refreshToken(request.get("refreshToken"))
+        );
     }
 
     @PostMapping("/logout")

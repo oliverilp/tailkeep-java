@@ -21,18 +21,24 @@ public class LogoutService implements LogoutHandler {
             HttpServletResponse response,
             Authentication authentication) {
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        jwt = authHeader.substring(7);
+        
+        final String jwt = authHeader.substring(7);
         var storedToken = tokenRepository.findByToken(jwt)
                 .orElse(null);
-        if (storedToken != null) {
-            storedToken.setExpired(true);
-            storedToken.setRevoked(true);
-            tokenRepository.save(storedToken);
-            SecurityContextHolder.clearContext();
+                
+        if (storedToken == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
+
+        storedToken.setExpired(true);
+        storedToken.setRevoked(true);
+        tokenRepository.save(storedToken);
+        SecurityContextHolder.clearContext();
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 }

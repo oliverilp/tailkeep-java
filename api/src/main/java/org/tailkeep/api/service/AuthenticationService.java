@@ -3,6 +3,8 @@ package org.tailkeep.api.service;
 import org.tailkeep.api.dto.AuthenticationRequestDto;
 import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.RegisterRequestDto;
+import org.tailkeep.api.exception.InvalidArgumentException;
+import org.tailkeep.api.exception.UnauthorizedException;
 import org.tailkeep.api.exception.UsernameAlreadyExistsException;
 import org.tailkeep.api.model.auth.Token;
 import org.tailkeep.api.model.auth.TokenType;
@@ -11,22 +13,18 @@ import org.tailkeep.api.model.user.User;
 import org.tailkeep.api.repository.TokenRepository;
 import org.tailkeep.api.repository.UserRepository;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthenticationService {
     private final UserRepository repository;
     private final TokenRepository tokenRepository;
@@ -99,15 +97,33 @@ public class AuthenticationService {
         }
     }
 
-    private void saveUserToken(User user, String jwtToken) {
-        var token = Token.builder()
-                .user(user)
-                .token(jwtToken)
-                .tokenType(TokenType.BEARER)
-                .expired(false)
-                .revoked(false)
+    public AuthenticationResponseDto refreshToken(String refreshToken) {
+        if (refreshToken == null) {
+            throw new UnauthorizedException("Missing refresh token");
+        }
+
+        final String userEmail = jwtService.extractUsername(refreshToken);
+        if (userEmail == null) {
+            throw new UnauthorizedException("Invalid token");
+        }
+
+        var user = repository.findByUsername(userEmail)
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            throw new UnauthorizedException("Invalid token");
+        }
+
+        var accessToken = jwtService.generateToken(user);
+        var newRefreshToken = jwtService.generateRefreshToken(user);
+
+        revokeAllUserTokens(user);
+        saveUserToken(user, accessToken);
+
+        return AuthenticationResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(newRefreshToken)
                 .build();
-        tokenRepository.save(token);
     }
 
     private void revokeAllUserTokens(User user) {
@@ -121,30 +137,14 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        final String userEmail;
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
-        }
-        refreshToken = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(refreshToken);
-        if (userEmail != null) {
-            var user = this.repository.findByUsername(userEmail)
-                    .orElseThrow(() -> new BadCredentialsException("Invalid credentials provided"));
-            if (jwtService.isTokenValid(refreshToken, user)) {
-                var accessToken = jwtService.generateToken(user);
-                revokeAllUserTokens(user);
-                saveUserToken(user, accessToken);
-                var authResponse = AuthenticationResponseDto.builder()
-                        .accessToken(accessToken)
-                        .refreshToken(refreshToken)
-                        .build();
-                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-            }
-        }
+    private void saveUserToken(User user, String jwtToken) {
+        var token = Token.builder()
+                .user(user)
+                .token(jwtToken)
+                .tokenType(TokenType.BEARER)
+                .expired(false)
+                .revoked(false)
+                .build();
+        tokenRepository.save(token);
     }
 }

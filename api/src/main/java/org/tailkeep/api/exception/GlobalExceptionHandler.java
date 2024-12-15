@@ -98,6 +98,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException e, HttpServletRequest request) {
+        ApiError error = new ApiError(
+            request.getRequestURI(),
+            e.getMessage(),
+            HttpStatus.UNAUTHORIZED.value(),
+            LocalDateTime.now().toString()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<ApiError> handleUsernameAlreadyExistsException(
             UsernameAlreadyExistsException e, 
@@ -164,6 +176,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(UnsupportedOperationException.class)
+    public ResponseEntity<ApiError> handleUnsupportedOperation(UnsupportedOperationException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+            request.getRequestURI(),
+            ex.getMessage(),
+            HttpStatus.BAD_REQUEST.value(),
+            LocalDateTime.now().toString()
+        );
+
+        return ResponseEntity.badRequest().body(error);
+    }
+
+    @ExceptionHandler(InvalidArgumentException.class)
+    public ResponseEntity<ApiError> handleInvalidArgumentException(InvalidArgumentException ex, HttpServletRequest request) {
+        ApiError error = new ApiError(
+            request.getRequestURI(),
+            ex.getMessage(),
+            HttpStatus.BAD_REQUEST.value(),
+            LocalDateTime.now().toString()
+        );
+
+        return ResponseEntity.badRequest().body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleAllExceptions(Exception e, HttpServletRequest request) {
         log.error("Unexpected error occurred", e);
@@ -176,17 +212,5 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.internalServerError().body(error);
-    }
-
-    @ExceptionHandler(UnsupportedOperationException.class)
-    public ResponseEntity<ApiError> handleUnsupportedOperation(UnsupportedOperationException ex, HttpServletRequest request) {
-        ApiError error = new ApiError(
-            request.getRequestURI(),
-            ex.getMessage(),
-            HttpStatus.BAD_REQUEST.value(),
-            LocalDateTime.now().toString()
-        );
-
-        return ResponseEntity.badRequest().body(error);
     }
 }
