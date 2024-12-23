@@ -45,3 +45,92 @@ The application is structured into four main components:
 ### Message Queues
 
 The system uses Apache Kafka message queues for handling background tasks. This ensures that video downloading and processing tasks do not interfere with the main application’s performance.
+
+### Database Schema
+
+Below is the Entity Relationship Diagram showing the database structure:
+
+```mermaid
+%%{init: {'er': {'layoutDirection': 'LR'}}}%%
+erDiagram
+    User {
+        UUID id PK
+        String nickname
+        String username
+        String password
+        Role role "USER|ADMIN"
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    Token {
+        UUID id PK
+        String token
+        TokenType tokenType "BEARER"
+        Boolean revoked
+        Boolean expired
+        UUID user_id FK
+    }
+
+    JwtSecret {
+        UUID id PK
+        String secretKey
+        DateTime createdAt
+    }
+
+    Channel {
+        UUID id PK
+        String name
+        String youtubeId
+        String channelUrl
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    Video {
+        UUID id PK
+        String youtubeId
+        UUID channel_id FK
+        String url
+        String title
+        String durationString
+        Double duration
+        String thumbnailUrl
+        String description
+        Long viewCount
+        Long commentCount
+        String filename
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    Job {
+        UUID id PK
+        String inputUrl
+        UUID video_id FK
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    DownloadProgress {
+        UUID id PK
+        UUID job_id FK
+        UUID video_id FK
+        String status
+        Boolean hasEnded
+        Double progress
+        String size
+        String speed
+        String eta
+        DateTime createdAt
+        DateTime updatedAt
+        DateTime completedAt
+    }
+
+    %% Relationships
+    User ||--o{ Token : "has many"
+    Channel ||--o{ Video : "has many"
+    Video ||--o{ DownloadProgress : "has many"
+    Video ||--o{ Job : "has many"
+    Job ||--|| DownloadProgress : "has one"
+```
