@@ -44,7 +44,46 @@ The application is structured into four main components:
 
 ### Message Queues
 
-The system uses Apache Kafka message queues for handling background tasks. This ensures that video downloading and processing tasks do not interfere with the main application’s performance.
+The system uses Apache Kafka message queues for handling background tasks. This ensures that video downloading and processing tasks do not interfere with the main application's performance.
+
+The following Kafka topics are used in the system:
+
+| Topic               | Description                                                |
+| ------------------- | ---------------------------------------------------------- |
+| `metadata-queue`    | Used by API to request video metadata from Worker          |
+| `metadata-results`  | Used by Worker to send back the fetched video metadata     |
+| `download-queue`    | Used by API to request video downloads from Worker         |
+| `download-progress` | Used by Worker to send real-time download progress updates |
+
+Below is the sequence diagram showing the complete flow of a video download request:
+
+```mermaid
+sequenceDiagram
+    participant R as React Frontend
+    participant A as Spring Boot API
+    participant W as Spring Boot Worker
+
+    R->>+A: POST /api/v1/downloads
+    A-->>-R: 202 Accepted
+
+    Note over A,W: Metadata Phase
+    A->>W: metadata-queue
+    Note right of W: Fetch video metadata
+    W->>A: metadata-results
+
+    Note over A,W: Download Phase
+    A->>W: download-queue
+
+    Note over R,W: Real-time Progress Updates
+    activate W
+    loop Download Progress
+        W->>A: download-progress
+        A->>R: SSE Progress Event
+    end
+    deactivate W
+
+    Note over R: Download Complete
+```
 
 ### Database Schema
 
