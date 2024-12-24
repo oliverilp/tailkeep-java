@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
@@ -66,8 +66,7 @@ public class Downloader {
         Matcher progressMatcher = DOWNLOAD_PROGRESS_REGEX.matcher(text);
         if (progressMatcher.find()) {
             String progressStr = progressMatcher.group(1);
-            double percentage = Double.parseDouble(progressStr);
-            progress = percentage;
+            progress = Double.parseDouble(progressStr);
         }
 
         // Check size
@@ -103,7 +102,7 @@ public class Downloader {
     }
 
     public CompletableFuture<DownloadProgressMessage> download(Consumer<DownloadProgressMessage> progressCallback) {
-        List<String> args = Arrays.asList(url);
+        List<String> args = Collections.singletonList(url);
         return cmd.execute(args, text -> progressCallback.accept(onOutput(text)))
                 .thenApply(unused -> {
                     hasEnded = true;
