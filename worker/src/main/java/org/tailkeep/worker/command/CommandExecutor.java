@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.File;
 import java.io.InputStream;
 import java.util.function.Consumer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,19 +26,24 @@ public class CommandExecutor {
         String mediaPath = System.getenv("MEDIA_PATH");
         if (mediaPath == null || mediaPath.isBlank()) {
             mediaPath = System.getProperty("user.home") + "/Videos/";
-            log.warn("MEDIA_PATH environment variable not set, using default: " + mediaPath);
+            log.warn("MEDIA_PATH environment variable not set, using default: {}", mediaPath);
         }
         this.mediaPath = mediaPath;
     }
 
     public CompletableFuture<Void> execute(List<String> args, CommandOutput onDataCallback) {
+        String command = "yt-dlp";
+        return this.execute(command, args, onDataCallback);
+    }
+
+    public CompletableFuture<Void> execute(String command, List<String> args, CommandOutput onDataCallback) {
         return CompletableFuture.runAsync(() -> {
             try {
-                List<String> commandWithArgs = new java.util.ArrayList<>();
-                commandWithArgs.add("yt-dlp");
+                List<String> commandWithArgs = new ArrayList<>();
+                commandWithArgs.add(command);
                 commandWithArgs.addAll(args);
 
-                log.info("Executing command: " + commandWithArgs.toString());
+                log.info("Executing command: {}", commandWithArgs);
 
                 ProcessBuilder processBuilder = new ProcessBuilder(commandWithArgs)
                         .directory(new File(mediaPath));
@@ -50,7 +56,7 @@ public class CommandExecutor {
                 // Handle stdout and stderr in parallel
                 CompletableFuture<Void> outputHandling = CompletableFuture.allOf(
                         handleStream(process.getInputStream(), onDataCallback::onData),
-                        handleStream(process.getErrorStream(), line -> log.error("CMD Error: " + line)));
+                        handleStream(process.getErrorStream(), line -> log.error("CMD Error: {}", line)));
 
                 // Wait for output handling to complete and check process exit code
                 outputHandling.join();
@@ -74,7 +80,7 @@ public class CommandExecutor {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
                 reader.lines().forEach(lineHandler);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to read process output", e);
             }
         });
     }
