@@ -8,6 +8,7 @@ import org.tailkeep.api.dto.AuthenticationRequestDto;
 import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.ChangePasswordRequestDto;
 import org.tailkeep.api.exception.ApiError;
+import org.tailkeep.api.integration.util.TestDataFactory;
 import org.tailkeep.api.model.user.Role;
 
 import static org.assertj.core.api.Assertions.assertThat;

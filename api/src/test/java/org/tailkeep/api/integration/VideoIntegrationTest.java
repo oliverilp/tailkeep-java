@@ -8,6 +8,8 @@ import org.springframework.http.*;
 import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.VideoDto;
 import org.tailkeep.api.exception.ApiError;
+import org.tailkeep.api.integration.util.TestDataFactory;
+import org.tailkeep.api.integration.util.TestEntities;
 import org.tailkeep.api.model.user.Role;
 
 import java.util.List;

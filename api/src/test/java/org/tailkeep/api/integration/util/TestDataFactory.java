@@ -1,4 +1,4 @@
-package org.tailkeep.api.integration;
+package org.tailkeep.api.integration.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

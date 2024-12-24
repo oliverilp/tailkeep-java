@@ -12,6 +12,7 @@ import org.tailkeep.api.dto.AuthenticationRequestDto;
 import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.RegisterRequestDto;
 import org.tailkeep.api.exception.ApiError;
+import org.tailkeep.api.integration.util.TestDataFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,4 +1,4 @@
-package org.tailkeep.api.integration;
+package org.tailkeep.api.integration.util;
 
 import org.tailkeep.api.model.Channel;
 import org.tailkeep.api.model.DownloadProgress;
