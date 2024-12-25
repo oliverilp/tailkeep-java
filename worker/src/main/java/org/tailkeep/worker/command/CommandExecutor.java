@@ -16,7 +16,6 @@ public class CommandExecutor {
     private final String mediaPath;
     private final AtomicReference<Process> currentProcess = new AtomicReference<>();
 
-    // public CommandExecutor(@Value("${MEDIA_PATH}") String mediaPath) {
     public CommandExecutor() {
         String mediaPath = System.getenv("MEDIA_PATH");
         if (mediaPath == null || mediaPath.isBlank()) {
