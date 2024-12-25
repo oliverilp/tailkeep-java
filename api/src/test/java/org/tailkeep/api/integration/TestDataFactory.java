@@ -31,7 +31,7 @@ public class TestDataFactory {
     public Channel createTestChannel(String name, String youtubeId, int counter) {
         String uniqueId = String.format("%s-%d", youtubeId, counter);
         Channel channel = new Channel();
-        channel.setId(UUID.randomUUID().toString());
+        channel.setId(UUID.randomUUID());
         channel.setName(name + "-" + counter);
         channel.setYoutubeId(uniqueId);
         channel.setChannelUrl("https://www.youtube.com/channel/" + uniqueId);
@@ -42,7 +42,7 @@ public class TestDataFactory {
     public Video createTestVideo(Channel channel, String title, String youtubeId, int counter) {
         String uniqueId = String.format("%s-%d", youtubeId, counter);
         Video video = new Video();
-        video.setId(UUID.randomUUID().toString());
+        video.setId(UUID.randomUUID());
         video.setFilename(uniqueId + ".mp4");
         video.setTitle(title + "-" + counter);
         video.setUrl("https://www.youtube.com/watch?v=" + uniqueId);
@@ -53,7 +53,7 @@ public class TestDataFactory {
 
     @Transactional
     public Job createTestJob(Video video, String inputUrl, int counter) {
-        String uniqueId = UUID.randomUUID().toString();
+        UUID uniqueId = UUID.randomUUID();
         Job job = new Job();
         job.setId(uniqueId);
         job.setInputUrl(inputUrl + "?id=" + uniqueId);

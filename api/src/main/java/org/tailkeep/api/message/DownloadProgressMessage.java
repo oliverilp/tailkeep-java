@@ -1,8 +1,10 @@
 package org.tailkeep.api.message;
 
+import java.util.UUID;
+
 public record DownloadProgressMessage(
         String videoId,
-        String jobId,
+        UUID jobId,
         String status,
         boolean hasEnded,
         double progress,

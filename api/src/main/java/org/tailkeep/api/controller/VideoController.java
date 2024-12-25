@@ -12,6 +12,7 @@ import org.tailkeep.api.service.VideoService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/videos")
@@ -25,7 +26,7 @@ public class VideoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<VideoByIdDto> getVideoById(@PathVariable("id") String id) {
+    public ResponseEntity<VideoByIdDto> getVideoById(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(videoService.getVideoById(id));
     }
 } 

@@ -7,9 +7,10 @@ import org.tailkeep.api.model.Video;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface VideoRepository extends JpaRepository<Video, String> {
+public interface VideoRepository extends JpaRepository<Video, UUID> {
     Optional<Video> findByYoutubeId(String youtubeId);
     List<Video> findByChannel(Channel channel);
 }

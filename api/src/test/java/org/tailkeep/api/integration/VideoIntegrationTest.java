@@ -11,6 +11,7 @@ import org.tailkeep.api.exception.ApiError;
 import org.tailkeep.api.model.user.Role;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,22 +36,34 @@ class VideoIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    void getVideo_WithInvalidId_ShouldReturn404() {
+    void getVideo_WithInvalidId_ShouldFail() {
         // Arrange
         AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(auth.getAccessToken());
 
-        // Act
-        ResponseEntity<ApiError> response = restTemplate.exchange(
+        // Test case 1: Invalid UUID format
+        ResponseEntity<ApiError> response1 = restTemplate.exchange(
                 "/api/v1/videos/invalid-id",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 ApiError.class
         );
 
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        // Assert case 1
+        assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        // Test case 2: Valid UUID but non-existent
+        String nonExistentId = UUID.randomUUID().toString();
+        ResponseEntity<ApiError> response2 = restTemplate.exchange(
+                "/api/v1/videos/" + nonExistentId,
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                ApiError.class
+        );
+
+        // Assert case 2
+        assertThat(response2.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -61,7 +74,7 @@ class VideoIntegrationTest extends BaseIntegrationTest {
         headers.setBearerAuth(auth.getAccessToken());
 
         TestEntities testData = testDataFactory.createCompleteTestData();
-        String videoId = testData.video().getId();
+        UUID videoId = testData.video().getId();
 
         // Act
         ResponseEntity<VideoDto> response = restTemplate.exchange(

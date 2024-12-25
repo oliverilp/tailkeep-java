@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "download_progress")
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class DownloadProgress {
     @Id
-    private String id;
+    private UUID id;
     
     @OneToOne
     @MapsId

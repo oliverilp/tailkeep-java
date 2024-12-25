@@ -1,5 +1,7 @@
 package org.tailkeep.api.message;
 
-public record MetadataResultMessage(String jobId, Metadata metadata) {
+import java.util.UUID;
+
+public record MetadataResultMessage(UUID jobId, Metadata metadata) {
 
 }

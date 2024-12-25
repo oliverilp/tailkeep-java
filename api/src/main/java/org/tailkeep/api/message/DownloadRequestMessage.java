@@ -1,5 +1,7 @@
 package org.tailkeep.api.message;
 
-public record DownloadRequestMessage(String jobId, String videoId, String url, String filename) {
+import java.util.UUID;
+
+public record DownloadRequestMessage(UUID jobId, String videoId, String url, String filename) {
 
 }

@@ -5,13 +5,14 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class VideoDto {
-    private String id;
+    private UUID id;
     private String youtubeId;
     private ChannelDto channel;
     private String url;

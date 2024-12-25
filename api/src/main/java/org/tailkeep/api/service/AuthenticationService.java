@@ -3,7 +3,6 @@ package org.tailkeep.api.service;
 import org.tailkeep.api.dto.AuthenticationRequestDto;
 import org.tailkeep.api.dto.AuthenticationResponseDto;
 import org.tailkeep.api.dto.RegisterRequestDto;
-import org.tailkeep.api.exception.InvalidArgumentException;
 import org.tailkeep.api.exception.UnauthorizedException;
 import org.tailkeep.api.exception.UsernameAlreadyExistsException;
 import org.tailkeep.api.model.auth.Token;

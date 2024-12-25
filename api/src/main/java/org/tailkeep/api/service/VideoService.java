@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,9 +57,9 @@ public class VideoService {
             .collect(Collectors.toList());
     }
 
-     public VideoByIdDto getVideoById(String id) {
+     public VideoByIdDto getVideoById(UUID id) {
         Video video = videoRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Video", id));
+            .orElseThrow(() -> new ResourceNotFoundException("Video", id.toString()));
 
         VideoByIdDto dto = mapper.toDetailedDto(video);
         

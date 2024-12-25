@@ -1,5 +1,7 @@
 package org.tailkeep.api.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tailkeep.api.model.Job;
@@ -15,9 +17,9 @@ public class JobService {
     private final JobRepository jobRepository;
 
     @Transactional
-    public Job updateJobMetadata(String jobId, Video video) {
+    public Job updateJobMetadata(UUID jobId, Video video) {
         Job job = jobRepository.findById(jobId)
-            .orElseThrow(() -> new ResourceNotFoundException("Job", jobId));
+            .orElseThrow(() -> new ResourceNotFoundException("Job", jobId.toString()));
         
         job.setVideo(video);
         return jobRepository.save(job);

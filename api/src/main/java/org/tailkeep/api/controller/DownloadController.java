@@ -1,6 +1,7 @@
 package org.tailkeep.api.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -36,7 +37,7 @@ public class DownloadController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DownloadProgressDto> getDownloadProgressById(@PathVariable String id) {
+    public ResponseEntity<DownloadProgressDto> getDownloadProgressById(@PathVariable UUID id) {
         return ResponseEntity.ok(downloadService.getDownloadProgressById(id));
     }
 

@@ -1,7 +1,9 @@
 package org.tailkeep.api.dto;
 
+import java.util.UUID;
+
 public record JobDto(
-    String id,
+    UUID id,
     String inputUrl,
     VideoDto video,
     DownloadProgressDto downloadProgress

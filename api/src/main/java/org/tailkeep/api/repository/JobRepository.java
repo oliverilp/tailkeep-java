@@ -7,9 +7,10 @@ import org.tailkeep.api.model.Job;
 import org.tailkeep.api.model.Video;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface JobRepository extends JpaRepository<Job, String> {
+public interface JobRepository extends JpaRepository<Job, UUID> {
     List<Job> findByVideo(Video video);
     List<Job> findByVideoIsNull();
     @Query("SELECT COUNT(j) FROM Job j WHERE j.downloadProgress IS NULL")

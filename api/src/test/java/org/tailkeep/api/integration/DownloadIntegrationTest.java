@@ -15,6 +15,7 @@ import org.tailkeep.api.model.user.Role;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -170,7 +171,7 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
         headers.setBearerAuth(auth.getAccessToken());
 
         TestEntities testData = testDataFactory.createCompleteTestData();
-        String jobId = testData.job().getId();
+        UUID jobId = testData.job().getId();
 
         // Act
         ResponseEntity<DownloadProgressDto> response = restTemplate.exchange(
@@ -204,16 +205,28 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
 
         testDataFactory.createCompleteTestData();
 
-        // Act
-        ResponseEntity<ApiError> response = restTemplate.exchange(
+        // Test case 1: Invalid UUID format
+        ResponseEntity<ApiError> response1 = restTemplate.exchange(
                 "/api/v1/downloads/invalid-id",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 ApiError.class
         );
 
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        // Assert case 1
+        assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        // Test case 2: Valid UUID but non-existent
+        String nonExistentId = UUID.randomUUID().toString();
+        ResponseEntity<ApiError> response2 = restTemplate.exchange(
+                "/api/v1/downloads/" + nonExistentId,
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                ApiError.class
+        );
+
+        // Assert case 2
+        assertThat(response2.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

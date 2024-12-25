@@ -7,6 +7,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Sort;
@@ -64,7 +65,7 @@ public class DownloadService {
     @Transactional
     public DownloadProgressDto upsertDownloadProgress(DownloadProgressMessage message) {
         Job job = jobRepository.findById(message.jobId())
-            .orElseThrow(() -> new ResourceNotFoundException("Job", message.jobId()));
+            .orElseThrow(() -> new ResourceNotFoundException("Job", message.jobId().toString()));
 
         DownloadProgress progress = job.getDownloadProgress();
         if (progress == null) {
@@ -90,7 +91,7 @@ public class DownloadService {
     @Transactional
     public DownloadProgressDto markDownloadComplete(DownloadProgressMessage message) {
         DownloadProgress progress = downloadProgressRepository.findById(message.jobId())
-            .orElseThrow(() -> new ResourceNotFoundException("Download progress", message.jobId()));
+            .orElseThrow(() -> new ResourceNotFoundException("Download progress", message.jobId().toString()));
         
         // Update completion fields
         progress.setStatus("done");
@@ -111,10 +112,10 @@ public class DownloadService {
             .collect(Collectors.toList());
     }
 
-    public DownloadProgressDto getDownloadProgressById(String id) {
+    public DownloadProgressDto getDownloadProgressById(UUID id) {
         return downloadProgressRepository.findById(id)
             .map(mapper::toDto)
-            .orElseThrow(() -> new ResourceNotFoundException("Download progress", id));
+            .orElseThrow(() -> new ResourceNotFoundException("Download progress", id.toString()));
     }
 
     private String cleanUrl(String url) throws Exception {

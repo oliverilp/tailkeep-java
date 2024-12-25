@@ -5,8 +5,9 @@ import org.springframework.stereotype.Repository;
 import org.tailkeep.api.model.Channel;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface ChannelRepository extends JpaRepository<Channel, String> {
+public interface ChannelRepository extends JpaRepository<Channel, UUID> {
     Optional<Channel> findByYoutubeId(String youtubeId);
 }

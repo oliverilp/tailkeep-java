@@ -7,9 +7,10 @@ import org.tailkeep.api.model.Job;
 import org.tailkeep.api.model.Video;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface DownloadProgressRepository extends JpaRepository<DownloadProgress, String> {
+public interface DownloadProgressRepository extends JpaRepository<DownloadProgress, UUID> {
     List<DownloadProgress> findByJob(Job job);
     List<DownloadProgress> findByVideo(Video video);
 

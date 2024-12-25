@@ -1,9 +1,10 @@
 package org.tailkeep.api.dto;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record DownloadProgressDto(
-    String id,
+    UUID id,
     VideoDto video,
     String status,
     boolean hasEnded,
