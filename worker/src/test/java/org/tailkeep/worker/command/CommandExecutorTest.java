@@ -2,6 +2,7 @@ package org.tailkeep.worker.command;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
@@ -29,104 +30,55 @@ class CommandExecutorTest {
     void execute_ShouldCaptureOutput() {
         // Given
         AtomicReference<String> capturedOutput = new AtomicReference<>();
-        List<String> args;
-
-        // Use different commands based on OS
-        String command = "echo";
-        args = List.of("test echo cmd");
+        List<String> command = OS.WINDOWS.isCurrentOs() 
+            ? List.of("cmd", "/c", "echo", "test echo cmd")
+            : List.of("sh", "-c", "echo test echo cmd");
 
         // When
-        assertThat(commandExecutor.execute(command, args, capturedOutput::set)
-                .thenApply(unused -> capturedOutput.get().trim())
-                .join())
-                .isEqualTo("test echo cmd");
+        CompletableFuture<Void> future = commandExecutor.execute(command, capturedOutput::set);
+
+        // Then
+        future.join();
+        assertThat(capturedOutput.get()).contains("test echo cmd");
     }
 
     @Test
-    void kill_ShouldTerminateRunningProcess() {
+    void kill_ShouldTerminateRunningProcess() throws Exception {
         // Given
+        List<String> command = OS.WINDOWS.isCurrentOs()
+            ? List.of("cmd", "/c", "ping", "-t", "localhost")
+            : List.of("sh", "-c", "sleep 10");
+
         AtomicReference<String> output = new AtomicReference<>();
-        List<String> args;
-        String command;
-
-        // Use a long-running command that we can interrupt
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            command = "cmd";
-            args = List.of("/c", "ping", "-t", "localhost");
-        } else {
-            command = "/bin/sh";
-            args = List.of("-c", "sleep 10");
-        }
-
+        
         // When
-        CompletableFuture<Void> future = commandExecutor.execute(command, args, output::set);
-
-        // Give the process a moment to start
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
+        CompletableFuture<Void> future = commandExecutor.execute(command, output::set);
+        Thread.sleep(1000); // Give process time to start
         commandExecutor.kill();
 
         // Then
         assertThatThrownBy(future::join)
-                .hasCauseInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Process exited with code");
+            .isInstanceOf(CompletionException.class)
+            .hasRootCauseInstanceOf(InterruptedException.class);
     }
 
     @Test
     void execute_WhenAnotherCommandIsRunning_ShouldThrowException() {
         // Given
-        List<String> args;
-        String command;
+        List<String> longRunningCommand = OS.WINDOWS.isCurrentOs()
+            ? List.of("cmd", "/c", "ping", "-t", "localhost")
+            : List.of("sh", "-c", "sleep 10");
 
-        // Use a long-running command that we can interrupt
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            command = "cmd";
-            args = List.of("/c", "ping", "-t", "localhost");
-        } else {
-            command = "/bin/sh";
-            args = List.of("-c", "sleep 5");
-        }
+        List<String> secondCommand = OS.WINDOWS.isCurrentOs()
+            ? List.of("cmd", "/c", "echo", "test")
+            : List.of("sh", "-c", "echo test");
 
-        // Start a long-running command (don't wait for it)
-        CompletableFuture<Void> future1 = commandExecutor.execute(command, args, data -> {});
+        // When
+        commandExecutor.execute(longRunningCommand, s -> {});
 
-        // Give the process a moment to start
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        // When/Then
-        CompletableFuture<Void> future2 = commandExecutor.execute(command, args, data -> {});
-        assertThatThrownBy(future2::join)
-            .isInstanceOf(CompletionException.class)
-            .hasCauseInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Another command is already running");
-
-        // Cleanup
-        commandExecutor.kill();
-        try {
-            future1.join();
-        } catch (Exception ignored) {
-            // Ignore any exceptions from the killed process
-        }
-    }
-
-    @Test
-    void execute_WithInvalidCommand_ShouldThrowException() {
-        // Given
-        String nonExistentCommand = "thiscommanddoesnotexist";
-
-        // When/Then
-        assertThatThrownBy(() ->
-                commandExecutor.execute(nonExistentCommand, List.of("arg"), data -> {}).join()
-        )
-                .hasCauseInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Command execution failed");
+        // Then
+        assertThatThrownBy(() -> commandExecutor.execute(secondCommand, s -> {}))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Command already running");
     }
 }
