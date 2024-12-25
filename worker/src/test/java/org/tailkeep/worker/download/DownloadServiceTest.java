@@ -7,16 +7,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.tailkeep.worker.command.CommandExecutor;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DownloadServiceTest {
@@ -40,13 +38,13 @@ class DownloadServiceTest {
         String filename = "video.mp4";
 
         List<String> expectedArgs = Collections.singletonList(url);
-        
-        when(commandExecutor.execute(argThat(args -> 
-            args.size() == expectedArgs.size() && 
-            args.containsAll(expectedArgs) && 
-            expectedArgs.containsAll(args)
+
+        when(commandExecutor.execute(argThat(args ->
+                args.size() == expectedArgs.size() &&
+                        args.containsAll(expectedArgs) &&
+                        expectedArgs.containsAll(args)
         ), any()))
-            .thenReturn(CompletableFuture.completedFuture(null));
+                .thenReturn(CompletableFuture.completedFuture(null));
 
         @SuppressWarnings("unchecked")
         Consumer<DownloadProgressMessage> mockProgressCallback = mock(Consumer.class);
@@ -55,10 +53,10 @@ class DownloadServiceTest {
         downloadService.processDownload(jobId, videoId, url, filename, mockProgressCallback);
 
         // Then
-        verify(commandExecutor).execute(argThat(args -> 
-            args.size() == expectedArgs.size() && 
-            args.containsAll(expectedArgs) && 
-            expectedArgs.containsAll(args)
+        verify(commandExecutor).execute(argThat(args ->
+                args.size() == expectedArgs.size() &&
+                        args.containsAll(expectedArgs) &&
+                        expectedArgs.containsAll(args)
         ), any());
     }
 }

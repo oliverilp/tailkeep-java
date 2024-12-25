@@ -36,9 +36,9 @@ class CommandExecutorTest {
 
         // When
         assertThat(commandExecutor.execute(command, args, capturedOutput::set)
-          .thenApply(unused -> capturedOutput.get().trim())
-            .join())
-            .isEqualTo("test");
+                .thenApply(unused -> capturedOutput.get().trim())
+                .join())
+                .isEqualTo("test");
     }
 
     @Test
@@ -71,7 +71,7 @@ class CommandExecutorTest {
 
         // Then
         assertThatThrownBy(future::join)
-            .hasCauseInstanceOf(RuntimeException.class)
-            .hasMessageContaining("Process exited with code");
+                .hasCauseInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Process exited with code");
     }
 }

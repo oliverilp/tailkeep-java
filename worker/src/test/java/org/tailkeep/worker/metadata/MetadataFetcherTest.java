@@ -10,6 +10,7 @@ import org.tailkeep.worker.command.CommandExecutor;
 import org.tailkeep.worker.command.CommandOutput;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -37,17 +38,20 @@ class MetadataFetcherTest {
     @Test
     void fetch_ShouldParseMetadataCorrectly() throws IOException {
         // Given
-        String jsonResponse = new String(
-            getClass().getResourceAsStream("/metadata/youtube-metadata-response.json").readAllBytes(),
-            StandardCharsets.UTF_8
-        );
+        String jsonResponse;
+        try (InputStream inputStream = getClass().getResourceAsStream("/metadata/youtube-metadata-response.json")) {
+            if (inputStream == null) {
+                throw new IOException("Could not find test resource file");
+            }
+            jsonResponse = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        }
 
         when(commandExecutor.execute(eq(List.of("-j", "https://youtube.com/watch?v=dQw4w9WgXcQ")), any()))
-            .thenAnswer(inv -> {
-                CommandOutput output = inv.getArgument(1);
-                output.onData(jsonResponse);
-                return CompletableFuture.completedFuture(null);
-            });
+                .thenAnswer(inv -> {
+                    CommandOutput output = inv.getArgument(1);
+                    output.onData(jsonResponse);
+                    return CompletableFuture.completedFuture(null);
+                });
 
         // When
         CompletableFuture<Metadata> futureMetadata = metadataFetcher.fetch("https://youtube.com/watch?v=dQw4w9WgXcQ");
