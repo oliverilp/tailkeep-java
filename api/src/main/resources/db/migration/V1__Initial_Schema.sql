@@ -1,5 +1,5 @@
 CREATE TABLE app_user (
-    id VARCHAR(255) PRIMARY KEY,
+    id UUID PRIMARY KEY,
     nickname VARCHAR(255) NOT NULL,
     username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -9,13 +9,13 @@ CREATE TABLE app_user (
 );
 
 CREATE TABLE jwt_secret (
-    id VARCHAR(255) PRIMARY KEY,
+    id UUID PRIMARY KEY,
     secret_key VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE channel (
-    id VARCHAR(255) PRIMARY KEY,
+    id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     youtube_id VARCHAR(255) NOT NULL UNIQUE,
     channel_url VARCHAR(255) NOT NULL UNIQUE,
@@ -24,7 +24,7 @@ CREATE TABLE channel (
 );
 
 CREATE TABLE video (
-    id VARCHAR(255) PRIMARY KEY,
+    id UUID PRIMARY KEY,
     youtube_id VARCHAR(255) NOT NULL UNIQUE,
     channel_id UUID NOT NULL REFERENCES channel(id),
     url VARCHAR(255) NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE video (
 );
 
 CREATE TABLE job (
-    id VARCHAR(255) PRIMARY KEY,
+    id UUID PRIMARY KEY,
     input_url VARCHAR(255) NOT NULL,
     video_id UUID REFERENCES video(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -63,7 +63,7 @@ CREATE TABLE download_progress (
 );
 
 CREATE TABLE token (
-    id VARCHAR(255) PRIMARY KEY,
+    id UUID PRIMARY KEY,
     token VARCHAR(255) NOT NULL,
     token_type VARCHAR(50) NOT NULL,
     revoked BOOLEAN NOT NULL DEFAULT FALSE,
