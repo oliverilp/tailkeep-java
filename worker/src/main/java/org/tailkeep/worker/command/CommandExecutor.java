@@ -13,16 +13,22 @@ import java.util.function.Consumer;
 @Component
 @Slf4j
 public class CommandExecutor {
-    private final String mediaPath;
+    private final File mediaPath;
     private final AtomicReference<Process> currentProcess = new AtomicReference<>();
+    private final ProcessFactory processFactory;
 
     public CommandExecutor() {
-        String mediaPath = System.getenv("MEDIA_PATH");
-        if (mediaPath == null || mediaPath.isBlank()) {
-            mediaPath = System.getProperty("user.home") + "/Videos/";
-            log.warn("MEDIA_PATH environment variable not set, using default: {}", mediaPath);
+        this(new DefaultProcessFactory());
+    }
+
+    CommandExecutor(ProcessFactory processFactory) {
+        this.processFactory = processFactory;
+        String mediaPathStr = System.getenv("MEDIA_PATH");
+        if (mediaPathStr == null || mediaPathStr.isBlank()) {
+            mediaPathStr = System.getProperty("user.home") + "/Videos/";
+            log.warn("MEDIA_PATH environment variable not set, using default: {}", mediaPathStr);
         }
-        this.mediaPath = mediaPath;
+        this.mediaPath = new File(mediaPathStr);
     }
 
     public CompletableFuture<Void> execute(List<String> args, CommandOutput onDataCallback) {
@@ -39,11 +45,9 @@ public class CommandExecutor {
 
                 log.info("Executing command: {}", commandWithArgs);
 
-                ProcessBuilder processBuilder = new ProcessBuilder(commandWithArgs)
-                        .directory(new File(mediaPath));
-
-                Process process = processBuilder.start();
+                Process process = processFactory.createProcess(commandWithArgs, mediaPath);
                 if (!currentProcess.compareAndSet(null, process)) {
+                    process.destroy();
                     throw new IllegalStateException("Another command is already running");
                 }
 

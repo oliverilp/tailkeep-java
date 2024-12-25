@@ -2,83 +2,119 @@ package org.tailkeep.worker.command;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.nio.file.Path;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class CommandExecutorTest {
 
+    @Mock
+    private ProcessFactory processFactory;
+    @Mock
+    private Process process;
+    
     private CommandExecutor commandExecutor;
-    @TempDir
-    Path tempDir;
+    private File mediaPath;
 
     @BeforeEach
-    void setUp() {
-        System.setProperty("user.home", tempDir.toString());
-        commandExecutor = new CommandExecutor();
+    void setUp() throws Exception {
+        commandExecutor = new CommandExecutor(processFactory);
+        mediaPath = new File(System.getProperty("user.home") + "/Videos/");
+        
+        // Default mock behavior
+        when(process.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+        when(process.getErrorStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+        when(process.waitFor()).thenReturn(0);
     }
 
     @Test
-    void execute_ShouldCaptureOutput() {
+    void execute_ShouldCaptureOutput() throws Exception {
         // Given
+        List<String> command = List.of("test", "command");
+        List<String> expectedCommand = List.of("yt-dlp", "test", "command");
+        String expectedOutput = "test output\n";
         AtomicReference<String> capturedOutput = new AtomicReference<>();
-        List<String> command = OS.WINDOWS.isCurrentOs() 
-            ? List.of("cmd", "/c", "echo", "test echo cmd")
-            : List.of("sh", "-c", "echo test echo cmd");
+        
+        when(processFactory.createProcess(expectedCommand, mediaPath)).thenReturn(process);
+        when(process.getInputStream()).thenReturn(new ByteArrayInputStream(expectedOutput.getBytes()));
 
         // When
-        CompletableFuture<Void> future = commandExecutor.execute(command, capturedOutput::set);
+        commandExecutor.execute(command, capturedOutput::set).join();
 
         // Then
-        future.join();
-        assertThat(capturedOutput.get()).contains("test echo cmd");
+        assertThat(capturedOutput.get()).isEqualTo(expectedOutput.trim());
+    }
+
+    @Test
+    void execute_WhenProcessFails_ShouldThrowException() throws Exception {
+        // Given
+        List<String> command = List.of("test", "command");
+        List<String> expectedCommand = List.of("yt-dlp", "test", "command");
+        
+        when(processFactory.createProcess(expectedCommand, mediaPath)).thenReturn(process);
+        when(process.waitFor()).thenReturn(1);
+
+        // When/Then
+        assertThatThrownBy(() -> commandExecutor.execute(command, s -> {}).join())
+            .hasRootCauseInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Process exited with code 1");
+    }
+
+    @Test
+    void execute_WhenAnotherCommandIsRunning_ShouldThrowException() throws Exception {
+        // Given
+        List<String> command = List.of("test", "command");
+        List<String> expectedCommand = List.of("yt-dlp", "test", "command");
+        
+        when(processFactory.createProcess(expectedCommand, mediaPath)).thenReturn(process);
+        when(process.waitFor()).thenAnswer(inv -> {
+            Thread.sleep(500);
+            return 0;
+        });
+
+        // When
+        CompletableFuture<Void> future1 = commandExecutor.execute(command, s -> {});
+        Thread.sleep(100); // Ensure first command is running
+
+        // Then
+        CompletableFuture<Void> future2 = commandExecutor.execute(command, s -> {});
+        assertThatThrownBy(future2::join)
+            .hasRootCauseInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Another command is already running");
+
+        future1.join(); // Clean up
     }
 
     @Test
     void kill_ShouldTerminateRunningProcess() throws Exception {
         // Given
-        List<String> command = OS.WINDOWS.isCurrentOs()
-            ? List.of("cmd", "/c", "ping", "-t", "localhost")
-            : List.of("sh", "-c", "sleep 10");
-
-        AtomicReference<String> output = new AtomicReference<>();
+        List<String> command = List.of("test", "command");
+        List<String> expectedCommand = List.of("yt-dlp", "test", "command");
         
+        when(processFactory.createProcess(expectedCommand, mediaPath)).thenReturn(process);
+        when(process.waitFor()).thenAnswer(inv -> {
+            Thread.sleep(500);
+            return 0;
+        });
+        when(process.isAlive()).thenReturn(true);
+
         // When
-        CompletableFuture<Void> future = commandExecutor.execute(command, output::set);
-        Thread.sleep(1000); // Give process time to start
+        commandExecutor.execute(command, s -> {});
+        Thread.sleep(100); // Ensure process is running
         commandExecutor.kill();
 
         // Then
-        assertThatThrownBy(future::join)
-            .isInstanceOf(CompletionException.class)
-            .hasRootCauseInstanceOf(InterruptedException.class);
-    }
-
-    @Test
-    void execute_WhenAnotherCommandIsRunning_ShouldThrowException() {
-        // Given
-        List<String> longRunningCommand = OS.WINDOWS.isCurrentOs()
-            ? List.of("cmd", "/c", "ping", "-t", "localhost")
-            : List.of("sh", "-c", "sleep 10");
-
-        List<String> secondCommand = OS.WINDOWS.isCurrentOs()
-            ? List.of("cmd", "/c", "echo", "test")
-            : List.of("sh", "-c", "echo test");
-
-        // When
-        commandExecutor.execute(longRunningCommand, s -> {});
-
-        // Then
-        assertThatThrownBy(() -> commandExecutor.execute(secondCommand, s -> {}))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Command already running");
+        verify(process).destroy();
     }
 }
