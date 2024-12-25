@@ -36,6 +36,7 @@ jobs:
         run: ./gradlew test
 
   build:
+  needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
