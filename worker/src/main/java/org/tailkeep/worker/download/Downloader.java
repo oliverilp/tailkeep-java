@@ -1,17 +1,16 @@
 package org.tailkeep.worker.download;
 
-import org.tailkeep.worker.command.CommandExecutor;
-
 import lombok.extern.slf4j.Slf4j;
+import org.tailkeep.worker.command.CommandExecutor;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.function.Consumer;
 
 @Slf4j
 public class Downloader {

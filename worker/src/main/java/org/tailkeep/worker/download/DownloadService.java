@@ -1,12 +1,11 @@
 package org.tailkeep.worker.download;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.tailkeep.worker.command.CommandExecutor;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 @Service
 @Slf4j

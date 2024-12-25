@@ -2,15 +2,13 @@ package org.tailkeep.worker.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Component;
 import org.tailkeep.worker.command.CommandExecutor;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @Slf4j
@@ -33,7 +31,7 @@ public class MetadataFetcher {
     private Metadata parseMetadata(String jsonStr) {
         try {
             JsonNode json = objectMapper.readTree(jsonStr);
-            log.info("Metadata finished " + json.get("title").asText());
+            log.info("Metadata finished {}", json.get("title").asText());
 
             return buildMetadata(json);
         } catch (Exception e) {

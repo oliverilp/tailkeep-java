@@ -1,5 +1,7 @@
 package org.tailkeep.worker.queue;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -7,10 +9,6 @@ import org.tailkeep.worker.config.KafkaTopicNames;
 import org.tailkeep.worker.download.DownloadProgressMessage;
 import org.tailkeep.worker.download.DownloadRequestMessage;
 import org.tailkeep.worker.download.DownloadService;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -32,9 +30,7 @@ public class DownloadQueueListener {
             containerFactory = "downloadFactory"
     )
     public void onDownloadJob(DownloadRequestMessage message) {
-        log.info("RECEIVED DOWNLOAD" + message);
-        log.info("RECEIVED DOWNLOAD" + message);
-        log.info("RECEIVED DOWNLOAD" + message);
+        log.info("Received download job {}", message);
 
         try {
             downloadService.processDownload(
