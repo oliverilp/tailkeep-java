@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.tailkeep.worker.config.MediaProperties;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -29,8 +30,9 @@ class CommandExecutorTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        commandExecutor = new CommandExecutor(processFactory);
-        mediaPath = new File(System.getProperty("user.home") + "/Videos/");
+        MediaProperties mediaProperties = new MediaProperties();
+        commandExecutor = new CommandExecutor(processFactory, mediaProperties);
+        mediaPath = new File(mediaProperties.getPath());
         
         // Default mock behavior
         when(process.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));

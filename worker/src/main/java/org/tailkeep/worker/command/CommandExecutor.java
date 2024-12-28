@@ -1,7 +1,9 @@
 package org.tailkeep.worker.command;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.tailkeep.worker.config.MediaProperties;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -17,18 +19,10 @@ public class CommandExecutor {
     private final AtomicReference<Process> currentProcess = new AtomicReference<>();
     private final ProcessFactory processFactory;
 
-    public CommandExecutor() {
-        this(new DefaultProcessFactory());
-    }
-
-    CommandExecutor(ProcessFactory processFactory) {
+    public CommandExecutor(ProcessFactory processFactory, MediaProperties mediaProperties) {
         this.processFactory = processFactory;
-        String mediaPathStr = System.getenv("MEDIA_PATH");
-        if (mediaPathStr == null || mediaPathStr.isBlank()) {
-            mediaPathStr = System.getProperty("user.home") + "/Videos/";
-            log.warn("MEDIA_PATH environment variable not set, using default: {}", mediaPathStr);
-        }
-        this.mediaPath = new File(mediaPathStr);
+        this.mediaPath = new File(mediaProperties.getPath());
+        log.info("Using media path: {}", mediaPath);
     }
 
     public CompletableFuture<Void> execute(List<String> args, CommandOutput onDataCallback) {
