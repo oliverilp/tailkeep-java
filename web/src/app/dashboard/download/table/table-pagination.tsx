@@ -8,28 +8,25 @@ import {
   PaginationNext,
   PaginationPrevious
 } from '@/components/ui/pagination';
+import { DownloadsPageResponse } from '@/schemas/downloads-dashboard';
 
 interface TablePaginationProps {
-  total: number;
-  limit: number;
-  searchParams: {
-    progress: string;
-    page: number;
-  };
+  downloads: DownloadsPageResponse;
+  progress: string;
 }
 
 type Page = number | string;
 
-function getPages(pageCount: number, page: number): Page[] {
+function getPages(totalPages: number, page: number): Page[] {
   const pages: Page[] = [];
   const ellipsis = '...';
   const totalPaginationElements = 8;
   const maxVisiblePages = 5;
   const isNearStart = page <= 4;
-  const isNearEnd = page >= pageCount - 3;
+  const isNearEnd = page >= totalPages - 3;
 
-  if (pageCount <= totalPaginationElements) {
-    for (let i = 1; i <= pageCount; i++) {
+  if (totalPages <= totalPaginationElements) {
+    for (let i = 1; i <= totalPages; i++) {
       pages.push(i);
     }
   } else {
@@ -38,11 +35,11 @@ function getPages(pageCount: number, page: number): Page[] {
         pages.push(i);
       }
       pages.push(ellipsis);
-      pages.push(pageCount);
+      pages.push(totalPages);
     } else if (isNearEnd) {
       pages.push(1);
       pages.push(ellipsis);
-      for (let i = pageCount - maxVisiblePages; i <= pageCount; i++) {
+      for (let i = totalPages - maxVisiblePages; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
@@ -52,17 +49,16 @@ function getPages(pageCount: number, page: number): Page[] {
         pages.push(i);
       }
       pages.push(ellipsis);
-      pages.push(pageCount);
+      pages.push(totalPages);
     }
   }
 
   return pages;
 }
 
-function TablePagination({ total, limit, searchParams }: TablePaginationProps) {
-  const { page, progress } = searchParams;
-  const pageCount = Math.ceil(total / limit);
-  const pages = getPages(pageCount, page);
+function TablePagination({ downloads, progress }: TablePaginationProps) {
+  const { currentPage, totalPages, hasPrevious, hasNext } = downloads;
+  const pages = getPages(totalPages, currentPage);
 
   return (
     <div>
@@ -70,12 +66,12 @@ function TablePagination({ total, limit, searchParams }: TablePaginationProps) {
         <PaginationContent className="w-full justify-between sm:w-fit lg:items-center lg:justify-normal">
           <PaginationItem>
             <PaginationPrevious
-              disabled={page === 1}
-              href={`?progress=${progress}&page=${page - 1}`}
+              disabled={hasPrevious}
+              href={`?progress=${progress}&page=${currentPage - 1}`}
             />
           </PaginationItem>
 
-          <div className="sm:hidden">{`Page: ${page}/${pageCount}`}</div>
+          <div className="sm:hidden">{`Page: ${currentPage}/${totalPages}`}</div>
 
           {pages.map((item, index) => {
             if (item === '...') {
@@ -92,7 +88,7 @@ function TablePagination({ total, limit, searchParams }: TablePaginationProps) {
                 <PaginationItem className="hidden sm:flex" key={item}>
                   <PaginationLink
                     href={`?progress=${progress}&page=${item}`}
-                    isActive={item === page}
+                    isActive={item === currentPage}
                   >
                     {item}
                   </PaginationLink>
@@ -102,8 +98,8 @@ function TablePagination({ total, limit, searchParams }: TablePaginationProps) {
           })}
           <PaginationItem>
             <PaginationNext
-              disabled={page === pageCount}
-              href={`?progress=${progress}&page=${page + 1}`}
+              disabled={hasNext}
+              href={`?progress=${progress}&page=${currentPage + 1}`}
             />
           </PaginationItem>
         </PaginationContent>

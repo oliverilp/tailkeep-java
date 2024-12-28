@@ -1,5 +1,7 @@
 package org.tailkeep.api.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.tailkeep.api.model.DownloadProgress;
@@ -18,4 +20,7 @@ public interface DownloadProgressRepository extends JpaRepository<DownloadProgre
     long countByHasEndedFalse();
     long countByVideo(Video video);
     long countByVideoAndHasEndedTrue(Video video);
+
+    Page<DownloadProgress> findByHasEndedTrue(Pageable pageable);
+    Page<DownloadProgress> findByHasEndedFalse(Pageable pageable);
 }

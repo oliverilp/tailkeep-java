@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,8 @@ import org.tailkeep.api.dto.DownloadProgressDto;
 import org.tailkeep.api.dto.DownloadRequestDto;
 import org.tailkeep.api.dto.DownloadsDashboardDto;
 import org.tailkeep.api.dto.QueueInfoDto;
+import org.tailkeep.api.dto.PageRequestDto;
+import org.tailkeep.api.dto.PageResponseDto;
 import org.tailkeep.api.exception.InvalidUrlException;
 import org.tailkeep.api.exception.ResourceNotFoundException;
 import org.tailkeep.api.mapper.EntityMapper;
@@ -187,14 +192,38 @@ public class DownloadService {
         }
     }
 
-    public DownloadsDashboardDto getDownloadsDashboard() {
+    public DownloadsDashboardDto getDownloadsDashboard(PageRequestDto pageRequest) {
         QueueInfoDto queueInfo = new QueueInfoDto(
             jobRepository.countQueuedJobs(),
             downloadProgressRepository.countByHasEndedFalse(),
             downloadProgressRepository.countByHasEndedTrue()
         );
 
-        List<DownloadProgressDto> downloads = getAllDownloadProgress();
+        // Convert from 1-based to 0-based page number for Spring
+        Pageable pageable = PageRequest.of(
+            pageRequest.page() - 1, 
+            pageRequest.size(), 
+            Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+        
+        Page<DownloadProgress> page;
+        if ("active".equals(pageRequest.progress())) {
+            page = downloadProgressRepository.findByHasEndedFalse(pageable);
+        } else if ("done".equals(pageRequest.progress())) {
+            page = downloadProgressRepository.findByHasEndedTrue(pageable);
+        } else {
+            page = downloadProgressRepository.findAll(pageable);
+        }
+
+        PageResponseDto<DownloadProgressDto> downloads = new PageResponseDto<>(
+            page.getContent().stream().map(mapper::toDto).collect(Collectors.toList()),
+            page.getTotalPages(),
+            page.getTotalElements(),
+            page.getNumber() + 1, // Convert back to 1-based page number for frontend
+            page.getSize(),
+            page.hasNext(),
+            page.hasPrevious()
+        );
 
         return new DownloadsDashboardDto(queueInfo, downloads);
     }
