@@ -23,8 +23,6 @@ export function useLogin() {
     mutationFn: async (credentials: LoginCredentials) => {
       if (!apiClient) throw new Error('API client not initialized');
 
-      console.log('credentials', credentials);
-
       const { data } = await apiClient.post<AuthResponse>(
         '/auth/authenticate',
         credentials

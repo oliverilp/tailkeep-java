@@ -58,9 +58,16 @@ export function getApiClient(): AxiosInstance {
       if (
         error.response?.status === 401 &&
         !originalRequest._retry &&
-        !originalRequest.url?.includes('/auth/authenticate') &&
-        refreshToken
+        !originalRequest.url?.includes('/auth/authenticate')
       ) {
+        console.log('401: trying to refresh token');
+        if (!refreshToken) {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          console.log('401 error and JWT missing, force logout:', error);
+          window.location.href = '/login';
+          return Promise.reject(error);
+        }
         originalRequest._retry = true;
 
         try {
