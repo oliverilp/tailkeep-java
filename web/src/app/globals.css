@@ -4,6 +4,16 @@
   margin: 0;
 }
 
+.vds-video-layout {
+  --video-bg: transparent;
+  --video-border: transparent;
+}
+
+.vds-video-layout[data-fullscreen] {
+  --video-bg: black;
+  --video-border: transparent;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
