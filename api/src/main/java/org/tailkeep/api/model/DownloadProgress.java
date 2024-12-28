@@ -51,4 +51,11 @@ public class DownloadProgress {
     
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
+    
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+    
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
 }

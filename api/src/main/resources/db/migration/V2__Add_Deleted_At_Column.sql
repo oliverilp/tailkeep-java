@@ -1,0 +1,2 @@
+ALTER TABLE download_progress
+ADD COLUMN deleted_at TIMESTAMP DEFAULT NULL; 

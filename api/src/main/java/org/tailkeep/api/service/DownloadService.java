@@ -192,27 +192,35 @@ public class DownloadService {
         }
     }
 
+    @Transactional
+    public void softDeleteDownload(UUID id) {
+        DownloadProgress progress = downloadProgressRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Download progress", id.toString()));
+        
+        progress.setDeletedAt(LocalDateTime.now());
+        downloadProgressRepository.save(progress);
+    }
+
     public DownloadsDashboardDto getDownloadsDashboard(PageRequestDto pageRequest) {
         QueueInfoDto queueInfo = new QueueInfoDto(
             jobRepository.countQueuedJobs(),
-            downloadProgressRepository.countByHasEndedFalse(),
-            downloadProgressRepository.countByHasEndedTrue()
+            downloadProgressRepository.countByHasEndedFalseAndDeletedAtIsNull(),
+            downloadProgressRepository.countByHasEndedTrueAndDeletedAtIsNull()
         );
 
-        // Convert from 1-based to 0-based page number for Spring
         Pageable pageable = PageRequest.of(
-            pageRequest.page() - 1, 
+            pageRequest.page() - 1, // Convert from 1-based to 0-based page number for Spring
             pageRequest.size(), 
             Sort.by(Sort.Direction.DESC, "createdAt")
         );
         
         Page<DownloadProgress> page;
         if ("active".equals(pageRequest.progress())) {
-            page = downloadProgressRepository.findByHasEndedFalse(pageable);
+            page = downloadProgressRepository.findByHasEndedFalseAndDeletedAtIsNull(pageable);
         } else if ("done".equals(pageRequest.progress())) {
-            page = downloadProgressRepository.findByHasEndedTrue(pageable);
+            page = downloadProgressRepository.findByHasEndedTrueAndDeletedAtIsNull(pageable);
         } else {
-            page = downloadProgressRepository.findAll(pageable);
+            page = downloadProgressRepository.findByDeletedAtIsNull(pageable);
         }
 
         PageResponseDto<DownloadProgressDto> downloads = new PageResponseDto<>(
