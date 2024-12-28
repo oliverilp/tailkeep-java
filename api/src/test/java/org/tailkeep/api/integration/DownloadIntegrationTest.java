@@ -252,7 +252,7 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
                 .isNotNull()
                 .satisfies(body -> {
                     assertThat(body.queueInfo().queue()).isEqualTo(0);
-                    assertThat(body.downloads()).hasSize(1);
+                    assertThat(body.downloads().items()).hasSize(1);
                 });
 
     }
@@ -308,5 +308,106 @@ class DownloadIntegrationTest extends BaseIntegrationTest {
                 .hasSize(3)
                 .extracting(DownloadProgressDto::status)
                 .containsOnly("downloading");
+    }
+
+    @Test
+    void softDeleteDownload_WithValidId_ShouldSucceed() {
+        // Arrange
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(auth.getAccessToken());
+
+        TestEntities testData = testDataFactory.createCompleteTestData();
+        UUID jobId = testData.job().getId();
+
+        // Verify item exists before deletion
+        ResponseEntity<DownloadsDashboardDto> beforeResponse = restTemplate.exchange(
+                "/api/v1/downloads/dashboard",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                DownloadsDashboardDto.class
+        );
+        assertThat(beforeResponse.getBody())
+                .isNotNull()
+                .satisfies(body -> assertThat(body.downloads().items()).hasSize(1));
+
+        // Act
+        ResponseEntity<Void> deleteResponse = restTemplate.exchange(
+                "/api/v1/downloads/" + jobId,
+                HttpMethod.DELETE,
+                new HttpEntity<>(headers),
+                Void.class
+        );
+
+        // Verify the delete response
+        assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        // Verify the item is not returned in the dashboard
+        ResponseEntity<DownloadsDashboardDto> afterResponse = restTemplate.exchange(
+                "/api/v1/downloads/dashboard",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                DownloadsDashboardDto.class
+        );
+
+        assertThat(afterResponse.getBody())
+                .isNotNull()
+                .satisfies(body -> {
+                    assertThat(body.downloads().items()).isEmpty();
+                    assertThat(body.queueInfo().active()).isZero();
+                });
+    }
+
+    @Test
+    void softDeleteDownload_WithInvalidId_ShouldFail() {
+        // Arrange
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(auth.getAccessToken());
+
+        // Test case 1: Invalid UUID format
+        ResponseEntity<ApiError> response1 = restTemplate.exchange(
+                "/api/v1/downloads/invalid-id",
+                HttpMethod.DELETE,
+                new HttpEntity<>(headers),
+                ApiError.class
+        );
+
+        // Assert case 1
+        assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        // Test case 2: Valid UUID but non-existent
+        String nonExistentId = UUID.randomUUID().toString();
+        ResponseEntity<ApiError> response2 = restTemplate.exchange(
+                "/api/v1/downloads/" + nonExistentId,
+                HttpMethod.DELETE,
+                new HttpEntity<>(headers),
+                ApiError.class
+        );
+
+        // Assert case 2
+        assertThat(response2.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void softDeleteDownload_WithoutAdminPermission_ShouldFail() {
+        // Arrange
+        AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(auth.getAccessToken());
+
+        TestEntities testData = testDataFactory.createCompleteTestData();
+        UUID jobId = testData.job().getId();
+
+        // Act
+        ResponseEntity<ApiError> response = restTemplate.exchange(
+                "/api/v1/downloads/" + jobId,
+                HttpMethod.DELETE,
+                new HttpEntity<>(headers),
+                ApiError.class
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 } 
