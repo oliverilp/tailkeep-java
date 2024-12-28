@@ -30,9 +30,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
+import { AxiosError } from 'axios';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import type { DownloadProgressDto } from '@/schemas/progress';
-// import { deleteDownloadAction } from '@/server/actions/delete-download';
+import { deleteDownload } from '@/api/downloads';
+import { ApiError } from 'next/dist/server/api-utils';
 
 function formatDate(date: Date): string {
   const options: Intl.DateTimeFormatOptions = {
@@ -62,10 +66,23 @@ interface DeleteDialogProps {
 }
 
 function DeleteDialog({ open, setOpen, item }: DeleteDialogProps) {
-  const handleDelete = () => {
-    console.log('Deleting item', item.video.title);
-    // void deleteDownloadAction({ id: item.id });
-  };
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteItem } = useMutation({
+    mutationFn: () => deleteDownload(item.id),
+    onSuccess: () => {
+      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['downloads-dashboard'] });
+      toast.success('Download history deleted successfully');
+    },
+    onError: (error: AxiosError<ApiError>) => {
+      console.error('Failed to delete download:', error);
+      toast.error('Failed to delete download history', {
+        description: error.response?.data.message,
+        duration: 7000
+      });
+    }
+  });
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -73,13 +90,17 @@ function DeleteDialog({ open, setOpen, item }: DeleteDialogProps) {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete download
-            progress for video &quot;{item.video.title}&quot;.
+            This action cannot be undone. This will permanently delete the
+            download progress history for &quot;{item.video.title}&quot;. The
+            video file itself will not be affected.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction variant={'destructive'} onClick={handleDelete}>
+          <AlertDialogAction
+            variant={'destructive'}
+            onClick={() => deleteItem()}
+          >
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -1,4 +1,3 @@
-import { getApiClient } from '@/lib/api-client';
 import { downloadsDashboardSchema } from '@/schemas/downloads-dashboard';
 import type { DownloadsDashboard } from '@/schemas/downloads-dashboard';
 import { apiClient } from '@/lib/api-client';
@@ -15,4 +14,8 @@ export async function getDownloadsDashboard(
 
 export async function startDownload(url: string): Promise<void> {
   await apiClient.post('/downloads', { url });
+}
+
+export async function deleteDownload(id: string): Promise<void> {
+  await apiClient.delete(`/downloads/${id}`);
 }
