@@ -66,7 +66,7 @@ function TablePagination({ downloads, progress }: TablePaginationProps) {
         <PaginationContent className="w-full justify-between sm:w-fit lg:items-center lg:justify-normal">
           <PaginationItem>
             <PaginationPrevious
-              disabled={hasPrevious}
+              disabled={!hasPrevious}
               href={`?progress=${progress}&page=${currentPage - 1}`}
             />
           </PaginationItem>
@@ -98,7 +98,7 @@ function TablePagination({ downloads, progress }: TablePaginationProps) {
           })}
           <PaginationItem>
             <PaginationNext
-              disabled={hasNext}
+              disabled={!hasNext}
               href={`?progress=${progress}&page=${currentPage + 1}`}
             />
           </PaginationItem>
