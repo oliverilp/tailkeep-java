@@ -1,0 +1,417 @@
+openapi: 3.0.3
+info:
+  title: Tailkeep Channel API
+  description: REST API endpoints for browsing channels and channel videos
+  version: 1.0.0
+  contact:
+    name: Tailkeep API Team
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://api.tailkeep.example.com
+    description: Production server
+
+tags:
+  - name: Channels
+    description: Channel browsing and detail operations
+
+paths:
+  /api/v1/channels:
+    get:
+      tags:
+        - Channels
+      summary: List all channels
+      description: Retrieve a paginated list of all channels with video counts
+      operationId: getAllChannels
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-indexed)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: sort
+          in: query
+          description: Sort criteria (format: field,direction)
+          required: false
+          schema:
+            type: string
+            default: "name,asc"
+            example: "name,asc"
+      responses:
+        '200':
+          description: Successful response with paginated channel list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageChannelDetailDto'
+              example:
+                content:
+                  - id: "550e8400-e29b-41d4-a716-446655440000"
+                    name: "Tech Reviews"
+                    youtubeId: "UCxxxxxxxxxxxxxx"
+                    channelUrl: "https://www.youtube.com/channel/UCxxxxxxxxxxxxxx"
+                    videoCount: 42
+                    createdAt: "2025-11-01T10:30:00"
+                    updatedAt: "2025-11-20T15:45:00"
+                page: 0
+                size: 20
+                totalElements: 5
+                totalPages: 1
+                first: true
+                last: true
+        '401':
+          description: Unauthorized - JWT token missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/channels/{id}:
+    get:
+      tags:
+        - Channels
+      summary: Get channel details with videos
+      description: Retrieve detailed information for a specific channel including paginated video list
+      operationId: getChannelById
+      parameters:
+        - name: id
+          in: path
+          description: Channel UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          description: Page number for videos (0-indexed)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Number of videos per page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Successful response with channel details and videos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelWithVideosDto'
+              example:
+                id: "550e8400-e29b-41d4-a716-446655440000"
+                name: "Tech Reviews"
+                youtubeId: "UCxxxxxxxxxxxxxx"
+                channelUrl: "https://www.youtube.com/channel/UCxxxxxxxxxxxxxx"
+                createdAt: "2025-11-01T10:30:00"
+                updatedAt: "2025-11-20T15:45:00"
+                videos:
+                  content:
+                    - id: "660e8400-e29b-41d4-a716-446655440001"
+                      youtubeId: "dQw4w9WgXcQ"
+                      title: "Latest Gadget Review"
+                      durationString: "10:30"
+                      duration: 630.0
+                      thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"
+                      filename: "latest-gadget-review.mp4"
+                      createdAt: "2025-11-20T15:45:00"
+                      updatedAt: "2025-11-20T15:45:00"
+                  page: 0
+                  size: 20
+                  totalElements: 42
+                  totalPages: 3
+                  first: true
+                  last: false
+        '401':
+          description: Unauthorized - JWT token missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Channel not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: "Channel not found with id: 550e8400-e29b-41d4-a716-446655440000"
+                timestamp: "2025-11-23T10:30:00"
+                status: 404
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    ChannelDto:
+      type: object
+      description: Basic channel information
+      required:
+        - id
+        - name
+        - youtubeId
+        - channelUrl
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique channel identifier
+        name:
+          type: string
+          description: Channel display name
+          example: "Tech Reviews"
+        youtubeId:
+          type: string
+          description: YouTube channel ID
+          example: "UCxxxxxxxxxxxxxx"
+        channelUrl:
+          type: string
+          format: uri
+          description: Full URL to YouTube channel
+          example: "https://www.youtube.com/channel/UCxxxxxxxxxxxxxx"
+        createdAt:
+          type: string
+          format: date-time
+          description: Channel record creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Channel record last update timestamp
+
+    ChannelDetailDto:
+      allOf:
+        - $ref: '#/components/schemas/ChannelDto'
+        - type: object
+          required:
+            - videoCount
+          properties:
+            videoCount:
+              type: integer
+              format: int64
+              description: Number of videos in this channel
+              example: 42
+
+    ChannelWithVideosDto:
+      allOf:
+        - $ref: '#/components/schemas/ChannelDto'
+        - type: object
+          required:
+            - videos
+          properties:
+            videos:
+              $ref: '#/components/schemas/PageVideoDto'
+
+    VideoDto:
+      type: object
+      description: Video information
+      required:
+        - id
+        - youtubeId
+        - channel
+        - url
+        - title
+        - filename
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique video identifier
+        youtubeId:
+          type: string
+          description: YouTube video ID
+          example: "dQw4w9WgXcQ"
+        channel:
+          $ref: '#/components/schemas/ChannelDto'
+        url:
+          type: string
+          format: uri
+          description: YouTube video URL
+        title:
+          type: string
+          description: Video title
+          example: "Latest Gadget Review"
+        durationString:
+          type: string
+          description: Human-readable duration
+          example: "10:30"
+          nullable: true
+        duration:
+          type: number
+          format: double
+          description: Duration in seconds
+          example: 630.0
+          nullable: true
+        thumbnailUrl:
+          type: string
+          format: uri
+          description: Video thumbnail URL
+          nullable: true
+        description:
+          type: string
+          description: Video description
+          nullable: true
+        viewCount:
+          type: integer
+          format: int64
+          description: Number of views
+          nullable: true
+        commentCount:
+          type: integer
+          format: int64
+          description: Number of comments
+          nullable: true
+        filename:
+          type: string
+          description: Stored video filename
+        createdAt:
+          type: string
+          format: date-time
+          description: Video record creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Video record last update timestamp
+
+    PageChannelDetailDto:
+      type: object
+      description: Paginated channel list response
+      required:
+        - content
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - first
+        - last
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChannelDetailDto'
+        page:
+          type: integer
+          description: Current page number (0-indexed)
+          example: 0
+        size:
+          type: integer
+          description: Number of items per page
+          example: 20
+        totalElements:
+          type: integer
+          format: int64
+          description: Total number of channels
+          example: 5
+        totalPages:
+          type: integer
+          description: Total number of pages
+          example: 1
+        first:
+          type: boolean
+          description: Whether this is the first page
+          example: true
+        last:
+          type: boolean
+          description: Whether this is the last page
+          example: true
+
+    PageVideoDto:
+      type: object
+      description: Paginated video list response
+      required:
+        - content
+        - page
+        - size
+        - totalElements
+        - totalPages
+        - first
+        - last
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/VideoDto'
+        page:
+          type: integer
+          description: Current page number (0-indexed)
+        size:
+          type: integer
+          description: Number of items per page
+        totalElements:
+          type: integer
+          format: int64
+          description: Total number of videos
+        totalPages:
+          type: integer
+          description: Total number of pages
+        first:
+          type: boolean
+          description: Whether this is the first page
+        last:
+          type: boolean
+          description: Whether this is the last page
+
+    Error:
+      type: object
+      description: Error response
+      required:
+        - message
+        - timestamp
+        - status
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: "Channel not found with id: 550e8400-e29b-41d4-a716-446655440000"
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+        status:
+          type: integer
+          description: HTTP status code
+          example: 404
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token
+
+security:
+  - bearerAuth: []
+
