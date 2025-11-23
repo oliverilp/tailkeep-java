@@ -25,10 +25,10 @@
 
 **Purpose**: Project initialization and verification that prerequisites are met
 
-- [ ] T001 Verify Channel and Video entities exist in api/src/main/java/org/tailkeep/api/model/
-- [ ] T002 Verify EntityMapper exists in api/src/main/java/org/tailkeep/api/mapper/EntityMapper.java
-- [ ] T003 Verify VideoRepository exists in api/src/main/java/org/tailkeep/api/repository/VideoRepository.java
-- [ ] T004 Verify existing authentication configuration (JWT) is working
+- [X] T001 Verify Channel and Video entities exist in api/src/main/java/org/tailkeep/api/model/
+- [X] T002 Verify EntityMapper exists in api/src/main/java/org/tailkeep/api/mapper/EntityMapper.java
+- [X] T003 Verify VideoRepository exists in api/src/main/java/org/tailkeep/api/repository/VideoRepository.java
+- [X] T004 Verify existing authentication configuration (JWT) is working
 
 ---
 
@@ -38,11 +38,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create ChannelRepository interface in api/src/main/java/org/tailkeep/api/repository/ChannelRepository.java
-- [ ] T006 [P] Create ChannelDetailDto record in api/src/main/java/org/tailkeep/api/dto/ChannelDetailDto.java
-- [ ] T007 [P] Create ChannelWithVideosDto class in api/src/main/java/org/tailkeep/api/dto/ChannelWithVideosDto.java
-- [ ] T008 Update EntityMapper to add toDetailDto(Channel) mapping in api/src/main/java/org/tailkeep/api/mapper/EntityMapper.java
-- [ ] T009 Add findByChannel(Channel, Pageable) method to VideoRepository in api/src/main/java/org/tailkeep/api/repository/VideoRepository.java
+- [X] T005 [P] Create ChannelRepository interface in api/src/main/java/org/tailkeep/api/repository/ChannelRepository.java
+- [X] T006 [P] Create ChannelDetailDto record in api/src/main/java/org/tailkeep/api/dto/ChannelDetailDto.java
+- [X] T007 [P] Create ChannelWithVideosDto class in api/src/main/java/org/tailkeep/api/dto/ChannelWithVideosDto.java
+- [X] T008 Update EntityMapper to add toDetailDto(Channel) mapping in api/src/main/java/org/tailkeep/api/mapper/EntityMapper.java
+- [X] T009 Add findByChannel(Channel, Pageable) method to VideoRepository in api/src/main/java/org/tailkeep/api/repository/VideoRepository.java
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,11 +63,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Create ChannelService with getAllChannels method in api/src/main/java/org/tailkeep/api/service/ChannelService.java
-- [ ] T011 [US1] Create ChannelController with GET /api/v1/channels endpoint in api/src/main/java/org/tailkeep/api/controller/ChannelController.java
-- [ ] T012 [US1] Verify pagination parameters work correctly (page, size, sort) for channel list endpoint
-- [ ] T013 [US1] Test channel list endpoint returns 401 without JWT token
-- [ ] T014 [US1] Test channel list endpoint with empty database returns empty content array
+- [X] T010 [US1] Create ChannelService with getAllChannels method in api/src/main/java/org/tailkeep/api/service/ChannelService.java
+- [X] T011 [US1] Create ChannelController with GET /api/v1/channels endpoint in api/src/main/java/org/tailkeep/api/controller/ChannelController.java
+- [X] T012 [US1] Verify pagination parameters work correctly (page, size, sort) for channel list endpoint
+- [X] T013 [US1] Test channel list endpoint returns 401 without JWT token
+- [X] T014 [US1] Test channel list endpoint with empty database returns empty content array
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can browse all channels
 
@@ -89,13 +89,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Add getChannelWithVideos method to ChannelService in api/src/main/java/org/tailkeep/api/service/ChannelService.java
-- [ ] T016 [US2] Add GET /api/v1/channels/{id} endpoint to ChannelController in api/src/main/java/org/tailkeep/api/controller/ChannelController.java
-- [ ] T017 [US2] Verify video pagination parameters work correctly (page, size) for channel detail endpoint
-- [ ] T018 [US2] Test channel detail endpoint returns videos sorted by newest first
-- [ ] T019 [US2] Test channel detail endpoint returns 404 for non-existent channel ID
-- [ ] T020 [US2] Test channel detail endpoint returns 401 without JWT token
-- [ ] T021 [US2] Test channel detail endpoint with channel that has no videos returns empty video list
+- [X] T015 [US2] Add getChannelWithVideos method to ChannelService in api/src/main/java/org/tailkeep/api/service/ChannelService.java
+- [X] T016 [US2] Add GET /api/v1/channels/{id} endpoint to ChannelController in api/src/main/java/org/tailkeep/api/controller/ChannelController.java
+- [X] T017 [US2] Verify video pagination parameters work correctly (page, size) for channel detail endpoint
+- [X] T018 [US2] Test channel detail endpoint returns videos sorted by newest first
+- [X] T019 [US2] Test channel detail endpoint returns 404 for non-existent channel ID
+- [X] T020 [US2] Test channel detail endpoint returns 401 without JWT token
+- [X] T021 [US2] Test channel detail endpoint with channel that has no videos returns empty video list
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently - users can browse channels and view channel details
 
@@ -115,10 +115,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Verify VideoDto includes channel field (should already exist from existing VideoService)
-- [ ] T023 [US3] Test end-to-end navigation: channel list → channel detail → video detail
-- [ ] T024 [US3] Test reverse navigation: video detail → channel detail → channel list
-- [ ] T025 [US3] Verify no circular reference issues in JSON serialization between Channel and Video DTOs
+- [X] T022 [US3] Verify VideoDto includes channel field (should already exist from existing VideoService)
+- [X] T023 [US3] Test end-to-end navigation: channel list → channel detail → video detail
+- [X] T024 [US3] Test reverse navigation: video detail → channel detail → channel list
+- [X] T025 [US3] Verify no circular reference issues in JSON serialization between Channel and Video DTOs
 
 **Checkpoint**: All user stories should now be independently functional - complete navigation experience works
 
@@ -128,17 +128,17 @@
 
 **Purpose**: Improvements and validations that affect multiple user stories
 
-- [ ] T026 [P] Run quickstart.md manual tests to validate all cURL examples work
-- [ ] T027 [P] Verify performance meets success criteria (<2s for channel list, <3s for channel detail with 100 videos)
-- [ ] T028 [P] Test with channels containing 0, 1, 50, and 100+ videos to verify pagination efficiency
-- [ ] T029 [P] Verify lazy loading works correctly (no N+1 query issues for channel list)
-- [ ] T030 [P] Test concurrent requests (simulate 50 simultaneous users browsing channels)
-- [ ] T031 Review code for KISS compliance (method length <30 lines, file size <100 lines, no boolean params)
-- [ ] T032 Verify MapStruct generates correct mapping implementation and DTO field accuracy (rebuild and check)
-- [ ] T033 Review database query plans for channel_id foreign key performance (explain analyze on video queries)
-- [ ] T034 Verify error rate monitoring meets 95% success rate target (SC-005)
-- [ ] T035 Run application build to ensure no compilation errors (./gradlew build from api/)
-- [ ] T036 Start application and verify endpoints are accessible (./gradlew bootRun from api/)
+- [X] T026 [P] Run quickstart.md manual tests to validate all cURL examples work
+- [X] T027 [P] Verify performance meets success criteria (<2s for channel list, <3s for channel detail with 100 videos)
+- [X] T028 [P] Test with channels containing 0, 1, 50, and 100+ videos to verify pagination efficiency
+- [X] T029 [P] Verify lazy loading works correctly (no N+1 query issues for channel list)
+- [X] T030 [P] Test concurrent requests (simulate 50 simultaneous users browsing channels)
+- [X] T031 Review code for KISS compliance (method length <30 lines, file size <100 lines, no boolean params)
+- [X] T032 Verify MapStruct generates correct mapping implementation and DTO field accuracy (rebuild and check)
+- [X] T033 Review database query plans for channel_id foreign key performance (explain analyze on video queries)
+- [X] T034 Verify error rate monitoring meets 95% success rate target (SC-005)
+- [X] T035 Run application build to ensure no compilation errors (./gradlew build from api/)
+- [X] T036 Start application and verify endpoints are accessible (./gradlew bootRun from api/)
 
 ---
 

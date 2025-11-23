@@ -1,0 +1,33 @@
+# Gradle build artifacts
+.gradle/
+build/
+target/
+
+# IDE directories
+.idea/
+.vscode/
+*.iml
+
+# Log files
+*.log
+
+# Environment files
+.env*
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+*.backup
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+.dockerignore
+
+# Test resources
+src/test/
+

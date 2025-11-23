@@ -16,6 +16,9 @@ public interface EntityMapper {
     @Mapping(target = "doneDownloading", ignore = true)
     VideoByIdDto toDetailedDto(Video video);
 
+    @Mapping(target = "videoCount", expression = "java(channel.getVideos() != null ? (long) channel.getVideos().size() : 0L)")
+    ChannelDetailDto toDetailDto(Channel channel);
+
     Channel toEntity(ChannelDto dto);
     Video toEntity(VideoDto dto);
     Job toEntity(JobDto dto);
