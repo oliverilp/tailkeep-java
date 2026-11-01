@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git push*)",
+      "Bash(git pull*)",
+      "Bash(git fetch*)",
+      "Bash(git merge*)",
+      "Bash(git rebase*)",
+      "Bash(git switch*)",
+      "Bash(git checkout main*)",
+      "Bash(git worktree*)",
+      "Bash(git remote*)",
+      "Bash(gh *)",
+      "Edit(**/progress.json)",
+      "Write(**/progress.json)"
+    ]
+  }
+}
