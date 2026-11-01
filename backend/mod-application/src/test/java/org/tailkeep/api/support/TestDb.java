@@ -34,6 +34,11 @@ public class TestDb {
         return id;
     }
 
+    public void deleteUser(String username) {
+        jdbc.update("DELETE FROM token WHERE user_id = (SELECT id FROM app_user WHERE username = ?)", username);
+        jdbc.update("DELETE FROM app_user WHERE username = ?", username);
+    }
+
     public UUID insertChannel(String name, String youtubeId) {
         UUID id = UUID.randomUUID();
         jdbc.update("INSERT INTO channel (id, name, youtube_id, channel_url) VALUES (?, ?, ?, ?)",

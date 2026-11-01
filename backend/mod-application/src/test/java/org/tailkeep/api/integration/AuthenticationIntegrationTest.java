@@ -156,6 +156,68 @@ class AuthenticationIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+    void refreshToken_ShouldRevokeEarlierAccessTokens() {
+        String first = login("testuser", "USER");
+        String refreshToken = authenticate("testuser", PASSWORD).get("refresh_token").asText();
+        String second = api.post("/api/v1/auth/refresh-token", "{\"refreshToken\":\"%s\"}".formatted(refreshToken),
+                null).json().get("access_token").asText();
+        String third = api.post("/api/v1/auth/refresh-token", "{\"refreshToken\":\"%s\"}".formatted(refreshToken),
+                null).json().get("access_token").asText();
+
+        assertThat(api.get("/api/v1/videos", first).status()).isEqualTo(401);
+        assertThat(api.get("/api/v1/videos", second).status()).isEqualTo(401);
+        assertThat(api.get("/api/v1/videos", third).status()).isEqualTo(200);
+    }
+
+    @Test
+    void logout_Twice_ShouldFail() {
+        String token = login("testuser", "USER");
+        api.post("/api/v1/auth/logout", null, token);
+
+        assertThat(api.post("/api/v1/auth/logout", null, token).status()).isEqualTo(401);
+    }
+
+    @Test
+    void refreshToken_ForDeletedUser_ShouldFail() {
+        login("testuser", "USER");
+        String refreshToken = authenticate("testuser", PASSWORD).get("refresh_token").asText();
+        db.deleteUser("testuser");
+
+        Response response = api.post("/api/v1/auth/refresh-token", "{\"refreshToken\":\"%s\"}".formatted(refreshToken),
+                null);
+
+        assertThat(response.status()).isEqualTo(401);
+        Json.assertError(response.body(), 401, "/api/v1/auth/refresh-token", "User not found");
+    }
+
+    @Test
+    void protectedEndpoint_WithMalformedToken_ShouldNotGetThrough() {
+        Response response = api.get("/api/v1/videos", "invalid-token");
+
+        // The filter's exception ends in Tomcat's error dispatch, and the SPA fallback answers GET /error
+        assertThat(response.status()).isEqualTo(200);
+        assertThat(response.headers().getContentType().toString()).startsWith("text/html");
+    }
+
+    @Test
+    void protectedEndpoint_WithTokenOfDeletedUser_ShouldNotGetThrough() {
+        String token = login("testuser", "USER");
+        db.deleteUser("testuser");
+
+        Response response = api.get("/api/v1/videos", token);
+
+        assertThat(response.status()).isEqualTo(200);
+        assertThat(response.headers().getContentType().toString()).startsWith("text/html");
+    }
+
+    @Test
+    void protectedPost_WithMalformedToken_ShouldNotGetThrough() {
+        Response response = api.post("/api/v1/downloads", "{\"url\":\"not-a-url\"}", "invalid-token");
+
+        assertThat(response.status()).isEqualTo(401);
+    }
+
+    @Test
     void protectedEndpoint_WithoutToken_ShouldReturnAuthenticationError() {
         Response response = api.get("/api/v1/videos");
 
