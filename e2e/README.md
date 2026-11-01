@@ -2,7 +2,7 @@
 
 Playwright tests for the frontend in `web/`. They pin what users can see and do.
 
-The whole backend is mocked. The tests need no API, database, worker or media service.
+The whole backend is mocked. The tests need no app, database or media service.
 
 ## Running
 
@@ -86,6 +86,6 @@ Once refresh works, remove the `fixme` and delete the first test: with only the 
 - contract drift between this mock and Java
 - real JWT validation, revocation and role checks
 - playback, seeking, and the media service's token check
-- the Kafka, worker and yt-dlp pipeline
+- the Kafka and yt-dlp pipeline
 - the real `/api/v1/config` response
 - Traefik routing and Docker environment wiring

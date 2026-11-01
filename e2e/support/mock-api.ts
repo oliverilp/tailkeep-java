@@ -45,7 +45,7 @@ function newestFirst(
 }
 
 // An in-memory stand-in for the Java API, one instance per test. Behavior and
-// messages mirror the controllers and services under backend/mod-application/src/main/java.
+// messages mirror the controllers in backend/mod-adapter/web and the use cases in backend/mod-domain.
 export class MockApi {
   readonly requests: RecordedRequest[] = [];
   readonly mediaRequests: URL[] = [];

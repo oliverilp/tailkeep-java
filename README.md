@@ -25,6 +25,23 @@ The application is structured into three main components:
 2. **Web:** React web UI, built into the app's image.
 3. **Media:** Go server used for serving static video and image files.
 
+### Backend Modules
+
+The app is a modular monolith with a hexagonal architecture: one deployable, with the business logic in a plain Java domain and the technology in adapters around it. Every adapter depends only on the domain, never on another adapter, and the build fails if that changes.
+
+| Module                           | Contains                                                                      |
+| -------------------------------- | ----------------------------------------------------------------------------- |
+| `mod-domain`                     | Models, use cases and ports, by feature: `video`, `channel`, `download`, `user`, `auth`. No Spring, JPA, Kafka or yt-dlp |
+| `mod-adapter/database`           | JPA entities and repositories, implementing the persistence ports             |
+| `mod-adapter/database-migration` | Flyway migrations                                                             |
+| `mod-adapter/web`                | REST controllers, Server-Sent Events, serving the web UI                      |
+| `mod-adapter/security`           | Spring Security, JWT, password hashing                                        |
+| `mod-adapter/messaging`          | Broker-neutral publishers and handlers, plus the Kafka adapter                |
+| `mod-adapter/ytdlp`              | Metadata fetching and downloading through yt-dlp                              |
+| `mod-application`                | Main class, application config, full-stack tests                              |
+
+A request comes in through an adapter (`web` or `messaging`), which calls a use case. The use case calls ports, which other adapters implement. Replacing yt-dlp or adding a message broker means a new adapter, with no changes to the domain.
+
 ### Technologies Used
 
 - **Java**
@@ -56,32 +73,46 @@ The following Kafka topics are used in the system:
 | `download-progress` | Used to send real-time download progress updates           |
 | `download-broadcast`| Tells every app instance that a download changed, so each pushes it to its own SSE clients |
 
-Below is the sequence diagram showing the complete flow of a video download request:
+Every step of a download runs as a use case, started by a message, so an app instance that dies in the middle of a step gets that message redelivered to the next one. All instances run all the steps. Below is the sequence diagram showing the complete flow of a video download request:
 
 ```mermaid
 sequenceDiagram
     participant R as React Frontend
-    participant A as Spring Boot app (API)
-    participant W as Spring Boot app (worker)
+    participant A as Spring Boot app
+    participant K as Kafka
+    participant Y as yt-dlp
 
     R->>+A: POST /api/v1/downloads
+    Note over A: StartDownload saves the job
+    A->>K: metadata-queue
     A-->>-R: 202 Accepted
 
-    Note over A,W: Metadata Phase
-    A->>W: metadata-queue
-    Note right of W: Fetch video metadata
-    W->>A: metadata-results
+    Note over A,Y: Metadata Phase
+    K->>A: metadata-queue
+    Note over A: FetchMetadata
+    A->>Y: Fetch video metadata
+    Y-->>A: Metadata
+    A->>K: metadata-results
+    K->>A: metadata-results
+    Note over A: RecordMetadata saves the channel, video and job
+    A->>K: download-queue
 
-    Note over A,W: Download Phase
-    A->>W: download-queue
+    Note over A,Y: Download Phase
+    K->>A: download-queue
+    Note over A: RunDownload
+    A->>Y: Download the video
 
-    Note over R,W: Real-time Progress Updates
-    activate W
+    Note over R,Y: Real-time Progress Updates
     loop Download Progress
-        W->>A: download-progress
+        Y-->>A: Progress
+        A->>K: download-progress
+        K->>A: download-progress
+        Note over A: RecordDownloadProgress saves the progress
+        A->>K: download-broadcast
+        K->>A: download-broadcast (every instance)
+        Note over A: PushDownloadProgress
         A->>R: SSE Progress Event
     end
-    deactivate W
 
     Note over R: Download Complete
 ```
