@@ -41,7 +41,7 @@ function Player({ video }: PlayerProps) {
           <Poster asChild>
             <Image
               alt="Video thumbnail"
-              className="absolute inset-0 block h-full w-full rounded-xl object-cover opacity-0 transition-opacity data-[visible]:opacity-100 media-fullscreen:rounded-none"
+              className="absolute inset-0 block h-full w-full rounded-xl object-cover opacity-0 transition-opacity data-visible:opacity-100 media-fullscreen:rounded-none"
               fill
               priority
               src={video.thumbnailUrl}

@@ -32,7 +32,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={cn('bg-background font-sans antialiased', inter.className)}
+        className={cn('bg-background font-sans! antialiased', inter.className)}
       >
         <Providers>{children}</Providers>
         <Toaster />
