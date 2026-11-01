@@ -46,17 +46,27 @@ public record Job(
                 .build()).build();
     }
 
-    /** The download finished with this size. It needs progress, because that is what is completed. */
+    /**
+     * The download finished with this size. It needs progress, because that is what is completed. Completing a
+     * finished job again keeps the time it finished, so a message delivered twice changes nothing.
+     */
     public Job complete(String size, LocalDateTime now) {
-        return withProgress(requireProgress().toBuilder()
+        DownloadProgress current = requireProgress();
+        LocalDateTime completedAt = current.completedAt() != null ? current.completedAt() : now;
+        return withProgress(current.toBuilder()
                 .status(DONE)
                 .progress(100.0)
                 .size(size)
                 .speed("0B/s")
                 .eta("00:00")
                 .hasEnded(true)
-                .completedAt(now)
+                .completedAt(completedAt)
                 .build());
+    }
+
+    /** The download has ended or was hidden from the dashboard, so there is nothing left to download. */
+    public boolean needsNoDownload() {
+        return progress != null && (progress.hasEnded() || progress.isDeleted());
     }
 
     /** Hides the download from the dashboard. The row is kept. */

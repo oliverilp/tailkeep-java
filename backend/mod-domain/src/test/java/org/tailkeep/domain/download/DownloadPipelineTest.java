@@ -31,7 +31,7 @@ class DownloadPipelineTest {
                 steps.add("6 broadcast " + details.download().status());
                 broadcast.add(details);
             }, clock);
-    private final RunDownload step4 = new RunDownloadImpl(
+    private final RunDownload step4 = new RunDownloadImpl(jobs,
             (request, onProgress) -> {
                 onProgress.accept(new ProgressUpdate(request.youtubeId(), request.jobId(), "download", false, 50, "10MiB", "1MiB/s", "00:05"));
                 return new ProgressUpdate(request.youtubeId(), request.jobId(), "finished", true, 100, "10MiB", "0B/s", "00:00");

@@ -70,6 +70,25 @@ class JobTest {
     }
 
     @Test
+    void complete_WhenAlreadyComplete_ShouldKeepTheTimeItFinished() {
+        Job done = job.withVideo(videoId).reportProgress(update(false, 90)).complete("98MiB", NOW);
+
+        Job again = done.complete("98MiB", NOW.plusHours(1));
+
+        assertThat(again).isEqualTo(done);
+    }
+
+    @Test
+    void needsNoDownload_ShouldBeTrueOnlyForAnEndedOrDeletedDownload() {
+        Job started = job.withVideo(videoId);
+
+        assertThat(started.needsNoDownload()).isFalse();
+        assertThat(started.reportProgress(update(false, 5)).needsNoDownload()).isFalse();
+        assertThat(started.reportProgress(update(false, 5)).complete("1MiB", NOW).needsNoDownload()).isTrue();
+        assertThat(started.reportProgress(update(false, 5)).softDelete(NOW).needsNoDownload()).isTrue();
+    }
+
+    @Test
     void complete_WithoutProgress_ShouldFail() {
         assertThatThrownBy(() -> job.complete("1MiB", NOW))
                 .isInstanceOf(ResourceNotFoundException.class)

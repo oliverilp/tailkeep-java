@@ -14,8 +14,13 @@
  *       {@link org.tailkeep.domain.download.VideoDownloader} and publishes with
  *       {@link org.tailkeep.domain.download.PublishDownloadProgress}.</li>
  *   <li>{@link org.tailkeep.domain.download.RecordDownloadProgress} saves the progress on the job.</li>
- *   <li>The same use case then calls {@link org.tailkeep.domain.download.BroadcastDownloadProgress}.</li>
+ *   <li>The same use case then calls {@link org.tailkeep.domain.download.BroadcastDownloadProgress}, which
+ *       reaches every instance. Each one runs {@link org.tailkeep.domain.download.PushDownloadProgress}, which
+ *       sends the download to its own clients with {@link org.tailkeep.domain.download.SendDownloadToClients}.</li>
  * </ol>
+ *
+ * Every step can be delivered more than once. Steps 2, 3 and 5 give the same result, and step 4 skips a job whose
+ * download has ended.
  *
  * The rest are read and delete use cases for the REST endpoints. Technology details stay in the adapters.
  */
