@@ -5,11 +5,15 @@ WORKDIR /app
 COPY . .
 RUN gradle build -x test --no-daemon
 
+# JS runtime for yt-dlp's YouTube extraction
+FROM node:26.13.0-trixie-slim AS node
+
 # Runtime stage
 FROM eclipse-temurin:21-jre-noble
 
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY yt-dlp.conf /etc/yt-dlp.conf
 
 # Upgrade deps
@@ -20,7 +24,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends curl xattr \
     python3-minimal python-is-python3 python3-pip \
     python3-certifi python3-websockets python3-requests python3-brotli \
-    python3-mutagen ffmpeg atomicparsley \
+    python3-mutagen ffmpeg atomicparsley libatomic1 \
     && apt-get autoremove -y --purge \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
