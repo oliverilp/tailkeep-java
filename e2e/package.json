@@ -1,0 +1,20 @@
+{
+  "name": "@tailkeep/e2e",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build:web": "NEXT_PUBLIC_API_URL= NEXT_PUBLIC_MEDIA_URL= pnpm --dir ../web build",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.4.5"
+  }
+}

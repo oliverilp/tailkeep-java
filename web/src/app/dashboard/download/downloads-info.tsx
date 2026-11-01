@@ -43,6 +43,7 @@ function DownloadsInfo({
       {cards.map((card, index) => (
         <Card
           className={cn('hidden sm:block', { block: index <= 1 })}
+          data-testid={`queue-card-${card.title.toLowerCase()}`}
           key={card.title}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
