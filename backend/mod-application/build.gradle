@@ -5,11 +5,8 @@ plugins {
     id 'application'
 }
 
-group = 'org.tailkeep'
-version = '0.0.1-SNAPSHOT'
-
 springBoot {
-    mainClass.set('org.tailkeep.api.TailkeepApiApplication')
+    mainClass.set('org.tailkeep.TailkeepApplication')
 }
 
 java {
@@ -31,9 +28,14 @@ compileJava {
 // Packages the web app when it has been built. The Dockerfile always builds it,
 // and the tests don't need it.
 processResources {
-    from('../web/dist') {
+    from(rootProject.file('../web/dist')) {
         into 'static'
     }
+}
+
+// Only the Spring Boot jar is wanted in build/libs, so the Dockerfile can copy it by pattern.
+jar {
+    enabled = false
 }
 
 repositories {
@@ -79,8 +81,4 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
-}
-
-wrapper {
-    gradleVersion = '8.11.1'
 }

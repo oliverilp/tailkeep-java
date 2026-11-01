@@ -1,12 +1,12 @@
-package org.tailkeep.api;
+package org.tailkeep;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TailkeepApiApplication {
+public class TailkeepApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TailkeepApiApplication.class, args);
+		SpringApplication.run(TailkeepApplication.class, args);
 	}
 }
