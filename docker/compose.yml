@@ -20,20 +20,23 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - tailkeep_network
-  api:
-    container_name: tailkeep-api
-    image: ghcr.io/oliverilp/tailkeep-java-api:latest
+  app:
+    container_name: tailkeep-app
+    image: ghcr.io/oliverilp/tailkeep-java:latest
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+      - MEDIA_PATH=/videos
       - DATABASE_URL=jdbc:postgresql://db:5432/tailkeep
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DEMO_MODE=false
+    volumes:
+      - ./videos:/videos
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.api.rule=PathPrefix(`/`) && !PathPrefix(`/media`)'
-      - 'traefik.http.services.api.loadbalancer.server.port=8080'
-      - 'traefik.http.services.api.loadbalancer.server.scheme=http'
+      - 'traefik.http.routers.app.rule=PathPrefix(`/`) && !PathPrefix(`/media`)'
+      - 'traefik.http.services.app.loadbalancer.server.port=8080'
+      - 'traefik.http.services.app.loadbalancer.server.scheme=http'
 
     ports:
       - 8080:8080
@@ -43,27 +46,12 @@ services:
     depends_on:
       - redpanda
       - db
-  worker:
-    container_name: tailkeep-worker
-    image: ghcr.io/oliverilp/tailkeep-java-worker:latest
-    environment:
-      - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
-      - MEDIA_PATH=/videos
-    volumes:
-      - ./videos:/videos
-    ports:
-      - 8090:8090
-    restart: unless-stopped
-    networks:
-      - tailkeep_network
-    depends_on:
-      - redpanda
   media:
     container_name: tailkeep-media
     image: ghcr.io/oliverilp/tailkeep-java-media:latest
     environment:
       - PORT=5000
-      - API_HOST=http://api:8080
+      - API_HOST=http://app:8080
       - MEDIA_PATH=/videos
     volumes:
       - ./videos:/videos

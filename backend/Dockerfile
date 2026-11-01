@@ -1,8 +1,18 @@
+# Web build stage. The output is the same on every platform, so it runs only once.
+FROM --platform=$BUILDPLATFORM node:22-alpine AS web-builder
+
+WORKDIR /web
+COPY web/package.json web/pnpm-lock.yaml ./
+RUN corepack enable pnpm && pnpm i --frozen-lockfile
+COPY web/ .
+RUN pnpm run build
+
 # Build stage
 FROM gradle:8-jdk21 AS builder
 
-WORKDIR /app
-COPY . .
+WORKDIR /app/backend
+COPY backend/ .
+COPY --from=web-builder /web/dist ../web/dist
 RUN gradle build -x test --no-daemon
 
 # JS runtime for yt-dlp's YouTube extraction
@@ -12,9 +22,9 @@ FROM node:26.13.0-trixie-slim AS node
 FROM eclipse-temurin:21-jre-noble
 
 WORKDIR /app
-COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=builder /app/backend/mod-application/build/libs/*.jar app.jar
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
-COPY yt-dlp.conf /etc/yt-dlp.conf
+COPY backend/yt-dlp.conf /etc/yt-dlp.conf
 
 # Upgrade deps
 RUN apt-get update && apt-get -y upgrade
@@ -38,10 +48,11 @@ RUN mkdir -p /home/root/.local/bin \
 RUN test -e /home/root/.local/bin/yt-dlp \
     && ln -s /home/root/.local/bin/yt-dlp /usr/local/bin/yt-dlp 
 
-EXPOSE 8090
+EXPOSE 8080
 
 # Set the active profile through environment variable
 ENV SPRING_PROFILES_ACTIVE=prod
 ENV KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+ENV MEDIA_PATH=/videos
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

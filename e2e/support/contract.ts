@@ -1,5 +1,5 @@
 // The Java API contract, kept by hand. Paths are relative to
-// api/src/main/java/org/tailkeep/api. Java LocalDateTime values are serialized
+// backend/mod-application/src/main/java/org/tailkeep/api. Java LocalDateTime values are serialized
 // as ISO strings with no zone, so they are plain strings here.
 
 // dto/ChannelDto.java

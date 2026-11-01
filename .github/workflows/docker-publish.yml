@@ -1,11 +1,11 @@
-name: API Docker Publish
+name: Docker Publish
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'api/**'
+      - 'backend/**'
       - 'web/**'
     # Publish semver tags as releases.
     tags: ['v*.*.*']
@@ -13,7 +13,7 @@ on:
 
 env:
   # github.repository as <account>/<repo>
-  IMAGE_NAME: tailkeep-java-api
+  IMAGE_NAME: tailkeep-java
 
 jobs:
   test:
@@ -29,11 +29,11 @@ jobs:
           cache: 'gradle'
 
       - name: Grant execute permission for gradlew
-        working-directory: ./api
+        working-directory: ./backend
         run: chmod +x gradlew
 
       - name: Run tests
-        working-directory: ./api
+        working-directory: ./backend
         run: ./gradlew test
 
   build:
@@ -77,7 +77,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./api/Dockerfile
+          file: ./backend/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
