@@ -1,0 +1,5 @@
+// No dependencies on purpose: no Spring, Jakarta, Hibernate, Kafka or yt-dlp.
+// verifyModuleDependencies in the root build checks this.
+plugins {
+    id 'java-library'
+}

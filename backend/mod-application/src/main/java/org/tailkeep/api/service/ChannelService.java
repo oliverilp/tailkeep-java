@@ -3,25 +3,26 @@ package org.tailkeep.api.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.tailkeep.api.message.Metadata;
-import org.tailkeep.api.model.Channel;
-import org.tailkeep.api.repository.ChannelRepository;
+import org.tailkeep.domain.channel.Channel;
+import org.tailkeep.domain.channel.FindChannel;
+import org.tailkeep.domain.channel.SaveChannel;
 
 import lombok.RequiredArgsConstructor;
 
+// Legacy: replaced by the RecordMetadata use case in task 03
 @Service
 @RequiredArgsConstructor
 public class ChannelService {
-    private final ChannelRepository channelRepository;
+    private final FindChannel findChannel;
+    private final SaveChannel saveChannel;
 
     @Transactional
     public Channel getOrCreateChannel(Metadata metadata) {
-        return channelRepository.findByYoutubeId(metadata.channelId())
-            .orElseGet(() -> {
-                Channel newChannel = new Channel();
-                newChannel.setYoutubeId(metadata.channelId());
-                newChannel.setName(metadata.uploader());
-                newChannel.setChannelUrl(metadata.channelUrl());
-                return channelRepository.save(newChannel);
-            });
+        return findChannel.byYoutubeId(metadata.channelId())
+            .orElseGet(() -> saveChannel.save(Channel.builder()
+                .youtubeId(metadata.channelId())
+                .name(metadata.uploader())
+                .channelUrl(metadata.channelUrl())
+                .build()));
     }
 }

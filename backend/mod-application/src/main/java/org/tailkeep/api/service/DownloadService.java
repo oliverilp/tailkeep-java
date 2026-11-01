@@ -25,14 +25,14 @@ import org.tailkeep.api.dto.QueueInfoDto;
 import org.tailkeep.api.dto.PageRequestDto;
 import org.tailkeep.api.dto.PageResponseDto;
 import org.tailkeep.api.exception.InvalidUrlException;
-import org.tailkeep.api.exception.ResourceNotFoundException;
+import org.tailkeep.domain.shared.ResourceNotFoundException;
 import org.tailkeep.api.mapper.EntityMapper;
 import org.tailkeep.api.message.DownloadProgressMessage;
 import org.tailkeep.api.message.MetadataRequestMessage;
-import org.tailkeep.api.model.DownloadProgress;
-import org.tailkeep.api.model.Job;
-import org.tailkeep.api.repository.DownloadProgressRepository;
-import org.tailkeep.api.repository.JobRepository;
+import org.tailkeep.adapter.database.download.DownloadProgressEntity;
+import org.tailkeep.adapter.database.download.DownloadProgressRepository;
+import org.tailkeep.adapter.database.download.JobEntity;
+import org.tailkeep.adapter.database.download.JobRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -59,7 +59,7 @@ public class DownloadService {
     public void processDownloadRequest(MetadataRequestMessage request) throws Exception {
         String cleanedUrl = cleanUrl(request.url());
         
-        Job job = new Job();
+        JobEntity job = new JobEntity();
         job.setInputUrl(request.url());
         job = jobRepository.save(job);
         
@@ -69,12 +69,12 @@ public class DownloadService {
 
     @Transactional
     public DownloadProgressDto upsertDownloadProgress(DownloadProgressMessage message) {
-        Job job = jobRepository.findById(message.jobId())
+        JobEntity job = jobRepository.findById(message.jobId())
             .orElseThrow(() -> new ResourceNotFoundException("Job", message.jobId().toString()));
 
-        DownloadProgress progress = job.getDownloadProgress();
+        DownloadProgressEntity progress = job.getDownloadProgress();
         if (progress == null) {
-            progress = new DownloadProgress();
+            progress = new DownloadProgressEntity();
             progress.setId(job.getId());
             progress.setJob(job);
             progress.setVideo(job.getVideo());
@@ -95,7 +95,7 @@ public class DownloadService {
 
     @Transactional
     public DownloadProgressDto markDownloadComplete(DownloadProgressMessage message) {
-        DownloadProgress progress = downloadProgressRepository.findById(message.jobId())
+        DownloadProgressEntity progress = downloadProgressRepository.findById(message.jobId())
             .orElseThrow(() -> new ResourceNotFoundException("Download progress", message.jobId().toString()));
         
         // Update completion fields
@@ -194,7 +194,7 @@ public class DownloadService {
 
     @Transactional
     public void softDeleteDownload(UUID id) {
-        DownloadProgress progress = downloadProgressRepository.findById(id)
+        DownloadProgressEntity progress = downloadProgressRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Download progress", id.toString()));
         
         progress.setDeletedAt(LocalDateTime.now());
@@ -214,7 +214,7 @@ public class DownloadService {
             Sort.by(Sort.Direction.DESC, "createdAt")
         );
         
-        Page<DownloadProgress> page;
+        Page<DownloadProgressEntity> page;
         if ("active".equals(pageRequest.progress())) {
             page = downloadProgressRepository.findByHasEndedFalseAndDeletedAtIsNull(pageable);
         } else if ("done".equals(pageRequest.progress())) {

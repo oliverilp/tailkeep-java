@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'application'
@@ -9,20 +9,10 @@ springBoot {
     mainClass.set('org.tailkeep.TailkeepApplication')
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
-}
-
-compileJava {
-    options.compilerArgs << '-parameters'
 }
 
 // Packages the web app when it has been built. The Dockerfile always builds it,
@@ -38,11 +28,15 @@ jar {
     enabled = false
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
+    implementation project(':mod-domain')
+    implementation project(':mod-adapter:database')
+    implementation project(':mod-adapter:web')
+    implementation project(':mod-adapter:security')
+    implementation project(':mod-adapter:messaging')
+    implementation project(':mod-adapter:ytdlp')
+    runtimeOnly project(':mod-adapter:database-migration')
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -50,13 +44,8 @@ dependencies {
     implementation 'jakarta.validation:jakarta.validation-api'
     runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.springframework.kafka:spring-kafka'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
@@ -81,7 +70,6 @@ dependencies {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
     // Downloader reads the size of the downloaded file from this directory
     def testMedia = layout.buildDirectory.dir('tmp/test-media').get().asFile
     doFirst { testMedia.mkdirs() }
