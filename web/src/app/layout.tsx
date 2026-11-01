@@ -35,7 +35,7 @@ export default function RootLayout({
         className={cn('bg-background font-sans! antialiased', inter.className)}
       >
         <Providers>{children}</Providers>
-        <Toaster />
+        <Toaster offset={32} mobileOffset={20} />
       </body>
     </html>
   );
