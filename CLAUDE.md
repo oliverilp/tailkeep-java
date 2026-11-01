@@ -14,7 +14,7 @@ Read it before changing the backend, and keep its **Decisions** and **Known gaps
 | `mod-adapter/database` | JPA entities, Spring Data repositories, mappers, port implementations | `mod-domain` |
 | `mod-adapter/database-migration` | Flyway migrations only | nothing |
 | `mod-adapter/web` | Controllers, request and response classes, exception handling | `mod-domain` |
-| `mod-adapter/messaging`, `security`, `ytdlp` | Empty until tasks 03 to 06 | `mod-domain` |
+| `mod-adapter/messaging`, `security`, `ytdlp` | Empty until tasks 04 to 06 (`ytdlp` has only the URL probe) | `mod-domain` |
 | `mod-application` | Main class, config, full-stack tests, and the legacy code not yet migrated | everything |
 
 `./gradlew verifyModuleDependencies` (part of `check`) fails when `mod-domain` has a dependency or an adapter
@@ -33,6 +33,7 @@ depends on anything but `mod-domain`. Adapters never depend on each other.
   The use case decides what a missing result means.
 - **Port implementations** are one `@Component` per feature in an adapter (`VideoDatabaseAdapter`), `@Transactional`,
   and they map entities to domain objects inside the transaction so no entity escapes.
+- **Time:** use cases that need "now" take a `java.time.Clock` (the app provides it), never `LocalDateTime.now()`.
 - **Transactions across ports:** a use case calls `RunInTransaction.execute(...)`. Do side effects like publishing
   after it returns.
 - **Models** are records with Lombok `@Builder(toBuilder = true)`. Aggregates refer to each other by ID

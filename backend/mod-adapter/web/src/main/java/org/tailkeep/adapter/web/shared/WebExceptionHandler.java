@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.tailkeep.domain.download.InvalidUrlException;
 import org.tailkeep.domain.shared.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,11 @@ public class WebExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException e, HttpServletRequest request) {
         return respond(HttpStatus.NOT_FOUND, e.getMessage(), request);
+    }
+
+    @ExceptionHandler(InvalidUrlException.class)
+    public ResponseEntity<ApiError> handleInvalidUrl(InvalidUrlException e, HttpServletRequest request) {
+        return respond(HttpStatus.BAD_REQUEST, e.getMessage(), request);
     }
 
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})

@@ -1,97 +1,48 @@
 package org.tailkeep.worker.queue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.tailkeep.api.config.KafkaTopicNames;
-import org.tailkeep.api.message.DownloadProgressMessage;
 import org.tailkeep.api.message.DownloadRequestMessage;
-import org.tailkeep.worker.download.YtDlpDownloadService;
+import org.tailkeep.domain.download.DownloadRequest;
+import org.tailkeep.domain.download.RunDownload;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class DownloadQueueListenerTest {
 
     @Mock
-    private YtDlpDownloadService downloadService;
-
-    @Mock
-    private KafkaTemplate<String, DownloadProgressMessage> kafkaTemplate;
-
-    @Captor
-    private ArgumentCaptor<DownloadProgressMessage> progressMessageCaptor;
-
-    @Mock
-    private ObjectMapper objectMapper;
-
-    private DownloadQueueListener listener;
-
-    @BeforeEach
-    void setUp() {
-        listener = new DownloadQueueListener(downloadService, objectMapper, kafkaTemplate);
-    }
+    private RunDownload runDownload;
 
     @Test
-    void onDownloadJob_ShouldProcessDownloadAndSendProgressUpdates() {
-        // Given
+    void onDownloadJob_ShouldRunTheDownloadForTheRequest() {
         UUID jobId = UUID.randomUUID();
-        String videoId = "video123";
-        String url = "https://youtube.com/watch?v=test";
-        String filename = "test.mp4";
+        DownloadQueueListener listener = new DownloadQueueListener(runDownload);
 
-        DownloadRequestMessage message = new DownloadRequestMessage(jobId, videoId, url, filename);
-        DownloadProgressMessage progressMessage = new DownloadProgressMessage(
-                videoId, jobId, "downloading", false, 50.0, "100MB", "1MB/s", "00:30"
-        );
-        DownloadProgressMessage completedMessage = new DownloadProgressMessage(
-                videoId, jobId, "finished", true, 100.0, "100MB", "1MB/s", "00:00"
-        );
+        listener.onDownloadJob(new DownloadRequestMessage(jobId, "video123", "https://youtube.com/watch?v=test", "test.mp4"));
 
-        when(downloadService.processDownload(
-                eq(jobId), eq(videoId), eq(url), eq(filename), any()
-        )).thenReturn(CompletableFuture.completedFuture(completedMessage));
-
-        // When
-        listener.onDownloadJob(message);
-
-        // Then
-        verify(downloadService).processDownload(
-                eq(jobId), eq(videoId), eq(url), eq(filename), any()
-        );
-
-        verify(kafkaTemplate, atLeast(1)).send(
-                eq(KafkaTopicNames.DOWNLOAD_PROGRESS),
-                any(DownloadProgressMessage.class)
-        );
+        ArgumentCaptor<DownloadRequest> request = ArgumentCaptor.forClass(DownloadRequest.class);
+        verify(runDownload).execute(request.capture());
+        assertThat(request.getValue())
+                .isEqualTo(new DownloadRequest(jobId, "video123", "https://youtube.com/watch?v=test", "test.mp4"));
     }
 
     @Test
-    void onDownloadJob_WhenExceptionOccurs_ShouldHandleGracefully() {
-        // Given
-        DownloadRequestMessage message = new DownloadRequestMessage(
-                UUID.randomUUID(), "video123", "https://youtube.com/watch?v=test", "test.mp4"
-        );
+    void onDownloadJob_WhenTheDownloadFails_ShouldNotThrow() {
+        doThrow(new RuntimeException("Test exception")).when(runDownload).execute(any());
+        DownloadQueueListener listener = new DownloadQueueListener(runDownload);
 
-        when(downloadService.processDownload(any(), any(), any(), any(), any()))
-                .thenThrow(new RuntimeException("Test exception"));
-
-        // When
-        listener.onDownloadJob(message);
-
-        // Then
-        verify(downloadService).processDownload(any(), any(), any(), any(), any());
-        verifyNoMoreInteractions(kafkaTemplate);
+        assertThatCode(() -> listener.onDownloadJob(
+                new DownloadRequestMessage(UUID.randomUUID(), "video123", "https://youtube.com/watch?v=test", "test.mp4")))
+                .doesNotThrowAnyException();
     }
-} 
+}

@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /** In-memory stand-in for the channel ports. */
-class FakeChannels implements FindChannel, SaveChannel {
+public class FakeChannels implements FindChannel, SaveChannel {
     private final List<Channel> channels = new ArrayList<>();
 
     @Override
@@ -37,7 +37,7 @@ class FakeChannels implements FindChannel, SaveChannel {
         return saved;
     }
 
-    Channel add(String name) {
+    public Channel add(String name) {
         return save(Channel.builder()
                 .youtubeId("UC" + name)
                 .name(name)

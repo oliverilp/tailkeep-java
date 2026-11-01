@@ -1,0 +1,22 @@
+/**
+ * Downloading a video. The pipeline has six steps. Each runs from a message handler (step 1 from the REST
+ * endpoint) that calls one use case, and each use case hands over to the next through a port:
+ *
+ * <ol>
+ *   <li>{@link org.tailkeep.domain.download.StartDownload} saves a {@link org.tailkeep.domain.download.Job}
+ *       and publishes with {@link org.tailkeep.domain.download.PublishMetadataRequest}.</li>
+ *   <li>{@link org.tailkeep.domain.download.FetchMetadata} asks the
+ *       {@link org.tailkeep.domain.download.VideoMetadataProvider} and publishes with
+ *       {@link org.tailkeep.domain.download.PublishMetadataResult}.</li>
+ *   <li>{@link org.tailkeep.domain.download.RecordMetadata} saves the channel, video and job and publishes with
+ *       {@link org.tailkeep.domain.download.PublishDownloadRequest}.</li>
+ *   <li>{@link org.tailkeep.domain.download.RunDownload} calls the
+ *       {@link org.tailkeep.domain.download.VideoDownloader} and publishes with
+ *       {@link org.tailkeep.domain.download.PublishDownloadProgress}.</li>
+ *   <li>{@link org.tailkeep.domain.download.RecordDownloadProgress} saves the progress on the job.</li>
+ *   <li>The same use case then calls {@link org.tailkeep.domain.download.BroadcastDownloadProgress}.</li>
+ * </ol>
+ *
+ * The rest are read and delete use cases for the REST endpoints. Technology details stay in the adapters.
+ */
+package org.tailkeep.domain.download;

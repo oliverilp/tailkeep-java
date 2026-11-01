@@ -20,18 +20,6 @@ import java.time.LocalDateTime;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class LegacyExceptionHandler {
 
-    @ExceptionHandler(InvalidUrlException.class)
-    public ResponseEntity<ApiError> handleInvalidUrlException(InvalidUrlException e, HttpServletRequest request) {
-        ApiError error = new ApiError(
-            request.getRequestURI(),
-            e.getMessage(),
-            HttpStatus.BAD_REQUEST.value(),
-            LocalDateTime.now().toString()
-        );
-
-        return ResponseEntity.badRequest().body(error);
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException e, HttpServletRequest request) {
         String message = e.getBindingResult().getFieldErrors()
