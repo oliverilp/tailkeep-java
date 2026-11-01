@@ -76,7 +76,7 @@ services:
             enabled: true
             urls: ["http://redpanda:9644"]
     ports:
-      - 7000:8080
+      - 8888:8080
     restart: unless-stopped
     depends_on:
       - redpanda
