@@ -10,6 +10,7 @@ import org.tailkeep.domain.video.SaveVideo;
 import org.tailkeep.domain.video.Video;
 import org.tailkeep.domain.video.VideoDownloadCount;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,6 +39,12 @@ public class VideoDatabaseAdapter implements FindVideo, SaveVideo, CountVideoDow
     @Transactional(readOnly = true)
     public Optional<Video> byYoutubeId(String youtubeId) {
         return videos.findByYoutubeId(youtubeId).map(VideoEntityMapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Video> byIds(Collection<UUID> ids) {
+        return videos.findAllById(ids).stream().map(VideoEntityMapper::toDomain).toList();
     }
 
     @Override

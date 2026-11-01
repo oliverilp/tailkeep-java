@@ -2,13 +2,14 @@ package org.tailkeep.domain.video;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /** In-memory stand-in for the video ports. */
-class FakeVideos implements FindVideo, SaveVideo {
+public class FakeVideos implements FindVideo, SaveVideo {
     private final List<Video> videos = new ArrayList<>();
 
     @Override
@@ -19,6 +20,11 @@ class FakeVideos implements FindVideo, SaveVideo {
     @Override
     public Optional<Video> byYoutubeId(String youtubeId) {
         return videos.stream().filter(video -> youtubeId.equals(video.youtubeId())).findFirst();
+    }
+
+    @Override
+    public List<Video> byIds(Collection<UUID> ids) {
+        return videos.stream().filter(video -> ids.contains(video.id())).toList();
     }
 
     @Override
@@ -34,7 +40,7 @@ class FakeVideos implements FindVideo, SaveVideo {
         return saved;
     }
 
-    Video add(UUID channelId, String title, LocalDateTime createdAt) {
+    public Video add(UUID channelId, String title, LocalDateTime createdAt) {
         return save(Video.builder()
                 .youtubeId(title)
                 .channelId(channelId)

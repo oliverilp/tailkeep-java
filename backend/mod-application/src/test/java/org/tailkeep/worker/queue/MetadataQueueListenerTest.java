@@ -1,84 +1,47 @@
 package org.tailkeep.worker.queue;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.tailkeep.api.config.KafkaTopicNames;
-import org.tailkeep.worker.metadata.*;
-import org.tailkeep.api.message.Metadata;
 import org.tailkeep.api.message.MetadataRequestMessage;
-import org.tailkeep.api.message.MetadataResultMessage;
+import org.tailkeep.domain.download.FetchMetadata;
+import org.tailkeep.domain.download.MetadataRequest;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MetadataQueueListenerTest {
 
-     @Mock
-     private MetadataFetcher metadataFetcher;
+    @Mock
+    private FetchMetadata fetchMetadata;
 
-     @Mock
-     private KafkaTemplate<String, MetadataResultMessage> kafkaTemplate;
+    @Test
+    void onMetadataJob_ShouldFetchTheMetadataForTheRequest() {
+        UUID jobId = UUID.randomUUID();
+        MetadataQueueListener listener = new MetadataQueueListener(fetchMetadata);
 
-     @Captor
-     private ArgumentCaptor<MetadataResultMessage> resultMessageCaptor;
+        listener.onMetadataJob(new MetadataRequestMessage(jobId, "https://youtube.com/watch?v=test"));
 
-     private MetadataQueueListener listener;
+        ArgumentCaptor<MetadataRequest> request = ArgumentCaptor.forClass(MetadataRequest.class);
+        verify(fetchMetadata).execute(request.capture());
+        assertThat(request.getValue()).isEqualTo(new MetadataRequest(jobId, "https://youtube.com/watch?v=test"));
+    }
 
-     @BeforeEach
-     void setUp() {
-         listener = new MetadataQueueListener(metadataFetcher, kafkaTemplate);
-     }
+    @Test
+    void onMetadataJob_WhenTheFetchFails_ShouldNotThrow() {
+        doThrow(new RuntimeException("Test exception")).when(fetchMetadata).execute(any());
+        MetadataQueueListener listener = new MetadataQueueListener(fetchMetadata);
 
-     @Test
-     void onMetadataJob_ShouldFetchMetadataAndSendResult() {
-         // Given
-         UUID jobId = UUID.randomUUID();
-         String url = "https://youtube.com/watch?v=test";
-         MetadataRequestMessage request = new MetadataRequestMessage(jobId, url);
-        
-         Metadata metadata = new Metadata(
-             "test-id",
-             "https://youtube.com/watch?v=test",
-             "Test Video",
-             "Test Channel",
-             "UC123456789",
-             "https://youtube.com/c/testchannel",
-             "10:00",
-             600.0,
-             "https://i.ytimg.com/vi/test/maxres.jpg",
-             "This is a test video description",
-             1000L,
-             100L,
-             "test.mp4"
-         );
-
-         when(metadataFetcher.fetch(url))
-             .thenReturn(CompletableFuture.completedFuture(metadata));
-
-         // When
-         listener.onMetadataJob(request);
-
-         // Then
-         verify(metadataFetcher).fetch(url);
-         verify(kafkaTemplate).send(
-             eq(KafkaTopicNames.METADATA_RESULTS),
-             resultMessageCaptor.capture()
-         );
-
-         MetadataResultMessage capturedMessage = resultMessageCaptor.getValue();
-         assertThat(capturedMessage.jobId()).isEqualTo(jobId);
-         assertThat(capturedMessage.metadata()).isEqualTo(metadata);
-     }
-} 
+        assertThatCode(() -> listener.onMetadataJob(
+                new MetadataRequestMessage(UUID.randomUUID(), "https://youtube.com/watch?v=test")))
+                .doesNotThrowAnyException();
+    }
+}

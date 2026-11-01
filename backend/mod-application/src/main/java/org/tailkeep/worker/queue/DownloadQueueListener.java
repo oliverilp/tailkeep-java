@@ -1,27 +1,20 @@
 package org.tailkeep.worker.queue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.tailkeep.api.config.KafkaTopicNames;
-import org.tailkeep.api.message.DownloadProgressMessage;
 import org.tailkeep.api.message.DownloadRequestMessage;
-import org.tailkeep.worker.download.YtDlpDownloadService;
+import org.tailkeep.api.message.MessageMapper;
+import org.tailkeep.domain.download.RunDownload;
 
 @Component
 @Slf4j
 public class DownloadQueueListener {
-    private final YtDlpDownloadService downloadService;
-    private final KafkaTemplate<String, DownloadProgressMessage> downloadKafkaTemplate;
+    private final RunDownload runDownload;
 
-    public DownloadQueueListener(
-            YtDlpDownloadService downloadService,
-            ObjectMapper objectMapper,
-            KafkaTemplate<String, DownloadProgressMessage> downloadKafkaTemplate) {
-        this.downloadService = downloadService;
-        this.downloadKafkaTemplate = downloadKafkaTemplate;
+    public DownloadQueueListener(RunDownload runDownload) {
+        this.runDownload = runDownload;
     }
 
     @KafkaListener(
@@ -33,20 +26,10 @@ public class DownloadQueueListener {
         log.info("Received download job {}", message);
 
         try {
-            downloadService.processDownload(
-                    message.jobId(),
-                    message.videoId(),
-                    message.url(),
-                    message.filename(),
-                    this::sendProgressUpdate
-            ).thenAccept(this::sendProgressUpdate);
-
+            runDownload.execute(MessageMapper.toDomain(message));
         } catch (Exception e) {
+            // Legacy: a failed download is dropped, as it was before. Task 05 decides on retries.
             log.error("Failed to process download job", e);
         }
-    }
-
-    private void sendProgressUpdate(DownloadProgressMessage progress) {
-        downloadKafkaTemplate.send(KafkaTopicNames.DOWNLOAD_PROGRESS, progress);
     }
 }

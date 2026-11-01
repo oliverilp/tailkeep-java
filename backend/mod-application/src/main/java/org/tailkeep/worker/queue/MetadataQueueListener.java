@@ -2,23 +2,19 @@ package org.tailkeep.worker.queue;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.tailkeep.api.config.KafkaTopicNames;
-import org.tailkeep.worker.metadata.MetadataFetcher;
+import org.tailkeep.api.message.MessageMapper;
 import org.tailkeep.api.message.MetadataRequestMessage;
-import org.tailkeep.api.message.MetadataResultMessage;
+import org.tailkeep.domain.download.FetchMetadata;
 
 @Component
 @Slf4j
 public class MetadataQueueListener {
-    private final MetadataFetcher metadataFetcher;
-    private final KafkaTemplate<String, MetadataResultMessage> metadataKafkaTemplate;
+    private final FetchMetadata fetchMetadata;
 
-    public MetadataQueueListener(MetadataFetcher metadataFetcher,
-                                 KafkaTemplate<String, MetadataResultMessage> metadataKafkaTemplate) {
-        this.metadataFetcher = metadataFetcher;
-        this.metadataKafkaTemplate = metadataKafkaTemplate;
+    public MetadataQueueListener(FetchMetadata fetchMetadata) {
+        this.fetchMetadata = fetchMetadata;
     }
 
     @KafkaListener(
@@ -26,25 +22,14 @@ public class MetadataQueueListener {
             groupId = "metadata-queue-consumer",
             containerFactory = "metadataRequestFactory"
     )
-    public void onMetadataJob(MetadataRequestMessage messageRequest) {
-        String url = messageRequest.url();
-        log.info("Received message request with url: {}", url);
+    public void onMetadataJob(MetadataRequestMessage message) {
+        log.info("Received message request with url: {}", message.url());
 
-        metadataFetcher.fetch(url)
-                .thenAccept(metadata -> {
-                    log.info("\nMetadata fetch completed successfully:");
-                    log.info("----------------------------------------");
-                    log.info("Title: {}", metadata.title());
-                    log.info("Channel: {}", metadata.uploader());
-                    log.info("Duration: {}", metadata.durationString());
-                    log.info("Views: {}", metadata.viewCount());
-                    log.info("Video ID: {}", metadata.youtubeId());
-                    log.info("Filename: {}", metadata.filename());
-                    log.info("----------------------------------------\n");
-
-                    var result = new MetadataResultMessage(messageRequest.jobId(), metadata);
-
-                    metadataKafkaTemplate.send(KafkaTopicNames.METADATA_RESULTS, result);
-                });
+        try {
+            fetchMetadata.execute(MessageMapper.toDomain(message));
+        } catch (Exception e) {
+            // Legacy: a failed request is dropped, as it was before. Task 05 decides on retries.
+            log.error("Failed to fetch metadata", e);
+        }
     }
 }

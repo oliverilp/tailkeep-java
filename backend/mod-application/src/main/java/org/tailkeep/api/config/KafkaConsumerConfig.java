@@ -1,5 +1,7 @@
 package org.tailkeep.api.config;
 
+import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -40,8 +42,14 @@ public class KafkaConsumerConfig {
     }
 
     private <T> ConsumerFactory<String, T> createConsumerFactory(Class<T> targetClass) {
+        return createConsumerFactory(targetClass, Map.of());
+    }
+
+    private <T> ConsumerFactory<String, T> createConsumerFactory(Class<T> targetClass, Map<String, Object> overrides) {
+        Map<String, Object> config = new HashMap<>(consumerConfig());
+        config.putAll(overrides);
         return new DefaultKafkaConsumerFactory<>(
-                consumerConfig(),
+                config,
                 new StringDeserializer(),
                 createJsonDeserializer(targetClass));
     }
@@ -65,7 +73,10 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, DownloadRequestMessage> downloadRequestConsumerFactory() {
-        return createConsumerFactory(DownloadRequestMessage.class);
+        // Legacy: a download now keeps its listener thread until it has ended, which can take hours. The consumer
+        // must not be dropped from its group meanwhile. Task 05 revisits this.
+        return createConsumerFactory(DownloadRequestMessage.class,
+                Map.of(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, (int) Duration.ofHours(24).toMillis()));
     }
 
     @Bean
