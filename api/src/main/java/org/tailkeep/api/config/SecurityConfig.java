@@ -17,6 +17,7 @@ import static org.tailkeep.api.model.user.Permission.ADMIN_DELETE;
 import static org.tailkeep.api.model.user.Permission.ADMIN_UPDATE;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.HEAD;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -53,6 +54,7 @@ public class SecurityConfig {
                 req.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(WHITE_LIST_URL)
                         .permitAll()
+                        .requestMatchers(GET, "/api/v1/config").permitAll()
                         .requestMatchers(POST, "/api/v1/downloads/**")
                         .hasAnyAuthority(ADMIN_CREATE.getPermission())
                         .requestMatchers(PUT, "/api/v1/downloads/**")
@@ -60,6 +62,10 @@ public class SecurityConfig {
                         .requestMatchers(DELETE, "/api/v1/downloads/**")
                         .hasAnyAuthority(ADMIN_DELETE.getPermission())
                         .requestMatchers(GET, "/api/v1/downloads/**").authenticated()
+                        .requestMatchers("/api/**").authenticated()
+                        // The web app and its assets: login happens inside the app
+                        .requestMatchers(GET, "/**").permitAll()
+                        .requestMatchers(HEAD, "/**").permitAll()
                         .anyRequest()
                         .authenticated()
                 )

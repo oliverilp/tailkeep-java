@@ -28,6 +28,14 @@ compileJava {
     options.compilerArgs << '-parameters'
 }
 
+// Packages the web app when it has been built. The Dockerfile always builds it,
+// and the tests don't need it.
+processResources {
+    from('../web/dist') {
+        into 'static'
+    }
+}
+
 repositories {
     mavenCentral()
 }
