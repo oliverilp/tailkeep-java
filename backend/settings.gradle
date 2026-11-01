@@ -1,3 +1,11 @@
 rootProject.name = 'tailkeep'
 
+include 'mod-domain'
+// mod-adapter only groups its submodules and has no code
+include 'mod-adapter:database'
+include 'mod-adapter:database-migration'
+include 'mod-adapter:messaging'
+include 'mod-adapter:web'
+include 'mod-adapter:security'
+include 'mod-adapter:ytdlp'
 include 'mod-application'

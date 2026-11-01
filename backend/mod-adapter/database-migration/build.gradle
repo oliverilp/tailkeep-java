@@ -1,0 +1,4 @@
+// Flyway migrations only. They are resources, so there is no code and no dependency.
+plugins {
+    id 'java-library'
+}

@@ -1,3 +1,7 @@
+plugins {
+    id 'base'
+}
+
 allprojects {
     group = 'org.tailkeep'
     version = '0.0.1-SNAPSHOT'
@@ -5,4 +9,77 @@ allprojects {
 
 wrapper {
     gradleVersion = '8.11.1'
+}
+
+// Shared build config for every module that has code
+subprojects {
+    plugins.withId('java-library') {
+        java {
+            toolchain {
+                languageVersion = JavaLanguageVersion.of(21)
+            }
+        }
+
+        repositories {
+            mavenCentral()
+        }
+
+        tasks.withType(JavaCompile).configureEach {
+            options.compilerArgs << '-parameters'
+        }
+
+        dependencies {
+            // Versions only. This adds no classes to a module's classpath.
+            implementation platform('org.springframework.boot:spring-boot-dependencies:3.3.5')
+
+            compileOnly 'org.projectlombok:lombok'
+            annotationProcessor 'org.projectlombok:lombok'
+            testCompileOnly 'org.projectlombok:lombok'
+            testAnnotationProcessor 'org.projectlombok:lombok'
+
+            testImplementation 'org.junit.jupiter:junit-jupiter'
+            testImplementation 'org.assertj:assertj-core'
+            testImplementation 'org.mockito:mockito-core'
+            testImplementation 'org.mockito:mockito-junit-jupiter'
+            testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        }
+
+        tasks.withType(Test).configureEach {
+            useJUnitPlatform()
+        }
+    }
+}
+
+// The module dependency rules from docs/refactor/EPIC.md, so a wrong dependency fails the build.
+tasks.register('verifyModuleDependencies') {
+    group = 'verification'
+    description = 'Fails when a module depends on a module it must not know.'
+
+    doLast {
+        def projectDependencies = { Project p ->
+            p.configurations
+                    .collectMany { it.dependencies.withType(ProjectDependency).collect { dep -> dep.path } }
+                    .unique()
+        }
+        def violations = []
+
+        def domain = project(':mod-domain')
+        projectDependencies(domain).each { violations << "${domain.path} must not depend on ${it}" as String }
+        def domainRuntime = domain.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts
+        domainRuntime.each { violations << "${domain.path} must have no dependencies, found ${it.name}" as String }
+
+        project(':mod-adapter').subprojects.each { adapter ->
+            projectDependencies(adapter).findAll { it != ':mod-domain' }.each {
+                violations << "${adapter.path} may only depend on :mod-domain, found ${it}" as String
+            }
+        }
+
+        if (!violations.isEmpty()) {
+            throw new GradleException("Module dependency rules broken:\n  " + violations.join('\n  '))
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn 'verifyModuleDependencies'
 }
