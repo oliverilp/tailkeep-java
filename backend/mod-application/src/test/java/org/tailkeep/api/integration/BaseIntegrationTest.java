@@ -28,9 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * The worker's handlers run in this context too, with a fake yt-dlp that is switched off, so they don't answer
  * the messages that tests send to play the worker. A test of the whole pipeline switches it on.
  */
-// TestJwtConfig replaces the JwtSecretRepository bean, so overriding is allowed here and only here
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = "spring.main.allow-bean-definition-overriding=true")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import({
         TestContainersConfig.class,
         TestJwtConfig.class,

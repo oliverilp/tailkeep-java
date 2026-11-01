@@ -1,11 +1,9 @@
 package org.tailkeep.api.config;
 
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.tailkeep.api.model.auth.JwtSecret;
-import org.tailkeep.api.repository.JwtSecretRepository;
+import org.tailkeep.domain.auth.FindSigningSecret;
 
 import java.util.Optional;
 
@@ -16,10 +14,7 @@ public class TestJwtConfig {
 
     @Bean
     @Primary
-    public JwtSecretRepository jwtSecretRepository() {
-        JwtSecretRepository mockRepo = Mockito.mock(JwtSecretRepository.class);
-        Mockito.when(mockRepo.findLatestSecret())
-                .thenReturn(Optional.of(new JwtSecret(TEST_SECRET)));
-        return mockRepo;
+    public FindSigningSecret testSigningSecret() {
+        return () -> Optional.of(TEST_SECRET);
     }
-} 
+}

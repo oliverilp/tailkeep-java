@@ -5,8 +5,8 @@ import org.tailkeep.domain.shared.RunInTransaction;
 import java.util.function.Supplier;
 
 /** Runs the work at once and counts how often it was asked to. */
-class FakeRunInTransaction implements RunInTransaction {
-    int runs;
+public class FakeRunInTransaction implements RunInTransaction {
+    public int runs;
 
     @Override
     public <T> T execute(Supplier<T> work) {
