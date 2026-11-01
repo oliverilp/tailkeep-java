@@ -15,7 +15,8 @@ Read it before changing the backend, and keep its **Decisions** and **Known gaps
 | `mod-adapter/database-migration` | Flyway migrations only | nothing |
 | `mod-adapter/web` | Controllers, request and response classes, exception handling | `mod-domain` |
 | `mod-adapter/ytdlp` | yt-dlp: process running, metadata fetching, downloading, stdout progress parsing (`StdoutProgressParser`), the URL probe | `mod-domain` |
-| `mod-adapter/messaging`, `security` | Empty until tasks 05 and 06 | `mod-domain` |
+| `mod-adapter/messaging` | Broker-neutral wire contract, publishers and handlers, plus the Kafka adapter. Only the `kafka` package imports Kafka types; the broker is picked by `tailkeep.messaging.provider` | `mod-domain` |
+| `mod-adapter/security` | Empty until task 06 | `mod-domain` |
 | `mod-application` | Main class, config, full-stack tests, and the legacy code not yet migrated | everything |
 
 `./gradlew verifyModuleDependencies` (part of `check`) fails when `mod-domain` has a dependency or an adapter

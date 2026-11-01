@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import org.tailkeep.domain.download.BroadcastDownloadProgress;
 import org.tailkeep.domain.download.DownloadDetails;
+import org.tailkeep.domain.download.SendDownloadToClients;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,11 +13,12 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Pushes progress to the clients connected to this instance. The open connections are the only state kept
- * in memory, which is allowed because they belong to this process.
+ * Sends downloads to the clients connected to this instance. The open connections are the only state kept
+ * in memory, which is allowed because they belong to this process. Other instances reach their own clients
+ * through the messaging adapter.
  */
 @Component
-public class SseDownloadBroadcaster implements BroadcastDownloadProgress {
+public class SseDownloadBroadcaster implements SendDownloadToClients {
     private static final Logger log = LoggerFactory.getLogger(SseDownloadBroadcaster.class);
 
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
@@ -40,7 +41,12 @@ public class SseDownloadBroadcaster implements BroadcastDownloadProgress {
     }
 
     @Override
-    public void broadcast(DownloadDetails download) {
+    public boolean hasClients() {
+        return !emitters.isEmpty();
+    }
+
+    @Override
+    public void send(DownloadDetails download) {
         DownloadResponse response = DownloadResponseMapper.toResponse(download);
         List<SseEmitter> dead = new ArrayList<>();
 

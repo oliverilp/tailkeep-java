@@ -40,7 +40,8 @@ public class Wire {
     private KafkaListenerEndpointRegistry registry;
 
     /**
-     * The listeners start at {@code latest}, so a message sent before they have partitions is lost.
+     * The queue listeners start at {@code earliest}, but the broadcast listener starts at {@code latest}, so a
+     * broadcast sent before it has partitions is lost.
      */
     public void awaitListenersAssigned() {
         Awaitility.await().atMost(TIMEOUT).pollInterval(Duration.ofMillis(100)).until(() -> {

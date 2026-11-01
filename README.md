@@ -54,6 +54,7 @@ The following Kafka topics are used in the system:
 | `metadata-results`  | Used to send back the fetched video metadata               |
 | `download-queue`    | Used to request a video download                           |
 | `download-progress` | Used to send real-time download progress updates           |
+| `download-broadcast`| Tells every app instance that a download changed, so each pushes it to its own SSE clients |
 
 Below is the sequence diagram showing the complete flow of a video download request:
 

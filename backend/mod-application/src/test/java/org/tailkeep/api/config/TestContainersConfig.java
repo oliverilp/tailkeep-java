@@ -3,8 +3,6 @@ package org.tailkeep.api.config;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -26,6 +24,8 @@ public class TestContainersConfig {
     static {
         postgres.start();
         kafka.start();
+        // A @DynamicPropertySource only works on a test class, not on an imported configuration
+        System.setProperty("spring.kafka.bootstrap-servers", kafka.getBootstrapServers());
     }
 
     @Bean
@@ -33,17 +33,4 @@ public class TestContainersConfig {
     public PostgreSQLContainer<?> postgreSQLContainer() {
         return postgres;
     }
-
-    @Bean
-    public KafkaContainer kafkaContainer() {
-        KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.6.1"));
-        kafka.start();
-        System.setProperty("spring.kafka.bootstrap-servers", kafka.getBootstrapServers());
-        return kafka;
-    }
-
-    @DynamicPropertySource
-    static void kafkaProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
-    }
-} 
+}

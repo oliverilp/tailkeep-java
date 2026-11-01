@@ -43,7 +43,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     implementation 'jakarta.validation:jakarta.validation-api'
     runtimeOnly 'org.postgresql:postgresql'
-    implementation 'org.springframework.kafka:spring-kafka'
+    testImplementation 'org.springframework.kafka:spring-kafka'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
