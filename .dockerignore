@@ -1,0 +1,13 @@
+# The API image is built from the repository root and only needs these two.
+*
+!api
+!web
+
+**/node_modules
+**/build
+**/dist
+**/.gradle
+**/.next
+**/.env*
+**/*.log
+**/*.tsbuildinfo
