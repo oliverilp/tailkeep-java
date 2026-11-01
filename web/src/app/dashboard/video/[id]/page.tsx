@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { use } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import Image from 'next/image';
@@ -8,14 +8,15 @@ import { getVideoById } from '@/api/videos';
 import Player from './player';
 
 interface VideoDetailsProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 const idSchema = z.string();
 
-function VideoDetails({ params }: VideoDetailsProps) {
+function VideoDetails(props: VideoDetailsProps) {
+  const params = use(props.params);
   const parsed = idSchema.safeParse(params.id);
 
   if (!parsed.success) {
