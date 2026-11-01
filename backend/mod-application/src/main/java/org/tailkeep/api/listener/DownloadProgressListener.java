@@ -18,7 +18,7 @@ public class DownloadProgressListener {
     private final DownloadService downloadService;
     private final SseService sseService;
 
-    @KafkaListener(topics = KafkaTopicNames.DOWNLOAD_PROGRESS, groupId = "download-progress-consumer", containerFactory = "downloadFactory")
+    @KafkaListener(topics = KafkaTopicNames.DOWNLOAD_PROGRESS, groupId = "download-progress-consumer", containerFactory = "downloadProgressFactory")
     public void listen(DownloadProgressMessage message) {
         log.info("[{} | {}] {}%", message.videoId(), message.jobId(), String.format("%.2f", message.progress()));
 

@@ -9,6 +9,10 @@ import org.tailkeep.api.config.TestContainersConfig;
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(TestContainersConfig.class)
+/**
+ * Starts the application the way production does, without bean overriding, so two beans with the same name
+ * fail here.
+ */
 class TailkeepApplicationTests {
 
     @Test

@@ -14,6 +14,8 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.tailkeep.api.message.DownloadProgressMessage;
+import org.tailkeep.api.message.DownloadRequestMessage;
+import org.tailkeep.api.message.MetadataRequestMessage;
 import org.tailkeep.api.message.MetadataResultMessage;
 
 @Configuration
@@ -52,24 +54,46 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, MetadataResultMessage> metadataConsumerFactory() {
+    public ConsumerFactory<String, MetadataRequestMessage> metadataRequestConsumerFactory() {
+        return createConsumerFactory(MetadataRequestMessage.class);
+    }
+
+    @Bean
+    public ConsumerFactory<String, MetadataResultMessage> metadataResultConsumerFactory() {
         return createConsumerFactory(MetadataResultMessage.class);
     }
 
     @Bean
-    public ConsumerFactory<String, DownloadProgressMessage> downloadConsumerFactory() {
+    public ConsumerFactory<String, DownloadRequestMessage> downloadRequestConsumerFactory() {
+        return createConsumerFactory(DownloadRequestMessage.class);
+    }
+
+    @Bean
+    public ConsumerFactory<String, DownloadProgressMessage> downloadProgressConsumerFactory() {
         return createConsumerFactory(DownloadProgressMessage.class);
     }
 
-    @Bean("metadataFactory")
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, MetadataResultMessage>> metadataListenerContainerFactory(
-            ConsumerFactory<String, MetadataResultMessage> metadataConsumerFactory) {
-        return createListenerContainerFactory(metadataConsumerFactory);
+    @Bean("metadataRequestFactory")
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, MetadataRequestMessage>> metadataRequestListenerContainerFactory(
+            ConsumerFactory<String, MetadataRequestMessage> metadataRequestConsumerFactory) {
+        return createListenerContainerFactory(metadataRequestConsumerFactory);
     }
 
-    @Bean("downloadFactory")
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, DownloadProgressMessage>> downloadListenerContainerFactory(
-            ConsumerFactory<String, DownloadProgressMessage> downloadConsumerFactory) {
-        return createListenerContainerFactory(downloadConsumerFactory);
+    @Bean("metadataResultFactory")
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, MetadataResultMessage>> metadataResultListenerContainerFactory(
+            ConsumerFactory<String, MetadataResultMessage> metadataResultConsumerFactory) {
+        return createListenerContainerFactory(metadataResultConsumerFactory);
+    }
+
+    @Bean("downloadRequestFactory")
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, DownloadRequestMessage>> downloadRequestListenerContainerFactory(
+            ConsumerFactory<String, DownloadRequestMessage> downloadRequestConsumerFactory) {
+        return createListenerContainerFactory(downloadRequestConsumerFactory);
+    }
+
+    @Bean("downloadProgressFactory")
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, DownloadProgressMessage>> downloadProgressListenerContainerFactory(
+            ConsumerFactory<String, DownloadProgressMessage> downloadProgressConsumerFactory) {
+        return createListenerContainerFactory(downloadProgressConsumerFactory);
     }
 }

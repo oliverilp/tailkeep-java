@@ -73,6 +73,7 @@ dependencies {
     testImplementation 'org.testcontainers:kafka'
     testImplementation 'org.testcontainers:redpanda'
     testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
     testImplementation 'org.awaitility:awaitility:4.2.1'
     testImplementation 'org.assertj:assertj-core:3.25.3'
     testImplementation 'org.apache.httpcomponents.core5:httpcore5:5.3.1'
@@ -81,4 +82,8 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    // Downloader reads the size of the downloaded file from this directory
+    def testMedia = layout.buildDirectory.dir('tmp/test-media').get().asFile
+    doFirst { testMedia.mkdirs() }
+    environment 'MEDIA_PATH', testMedia.absolutePath
 }

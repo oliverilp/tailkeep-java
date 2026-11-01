@@ -11,8 +11,10 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.tailkeep.api.message.DownloadProgressMessage;
 import org.tailkeep.api.message.DownloadRequestMessage;
 import org.tailkeep.api.message.MetadataRequestMessage;
+import org.tailkeep.api.message.MetadataResultMessage;
 
 @Configuration
 public class KafkaProducerConfig {
@@ -49,5 +51,15 @@ public class KafkaProducerConfig {
     public KafkaTemplate<String, DownloadRequestMessage> downloadRequestKafkaTemplate(
             ProducerFactory<String, DownloadRequestMessage> downloadProducerFactory) {
         return new KafkaTemplate<>(downloadProducerFactory);
+    }
+
+    @Bean
+    public KafkaTemplate<String, MetadataResultMessage> metadataResultKafkaTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerConfig()));
+    }
+
+    @Bean
+    public KafkaTemplate<String, DownloadProgressMessage> downloadProgressKafkaTemplate() {
+        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(producerConfig()));
     }
 }

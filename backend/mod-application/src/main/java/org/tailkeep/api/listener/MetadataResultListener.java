@@ -25,7 +25,7 @@ public class MetadataResultListener {
     private final VideoService videoService;
     private final JobService jobService;
 
-    @KafkaListener(topics = KafkaTopicNames.METADATA_RESULTS, groupId = "metadata-results-consumer", containerFactory = "metadataFactory")
+    @KafkaListener(topics = KafkaTopicNames.METADATA_RESULTS, groupId = "metadata-results-consumer", containerFactory = "metadataResultFactory")
     public void listen(MetadataResultMessage message) {
         log.info("Received metadata result: {}", message);
 

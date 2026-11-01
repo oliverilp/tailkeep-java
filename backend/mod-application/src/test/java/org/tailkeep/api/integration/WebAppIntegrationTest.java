@@ -3,7 +3,6 @@ package org.tailkeep.api.integration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,7 +16,6 @@ import org.tailkeep.api.support.Json;
 import static org.assertj.core.api.Assertions.assertThat;
 
 // Runs against the stub app in src/test/resources/static.
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class WebAppIntegrationTest extends BaseIntegrationTest {
 
     @ParameterizedTest

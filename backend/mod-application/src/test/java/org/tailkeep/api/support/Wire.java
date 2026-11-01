@@ -17,6 +17,7 @@ import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -83,6 +84,32 @@ public class Wire {
             }
         }
         throw new AssertionError("No matching message on " + topic + " within " + TIMEOUT);
+    }
+
+    /** Reads the messages for the job, in order, up to and including the first one that satisfies {@code last}. */
+    public List<JsonNode> awaitMessagesForJob(String topic, UUID jobId, Predicate<JsonNode> last) {
+        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(Map.of(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                ConsumerConfig.GROUP_ID_CONFIG, "test-" + UUID.randomUUID(),
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class))) {
+            consumer.subscribe(List.of(topic));
+            List<JsonNode> messages = new ArrayList<>();
+            long deadline = System.nanoTime() + TIMEOUT.toNanos();
+            while (System.nanoTime() < deadline) {
+                for (ConsumerRecord<String, String> record : consumer.poll(Duration.ofMillis(200))) {
+                    JsonNode message = Json.parse(record.value());
+                    if (jobId.toString().equals(message.path("jobId").asText())) {
+                        messages.add(message);
+                        if (last.test(message)) {
+                            return messages;
+                        }
+                    }
+                }
+            }
+        }
+        throw new AssertionError("The job did not complete on " + topic + " within " + TIMEOUT);
     }
 
     public JsonNode awaitMessageForJob(String topic, UUID jobId) {
