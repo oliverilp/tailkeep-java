@@ -6,7 +6,10 @@ The whole backend is mocked. The tests need no API, database, worker or media se
 
 ## Running
 
+Run these from the `e2e/` folder, not `web/`:
+
 ```bash
+cd e2e
 nvm use
 pnpm install
 pnpm exec playwright install chromium
