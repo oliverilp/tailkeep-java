@@ -1,413 +1,298 @@
 package org.tailkeep.api.integration;
 
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
-import org.tailkeep.api.dto.AuthenticationResponseDto;
-import org.tailkeep.api.dto.DownloadProgressDto;
-import org.tailkeep.api.dto.DownloadRequestDto;
-import org.tailkeep.api.dto.DownloadsDashboardDto;
-import org.tailkeep.api.exception.ApiError;
-import org.tailkeep.api.model.user.Role;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.tailkeep.api.support.Api.Response;
+import org.tailkeep.api.support.Json;
+import org.tailkeep.api.support.Shapes;
+import org.tailkeep.api.support.TestDb.Download;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@RequiredArgsConstructor
 class DownloadIntegrationTest extends BaseIntegrationTest {
 
-    @Autowired
-    private TestDataFactory testDataFactory;
+    private static String url(String url) {
+        return "{\"url\":\"%s\"}".formatted(url);
+    }
 
+    // The URL is checked with a real HEAD request, so this needs network access.
     @Test
-    void startDownload_WithValidUrlAndAuth_ShouldAcceptRequest() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
+    void startDownload_WithValidUrl_ShouldAcceptRequest() {
+        String token = adminToken();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+        Response response = api.post("/api/v1/downloads", url("https://www.youtube.com/watch?v=dQw4w9WgXcQ"), token);
 
-        DownloadRequestDto request = new DownloadRequestDto("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-
-        // Act
-        ResponseEntity<Void> response = restTemplate.exchange(
-                "/api/v1/downloads",
-                HttpMethod.POST,
-                new HttpEntity<>(request, headers),
-                Void.class
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
-
-        // Verify job was created
-        assertThat(jobRepository.count()).isEqualTo(1);
-        assertThat(Objects.requireNonNull(jobRepository.findAll().getFirst().getInputUrl()))
-                .contains("dQw4w9WgXcQ");
+        assertThat(response.status()).isEqualTo(202);
+        assertThat(response.body()).isNullOrEmpty();
+        assertThat(db.count("job")).isEqualTo(1);
     }
 
     @Test
-    void startDownload_WithoutLoggedIn_ShouldFail() {
-        // Arrange
-        DownloadRequestDto request = new DownloadRequestDto("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    void startDownload_WithoutAuth_ShouldFail() {
+        Response response = api.post("/api/v1/downloads", url("https://www.youtube.com/watch?v=dQw4w9WgXcQ"), null);
 
-        // Act
-        ResponseEntity<Void> response = restTemplate.postForEntity(
-                "/api/v1/downloads",
-                request,
-                Void.class
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.status()).isEqualTo(401);
+        Json.assertError(response.body(), 401, "/api/v1/downloads",
+                "Authentication is required to access this resource");
     }
 
     @Test
     void startDownload_WithoutAdminPermission_ShouldFail() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
+        Response response = api.post("/api/v1/downloads", url("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
+                userToken());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+        assertThat(response.status()).isEqualTo(403);
+        Json.assertError(response.body(), 403, "/api/v1/downloads", "You don't have permission to access this resource");
+    }
 
-        DownloadRequestDto request = new DownloadRequestDto("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', value = {
+            "not-a-url|Failed to validate URL",
+            "http://example.com|URL must use HTTPS protocol",
+            "https:///path|URL must have a valid host",
+            "https://localhost/path|URL must have a valid domain",
+    })
+    void startDownload_WithInvalidUrl_ShouldFail(String url, String message) {
+        Response response = api.post("/api/v1/downloads", url(url), adminToken());
 
-        // Act
-        ResponseEntity<ApiError> response = restTemplate.exchange(
-                "/api/v1/downloads",
-                HttpMethod.POST,
-                new HttpEntity<>(request, headers),
-                ApiError.class
-        );
+        assertThat(response.status()).isEqualTo(400);
+        Json.assertError(response.body(), 400, "/api/v1/downloads", message);
+        assertThat(db.count("job")).isZero();
+    }
 
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    // The request class has validation annotations, but no validator is on the classpath, so they do nothing.
+    @Test
+    void startDownload_WithBlankUrl_ShouldFail() {
+        Response response = api.post("/api/v1/downloads", url(""), adminToken());
+
+        assertThat(response.status()).isEqualTo(400);
+        Json.assertError(response.body(), 400, "/api/v1/downloads", "Failed to validate URL");
     }
 
     @Test
-    void startDownload_WithInvalidUrl_ShouldFail() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345678", Role.ADMIN);
+    void startDownload_WithoutBody_ShouldFail() {
+        Response response = api.post("/api/v1/downloads", null, adminToken());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
-
-        DownloadRequestDto request = new DownloadRequestDto("not-a-url");
-
-        // Act
-        ResponseEntity<ApiError> response = restTemplate.exchange(
-                "/api/v1/downloads",
-                HttpMethod.POST,
-                new HttpEntity<>(request, headers),
-                ApiError.class
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.status()).isEqualTo(400);
+        Json.assertError(response.body(), 400, "/api/v1/downloads", "Invalid request body: JSON is required");
     }
 
     @Test
-    void startDownload_WithNonHttpsUrl_ShouldFail() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
+    void getAllDownloads_WithoutData_ShouldReturnEmptyList() {
+        Response response = api.get("/api/v1/downloads", userToken());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
-
-        DownloadRequestDto request = new DownloadRequestDto("http://example.com");
-
-        // Act
-        ResponseEntity<ApiError> response = restTemplate.exchange(
-                "/api/v1/downloads",
-                HttpMethod.POST,
-                new HttpEntity<>(request, headers),
-                ApiError.class
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody())
-                .isNotNull()
-                .satisfies(body -> assertThat(body.message()).isEqualTo("URL must use HTTPS protocol"));
+        assertThat(response.status()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("[]");
     }
 
     @Test
-    void startDownload_WithEmptyHost_ShouldFail() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
+    void getAllDownloads_ShouldReturnNewestFirst() {
+        Download first = db.downloading(1);
+        Download second = db.finished(2);
+        Download third = db.downloading(3);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+        Response response = api.get("/api/v1/downloads", userToken());
 
-        DownloadRequestDto request = new DownloadRequestDto("https:///path");
-
-        // Act
-        ResponseEntity<ApiError> response = restTemplate.exchange(
-                "/api/v1/downloads",
-                HttpMethod.POST,
-                new HttpEntity<>(request, headers),
-                ApiError.class
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody())
-                .isNotNull()
-                .satisfies(body -> assertThat(body.message()).isEqualTo("URL must have a valid host"));
+        assertThat(response.status()).isEqualTo(200);
+        JsonNode downloads = response.json();
+        assertThat(downloads).hasSize(3);
+        downloads.forEach(Shapes::download);
+        assertThat(Json.ids(downloads)).containsExactly(
+                third.jobId().toString(), second.jobId().toString(), first.jobId().toString());
     }
 
     @Test
-    void getDownloadProgress_WithValidId_ShouldSucceed() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
-
-        TestEntities testData = testDataFactory.createCompleteTestData();
-        UUID jobId = testData.job().getId();
-
-        // Act
-        ResponseEntity<DownloadProgressDto> response = restTemplate.exchange(
-                "/api/v1/downloads/" + jobId,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                DownloadProgressDto.class
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody())
-                .isNotNull()
-                .satisfies(body -> {
-                    assertThat(body.id()).isEqualTo(jobId);
-                    assertThat(body.status()).isEqualTo("downloading");
-                    assertThat(body.progress()).isEqualTo(0.0);
-                    assertThat(body.hasEnded()).isFalse();
-                    assertThat(body.size()).isEqualTo("10MB");
-                    assertThat(body.speed()).isEqualTo("1MB/s");
-                    assertThat(body.eta()).isEqualTo("00:10");
-                });
+    void getAllDownloads_WithoutAuth_ShouldFail() {
+        assertThat(api.get("/api/v1/downloads").status()).isEqualTo(401);
     }
 
     @Test
-    void getDownloadProgress_WithInvalidId_ShouldFail() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+    void getDownloadById_ShouldReturnAllFields() {
+        Download download = db.downloading(1);
 
-        testDataFactory.createCompleteTestData();
+        Response response = api.get("/api/v1/downloads/" + download.jobId(), userToken());
 
-        // Test case 1: Invalid UUID format
-        ResponseEntity<ApiError> response1 = restTemplate.exchange(
-                "/api/v1/downloads/invalid-id",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                ApiError.class
-        );
-
-        // Assert case 1
-        assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
-        // Test case 2: Valid UUID but non-existent
-        String nonExistentId = UUID.randomUUID().toString();
-        ResponseEntity<ApiError> response2 = restTemplate.exchange(
-                "/api/v1/downloads/" + nonExistentId,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                ApiError.class
-        );
-
-        // Assert case 2
-        assertThat(response2.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.status()).isEqualTo(200);
+        JsonNode body = Shapes.download(response.json());
+        assertThat(body.get("id").asText()).isEqualTo(download.jobId().toString());
+        assertThat(body.get("video").get("id").asText()).isEqualTo(download.videoId().toString());
+        assertThat(body.get("video").get("channel").get("id").asText()).isEqualTo(download.channelId().toString());
+        assertThat(body.get("status").asText()).isEqualTo("downloading");
+        assertThat(body.get("hasEnded").asBoolean()).isFalse();
+        assertThat(body.get("progress").asDouble()).isEqualTo(42.5);
+        assertThat(body.get("size").asText()).isEqualTo("10.00MiB");
+        assertThat(body.get("speed").asText()).isEqualTo("1.00MiB/s");
+        assertThat(body.get("eta").asText()).isEqualTo("00:10");
+        assertThat(body.get("completedAt").isNull()).isTrue();
     }
 
     @Test
-    void getDashboard_ShouldReturnCorrectCounts() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+    void getDownloadById_WhenFinished_ShouldHaveCompletionTime() {
+        Download download = db.finished(1);
 
-        testDataFactory.createCompleteTestData();
+        JsonNode body = Shapes.download(api.get("/api/v1/downloads/" + download.jobId(), userToken()).json());
 
-        // Act
-        ResponseEntity<DownloadsDashboardDto> response = restTemplate.exchange(
-                "/api/v1/downloads/dashboard",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                DownloadsDashboardDto.class
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody())
-                .isNotNull()
-                .satisfies(body -> {
-                    assertThat(body.queueInfo().queue()).isEqualTo(0);
-                    assertThat(body.downloads().items()).hasSize(1);
-                });
-
+        assertThat(body.get("status").asText()).isEqualTo("done");
+        assertThat(body.get("hasEnded").asBoolean()).isTrue();
+        assertThat(body.get("progress").asDouble()).isEqualTo(100.0);
+        assertThat(body.get("completedAt").isNull()).isFalse();
     }
 
     @Test
-    void getAllDownloadProgress_WithAuth_ShouldReturnEmptyList() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+    void getDownloadById_WithMalformedId_ShouldFail() {
+        Response response = api.get("/api/v1/downloads/invalid-id", userToken());
 
-        // Act
-        ResponseEntity<List<DownloadProgressDto>> response = restTemplate.exchange(
-                "/api/v1/downloads",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody())
-                .isNotNull()
-                .isEmpty();
+        assertThat(response.status()).isEqualTo(400);
+        Json.assertError(response.body(), 400, "/api/v1/downloads/invalid-id", "Invalid parameter format");
     }
 
     @Test
-    void getAllDownloadProgress_WithData_ShouldReturnList() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+    void getDownloadById_WithUnknownId_ShouldReturnNotFound() {
+        UUID id = UUID.randomUUID();
 
-        // Create test data
-        testDataFactory.createCompleteTestData(0);
-        testDataFactory.createCompleteTestData(1);
-        testDataFactory.createCompleteTestData(2);
+        Response response = api.get("/api/v1/downloads/" + id, userToken());
 
-        // Act
-        ResponseEntity<List<DownloadProgressDto>> response = restTemplate.exchange(
-                "/api/v1/downloads",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody())
-                .isNotNull()
-                .hasSize(3)
-                .extracting(DownloadProgressDto::status)
-                .containsOnly("downloading");
+        assertThat(response.status()).isEqualTo(404);
+        Json.assertError(response.body(), 404, "/api/v1/downloads/" + id,
+                "Download progress not found with identifier: " + id);
     }
 
     @Test
-    void softDeleteDownload_WithValidId_ShouldSucceed() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+    void getDashboard_WithoutData_ShouldBeEmpty() {
+        Response response = api.get("/api/v1/downloads/dashboard", userToken());
 
-        TestEntities testData = testDataFactory.createCompleteTestData();
-        UUID jobId = testData.job().getId();
-
-        // Verify item exists before deletion
-        ResponseEntity<DownloadsDashboardDto> beforeResponse = restTemplate.exchange(
-                "/api/v1/downloads/dashboard",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                DownloadsDashboardDto.class
-        );
-        assertThat(beforeResponse.getBody())
-                .isNotNull()
-                .satisfies(body -> assertThat(body.downloads().items()).hasSize(1));
-
-        // Act
-        ResponseEntity<Void> deleteResponse = restTemplate.exchange(
-                "/api/v1/downloads/" + jobId,
-                HttpMethod.DELETE,
-                new HttpEntity<>(headers),
-                Void.class
-        );
-
-        // Verify the delete response
-        assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-
-        // Verify the item is not returned in the dashboard
-        ResponseEntity<DownloadsDashboardDto> afterResponse = restTemplate.exchange(
-                "/api/v1/downloads/dashboard",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                DownloadsDashboardDto.class
-        );
-
-        assertThat(afterResponse.getBody())
-                .isNotNull()
-                .satisfies(body -> {
-                    assertThat(body.downloads().items()).isEmpty();
-                    assertThat(body.queueInfo().active()).isZero();
-                });
+        assertThat(response.status()).isEqualTo(200);
+        JsonNode body = Json.assertKeys(response.json(), "queueInfo", "downloads");
+        Json.assertKeys(body.get("queueInfo"), "queue", "active", "finished");
+        Json.assertKeys(body.get("downloads"), "items", "totalPages", "totalItems", "currentPage", "pageSize",
+                "hasNext", "hasPrevious");
+        assertThat(body.get("downloads").get("items")).isEmpty();
+        assertThat(body.get("downloads").get("totalItems").asLong()).isZero();
+        assertThat(body.get("downloads").get("currentPage").asInt()).isEqualTo(1);
+        assertThat(body.get("downloads").get("pageSize").asInt()).isEqualTo(10);
     }
 
     @Test
-    void softDeleteDownload_WithInvalidId_ShouldFail() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("admin", "password12345", Role.ADMIN);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+    void getDashboard_ShouldCountJobsByState() {
+        db.downloading(1);
+        db.downloading(2);
+        db.finished(3);
+        db.queuedJob("https://www.youtube.com/watch?v=queued");
 
-        // Test case 1: Invalid UUID format
-        ResponseEntity<ApiError> response1 = restTemplate.exchange(
-                "/api/v1/downloads/invalid-id",
-                HttpMethod.DELETE,
-                new HttpEntity<>(headers),
-                ApiError.class
-        );
+        JsonNode queueInfo = api.get("/api/v1/downloads/dashboard", userToken()).json().get("queueInfo");
 
-        // Assert case 1
-        assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        // `queue` is always 0 today, even with a queued job: the query joins download_progress. Not pinned.
+        assertThat(queueInfo.get("queue").isIntegralNumber()).isTrue();
+        assertThat(queueInfo.get("active").asLong()).isEqualTo(2);
+        assertThat(queueInfo.get("finished").asLong()).isEqualTo(1);
+    }
 
-        // Test case 2: Valid UUID but non-existent
-        String nonExistentId = UUID.randomUUID().toString();
-        ResponseEntity<ApiError> response2 = restTemplate.exchange(
-                "/api/v1/downloads/" + nonExistentId,
-                HttpMethod.DELETE,
-                new HttpEntity<>(headers),
-                ApiError.class
-        );
+    @Test
+    void getDashboard_ShouldPageFromOne() {
+        db.downloading(1);
+        db.downloading(2);
+        Download newest = db.downloading(3);
+        String token = userToken();
 
-        // Assert case 2
-        assertThat(response2.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        JsonNode firstPage = api.get("/api/v1/downloads/dashboard?page=1&size=2", token).json().get("downloads");
+        JsonNode secondPage = api.get("/api/v1/downloads/dashboard?page=2&size=2", token).json().get("downloads");
+
+        assertThat(firstPage.get("items")).hasSize(2);
+        firstPage.get("items").forEach(Shapes::download);
+        assertThat(firstPage.get("items").get(0).get("id").asText()).isEqualTo(newest.jobId().toString());
+        assertThat(firstPage.get("totalPages").asInt()).isEqualTo(2);
+        assertThat(firstPage.get("totalItems").asLong()).isEqualTo(3);
+        assertThat(firstPage.get("currentPage").asInt()).isEqualTo(1);
+        assertThat(firstPage.get("pageSize").asInt()).isEqualTo(2);
+        assertThat(firstPage.get("hasNext").asBoolean()).isTrue();
+        assertThat(firstPage.get("hasPrevious").asBoolean()).isFalse();
+
+        assertThat(secondPage.get("items")).hasSize(1);
+        assertThat(secondPage.get("currentPage").asInt()).isEqualTo(2);
+        assertThat(secondPage.get("hasNext").asBoolean()).isFalse();
+        assertThat(secondPage.get("hasPrevious").asBoolean()).isTrue();
+    }
+
+    @Test
+    void getDashboard_ShouldFilterByProgress() {
+        db.downloading(1);
+        db.finished(2);
+        db.finished(3);
+        String token = userToken();
+
+        JsonNode active = api.get("/api/v1/downloads/dashboard?progress=active", token).json().get("downloads");
+        JsonNode done = api.get("/api/v1/downloads/dashboard?progress=done", token).json().get("downloads");
+        JsonNode all = api.get("/api/v1/downloads/dashboard?progress=all", token).json().get("downloads");
+
+        assertThat(active.get("totalItems").asLong()).isEqualTo(1);
+        assertThat(done.get("totalItems").asLong()).isEqualTo(2);
+        assertThat(all.get("totalItems").asLong()).isEqualTo(3);
+        assertThat(active.get("items").get(0).get("hasEnded").asBoolean()).isFalse();
+        done.get("items").forEach(item -> assertThat(item.get("hasEnded").asBoolean()).isTrue());
+    }
+
+    @Test
+    void getDashboard_WithoutAuth_ShouldFail() {
+        assertThat(api.get("/api/v1/downloads/dashboard").status()).isEqualTo(401);
+    }
+
+    @Test
+    void softDeleteDownload_ShouldRemoveItFromTheDashboard() {
+        Download keep = db.downloading(1);
+        Download delete = db.finished(2);
+        String token = adminToken();
+
+        Response response = api.delete("/api/v1/downloads/" + delete.jobId(), token);
+
+        assertThat(response.status()).isEqualTo(204);
+        assertThat(response.body()).isNullOrEmpty();
+        JsonNode dashboard = api.get("/api/v1/downloads/dashboard", token).json();
+        assertThat(dashboard.get("queueInfo").get("finished").asLong()).isZero();
+        assertThat(dashboard.get("queueInfo").get("active").asLong()).isEqualTo(1);
+        assertThat(Json.ids(dashboard.get("downloads").get("items")))
+                .containsExactly(keep.jobId().toString());
+        // The row is kept, only hidden
+        assertThat(db.count("download_progress")).isEqualTo(2);
+    }
+
+    @Test
+    void softDeleteDownload_WithoutAuth_ShouldFail() {
+        Response response = api.delete("/api/v1/downloads/" + UUID.randomUUID(), null);
+
+        assertThat(response.status()).isEqualTo(401);
     }
 
     @Test
     void softDeleteDownload_WithoutAdminPermission_ShouldFail() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+        Download download = db.downloading(1);
 
-        TestEntities testData = testDataFactory.createCompleteTestData();
-        UUID jobId = testData.job().getId();
+        Response response = api.delete("/api/v1/downloads/" + download.jobId(), userToken());
 
-        // Act
-        ResponseEntity<ApiError> response = restTemplate.exchange(
-                "/api/v1/downloads/" + jobId,
-                HttpMethod.DELETE,
-                new HttpEntity<>(headers),
-                ApiError.class
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.status()).isEqualTo(403);
+        Json.assertError(response.body(), 403, "/api/v1/downloads/" + download.jobId(),
+                "You don't have permission to access this resource");
     }
-} 
+
+    @Test
+    void softDeleteDownload_WithMalformedId_ShouldFail() {
+        Response response = api.delete("/api/v1/downloads/invalid-id", adminToken());
+
+        assertThat(response.status()).isEqualTo(400);
+        Json.assertError(response.body(), 400, "/api/v1/downloads/invalid-id", "Invalid parameter format");
+    }
+
+    @Test
+    void softDeleteDownload_WithUnknownId_ShouldReturnNotFound() {
+        UUID id = UUID.randomUUID();
+
+        Response response = api.delete("/api/v1/downloads/" + id, adminToken());
+
+        assertThat(response.status()).isEqualTo(404);
+        Json.assertError(response.body(), 404, "/api/v1/downloads/" + id,
+                "Download progress not found with identifier: " + id);
+    }
+}

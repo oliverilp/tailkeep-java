@@ -3,7 +3,6 @@ package org.tailkeep.api.integration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpEntity;
@@ -12,18 +11,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.tailkeep.api.dto.AuthenticationResponseDto;
-import org.tailkeep.api.dto.PublicConfigDto;
-import org.tailkeep.api.model.user.Role;
+import org.tailkeep.api.support.Api;
+import org.tailkeep.api.support.Json;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 // Runs against the stub app in src/test/resources/static.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class WebAppIntegrationTest extends BaseIntegrationTest {
-
-    @Autowired
-    private TestDataFactory testDataFactory;
 
     @ParameterizedTest
     @ValueSource(strings = {"/", "/login", "/dashboard/download", "/dashboard/video/some-id", "/no/such/page"})
@@ -86,9 +81,8 @@ class WebAppIntegrationTest extends BaseIntegrationTest {
     @ParameterizedTest
     @ValueSource(strings = {"GET", "POST", "PUT", "PATCH", "DELETE"})
     void unknownApiPaths_WithAuth_ShouldReturn404(String method) {
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+        headers.setBearerAuth(userToken());
 
         ResponseEntity<String> response = restTemplate.exchange(
             "/api/v1/unknown",
@@ -110,19 +104,21 @@ class WebAppIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void config_WithoutAuth_ShouldReportDemoModeOff() {
-        ResponseEntity<PublicConfigDto> response = restTemplate.getForEntity("/api/v1/config", PublicConfigDto.class);
+        Api.Response response = api.get("/api/v1/config");
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo(new PublicConfigDto(false));
+        assertThat(response.status()).isEqualTo(200);
+        assertThat(response.headers().getContentType().isCompatibleWith(MediaType.APPLICATION_JSON)).isTrue();
+        assertThat(Json.assertKeys(response.json(), "demoMode").get("demoMode").isBoolean()).isTrue();
+        assertThat(response.json().get("demoMode").asBoolean()).isFalse();
     }
 
     @Test
     void config_InDemoMode_ShouldReportDemoModeOn() {
         System.setProperty("DEMO_MODE", "true");
 
-        ResponseEntity<PublicConfigDto> response = restTemplate.getForEntity("/api/v1/config", PublicConfigDto.class);
+        Api.Response response = api.get("/api/v1/config");
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo(new PublicConfigDto(true));
+        assertThat(response.status()).isEqualTo(200);
+        assertThat(Json.assertKeys(response.json(), "demoMode").get("demoMode").asBoolean()).isTrue();
     }
 }

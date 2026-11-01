@@ -44,4 +44,8 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	// Downloader reads the size of the downloaded file from this directory
+	def testMedia = layout.buildDirectory.dir('tmp/test-media').get().asFile
+	doFirst { testMedia.mkdirs() }
+	environment 'MEDIA_PATH', testMedia.absolutePath
 }

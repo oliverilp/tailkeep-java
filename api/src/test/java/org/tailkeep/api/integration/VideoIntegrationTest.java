@@ -1,179 +1,119 @@
 package org.tailkeep.api.integration;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
-import org.tailkeep.api.dto.AuthenticationResponseDto;
-import org.tailkeep.api.dto.VideoDto;
-import org.tailkeep.api.exception.ApiError;
-import org.tailkeep.api.model.user.Role;
+import org.tailkeep.api.support.Api.Response;
+import org.tailkeep.api.support.Json;
+import org.tailkeep.api.support.Shapes;
+import org.tailkeep.api.support.TestDb.Download;
 
-import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class VideoIntegrationTest extends BaseIntegrationTest {
-
-    @Autowired
-    private TestDataFactory testDataFactory;
-
-    @Test
-    void getVideo_WithoutAuth_ShouldFail() {
-        // Act
-        ResponseEntity<ApiError> response = restTemplate.exchange(
-                "/api/v1/videos/some-id",
-                HttpMethod.GET,
-                new HttpEntity<>(new HttpHeaders()),
-                ApiError.class
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-    }
-
-    @Test
-    void getVideo_WithInvalidId_ShouldFail() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
-
-        // Test case 1: Invalid UUID format
-        ResponseEntity<ApiError> response1 = restTemplate.exchange(
-                "/api/v1/videos/invalid-id",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                ApiError.class
-        );
-
-        // Assert case 1
-        assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
-        // Test case 2: Valid UUID but non-existent
-        String nonExistentId = UUID.randomUUID().toString();
-        ResponseEntity<ApiError> response2 = restTemplate.exchange(
-                "/api/v1/videos/" + nonExistentId,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                ApiError.class
-        );
-
-        // Assert case 2
-        assertThat(response2.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-    }
-
-    @Test
-    void getVideo_WithValidId_ShouldReturnVideo() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
-
-        TestEntities testData = testDataFactory.createCompleteTestData();
-        UUID videoId = testData.video().getId();
-
-        // Act
-        ResponseEntity<VideoDto> response = restTemplate.exchange(
-                "/api/v1/videos/" + videoId,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                VideoDto.class
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody())
-                .isNotNull()
-                .satisfies(video -> {
-                    assertThat(video.getId()).isEqualTo(videoId);
-                    assertThat(video.getTitle()).isEqualTo("Test Video-0");
-                    assertThat(video.getChannel().name()).isEqualTo("Test Channel-0");
-                });
-    }
 
     @Test
     void getAllVideos_WithoutAuth_ShouldFail() {
-        // Act
-        ResponseEntity<ApiError> response = restTemplate.exchange(
-                "/api/v1/videos",
-                HttpMethod.GET,
-                new HttpEntity<>(new HttpHeaders()),
-                ApiError.class
-        );
+        Response response = api.get("/api/v1/videos");
 
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.status()).isEqualTo(401);
+        Json.assertError(response.body(), 401, "/api/v1/videos", "Authentication is required to access this resource");
     }
 
     @Test
-    void getAllVideos_WithAuth_ShouldReturnEmptyList() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+    void getAllVideos_WithoutData_ShouldReturnEmptyList() {
+        Response response = api.get("/api/v1/videos", userToken());
 
-        // Act
-        ResponseEntity<List<VideoDto>> response = restTemplate.exchange(
-                "/api/v1/videos",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody())
-            .isNotNull()
-            .isEmpty();
+        assertThat(response.status()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("[]");
     }
 
     @Test
-    void getAllVideos_WithData_ShouldReturnList() {
-        // Arrange
-        AuthenticationResponseDto auth = testDataFactory.createTestUser("user", "password12345", Role.USER);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(auth.getAccessToken());
+    void getAllVideos_ShouldReturnNewestFirst() {
+        Download first = db.downloading(1);
+        Download second = db.downloading(2);
+        Download third = db.downloading(3);
 
-        // Create test data
-        TestEntities data1 = testDataFactory.createCompleteTestData(1);
-        TestEntities data2 = testDataFactory.createCompleteTestData(2);
-        TestEntities data3 = testDataFactory.createCompleteTestData(3);
+        Response response = api.get("/api/v1/videos", userToken());
 
-        // Act
-        ResponseEntity<List<VideoDto>> response = restTemplate.exchange(
-                "/api/v1/videos",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody())
-            .isNotNull()
-            .hasSize(3)
-            .satisfies(videos -> {
-                assertThat(videos)
-                    .extracting(VideoDto::getId)
-                    .containsExactlyInAnyOrder(
-                        data1.video().getId(),
-                        data2.video().getId(),
-                        data3.video().getId()
-                    );
-                
-                assertThat(videos)
-                    .extracting(VideoDto::getTitle)
-                    .containsExactlyInAnyOrder(
-                        "Test Video-1",
-                        "Test Video-2",
-                        "Test Video-3"
-                    );
-            });
+        assertThat(response.status()).isEqualTo(200);
+        JsonNode videos = response.json();
+        assertThat(videos.isArray()).isTrue();
+        assertThat(videos).hasSize(3);
+        videos.forEach(video -> Shapes.video(video, false));
+        assertThat(Json.ids(videos)).containsExactly(
+                third.videoId().toString(), second.videoId().toString(), first.videoId().toString());
+        assertThat(videos.get(0).get("title").asText()).isEqualTo("Video 3");
     }
-} 
+
+    @Test
+    void getVideoById_ShouldReturnAllFields() {
+        Download download = db.downloading(1);
+
+        Response response = api.get("/api/v1/videos/" + download.videoId(), userToken());
+
+        assertThat(response.status()).isEqualTo(200);
+        JsonNode video = Shapes.video(response.json(), true);
+        assertThat(video.get("id").asText()).isEqualTo(download.videoId().toString());
+        assertThat(video.get("youtubeId").asText()).isEqualTo("video1");
+        assertThat(video.get("url").asText()).isEqualTo("https://www.youtube.com/watch?v=video1");
+        assertThat(video.get("title").asText()).isEqualTo("Video 1");
+        assertThat(video.get("durationString").asText()).isEqualTo("03:32");
+        assertThat(video.get("duration").asDouble()).isEqualTo(212.0);
+        assertThat(video.get("thumbnailUrl").asText()).isEqualTo("https://img.example.com/video1.jpg");
+        assertThat(video.get("description").asText()).isEqualTo("A description");
+        assertThat(video.get("viewCount").asLong()).isEqualTo(1000);
+        assertThat(video.get("commentCount").asLong()).isEqualTo(50);
+        assertThat(video.get("filename").asText()).isEqualTo("video1.mp4");
+        assertThat(video.get("channel").get("id").asText()).isEqualTo(download.channelId().toString());
+        assertThat(video.get("channel").get("name").asText()).isEqualTo("Channel 1");
+        assertThat(video.get("channel").get("youtubeId").asText()).isEqualTo("UCchannel1");
+        assertThat(video.get("channel").get("channelUrl").asText())
+                .isEqualTo("https://www.youtube.com/channel/UCchannel1");
+    }
+
+    @Test
+    void getVideoById_WhileDownloading_ShouldNotBeDone() {
+        Download download = db.downloading(1);
+
+        JsonNode video = api.get("/api/v1/videos/" + download.videoId(), userToken()).json();
+
+        assertThat(video.get("doneDownloading").asBoolean()).isFalse();
+    }
+
+    @Test
+    void getVideoById_WhenEveryDownloadHasEnded_ShouldBeDone() {
+        Download download = db.finished(1);
+
+        JsonNode video = api.get("/api/v1/videos/" + download.videoId(), userToken()).json();
+
+        assertThat(video.get("doneDownloading").asBoolean()).isTrue();
+    }
+
+    @Test
+    void getVideoById_WithoutAuth_ShouldFail() {
+        Response response = api.get("/api/v1/videos/" + UUID.randomUUID());
+
+        assertThat(response.status()).isEqualTo(401);
+    }
+
+    @Test
+    void getVideoById_WithMalformedId_ShouldFail() {
+        Response response = api.get("/api/v1/videos/invalid-id", userToken());
+
+        assertThat(response.status()).isEqualTo(400);
+        Json.assertError(response.body(), 400, "/api/v1/videos/invalid-id", "Invalid parameter format");
+    }
+
+    @Test
+    void getVideoById_WithUnknownId_ShouldReturnNotFound() {
+        UUID id = UUID.randomUUID();
+
+        Response response = api.get("/api/v1/videos/" + id, userToken());
+
+        assertThat(response.status()).isEqualTo(404);
+        Json.assertError(response.body(), 404, "/api/v1/videos/" + id,
+                "Video not found with identifier: " + id);
+    }
+}
