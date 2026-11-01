@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   Delete,
@@ -36,7 +35,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import type { DownloadProgressDto } from '@/schemas/progress';
 import { deleteDownload } from '@/api/downloads';
-import { ApiError } from 'next/dist/server/api-utils';
+import type { ApiError } from '@/lib/api-error';
 
 function formatDate(date: Date): string {
   const options: Intl.DateTimeFormatOptions = {
@@ -118,12 +117,14 @@ function DownloadsTableRow({ item }: { item: DownloadProgressDto }) {
       <TableRow>
         <TableCell className="hidden sm:table-cell">
           <Link href={`/dashboard/video/${item.video.id}`} className="">
-            <Image
+            <img
               alt={item.video.title}
-              className="aspect-video rounded-md object-cover"
-              width="80"
+              className="aspect-video rounded-md object-cover text-transparent"
+              decoding="async"
               height="45"
+              loading="lazy"
               src={item.video.thumbnailUrl}
+              width="80"
             />
           </Link>
         </TableCell>

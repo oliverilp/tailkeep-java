@@ -3,7 +3,6 @@
 import React, { use } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
-import Image from 'next/image';
 import { getVideoById } from '@/api/videos';
 import Player from './player';
 
@@ -44,12 +43,14 @@ function VideoDetails(props: VideoDetailsProps) {
         ) : (
           <figure className="relative">
             <div className="w-full overflow-hidden rounded-xl">
-              <Image
+              <img
                 alt="Video thumbnail"
-                className="aspect-video w-full scale-105 blur-md brightness-50 filter"
+                className="aspect-video w-full scale-105 text-transparent blur-md brightness-50 filter"
+                decoding="async"
                 height="1280"
-                width="720"
+                loading="lazy"
                 src={video.thumbnailUrl}
+                width="720"
               />
             </div>
             <figcaption className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 transform text-center text-2xl font-semibold text-white sm:text-4xl">

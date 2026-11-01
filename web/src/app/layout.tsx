@@ -1,13 +1,9 @@
-import { Inter } from 'next/font/google';
 import './globals.css';
 import React from 'react';
-import { cn } from '@/lib/utils';
 import { Providers } from '@/components/providers';
 import { Toaster } from 'sonner';
 
 export const dynamic = 'force-dynamic';
-
-const inter = Inter({ subsets: ['latin'] });
 
 const siteConfig = {
   title: 'Tailkeep',
@@ -26,14 +22,13 @@ export default function RootLayout({
         <meta name="description" content={siteConfig.description} />
         <link
           rel="icon"
-          href="/icon?<generated>"
-          type="image/png"
-          sizes="32x32"
+          href="/favicon.ico"
+          type="image/x-icon"
+          sizes="48x48"
         />
+        <link rel="icon" href="/icon.png" type="image/png" sizes="32x32" />
       </head>
-      <body
-        className={cn('bg-background font-sans! antialiased', inter.className)}
-      >
+      <body className="bg-background font-sans! antialiased">
         <Providers>{children}</Providers>
         <Toaster offset={32} mobileOffset={20} />
       </body>

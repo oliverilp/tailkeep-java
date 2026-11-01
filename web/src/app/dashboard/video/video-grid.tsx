@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { VideoDto } from '@/schemas/video';
 import { cn } from '@/lib/utils';
@@ -26,12 +25,12 @@ function VideoGrid({ videos }: VideoGridProps) {
                 className="group flex min-h-32 w-80 cursor-pointer flex-col gap-3"
               >
                 <div className="relative aspect-video max-w-80 overflow-hidden rounded-xl">
-                  <Image
+                  <img
                     alt={video.title}
-                    fill
-                    className="scale-105 object-cover transition-transform group-hover:scale-100"
+                    className="absolute inset-0 h-full w-full scale-105 object-cover text-transparent transition-transform group-hover:scale-100"
+                    decoding="async"
+                    loading="lazy"
                     src={video.thumbnailUrl}
-                    sizes="20rem"
                   />
                 </div>
                 <div className="text- font-medium">{video.title}</div>
