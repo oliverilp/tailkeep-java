@@ -1,5 +1,3 @@
-'use client';
-
 import axios, {
   AxiosError,
   AxiosInstance,
@@ -7,18 +5,16 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig
 } from 'axios';
-import { getRuntimeConfig } from './config';
 
 interface RetryableRequest extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
+const API_URL = '/api/v1';
+
 let apiClientInstance: any = null;
 
 export function getApiClient(): AxiosInstance {
-  const { apiUrl: host } = getRuntimeConfig();
-  const API_URL = `${host}/api/v1`;
-
   console.log('API_URL', API_URL);
 
   apiClientInstance = axios.create({

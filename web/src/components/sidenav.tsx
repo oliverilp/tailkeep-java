@@ -1,7 +1,5 @@
-'use client';
-
 import React from 'react';
-import Link from 'next/link';
+import { Link, useLocation } from '@tanstack/react-router';
 import { Tv } from 'lucide-react';
 import {
   Tooltip,
@@ -11,15 +9,14 @@ import {
 } from '@/components/ui/tooltip';
 import { Route, routes } from '@/lib/routes';
 import { cn } from '@/lib/utils';
-import { usePathname } from 'next/navigation';
 import NavIcon from './nav-icon';
 
 function NavLinkWide({ link }: { link: Route }) {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: (location) => location.pathname });
 
   return (
     <Link
-      href={link.href}
+      to={link.href}
       className={cn(
         'text-muted-foreground hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-2 text-base transition-all',
         {
@@ -42,7 +39,7 @@ function Wide() {
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link
-              href="/dashboard"
+              to="/dashboard"
               className="flex items-center gap-2 font-medium"
             >
               <div className="bg-primary text-primary-foreground group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-xl text-lg md:h-8 md:w-8 md:text-base">
@@ -74,13 +71,13 @@ function Wide() {
 }
 
 function NavLinkNarrow({ link }: { link: Route }) {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: (location) => location.pathname });
 
   return (
     <Tooltip key={link.href}>
       <TooltipTrigger asChild>
         <Link
-          href={link.href}
+          to={link.href}
           className={cn(
             'text-muted-foreground hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg transition-colors md:h-8 md:w-8',
             {
@@ -103,7 +100,7 @@ function Narrow() {
       <div className="fixed min-h-screen w-14 flex-col justify-between sm:flex">
         <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
           <Link
-            href="/dashboard"
+            to="/dashboard"
             className="bg-primary text-primary-foreground group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-xl text-lg font-semibold md:h-8 md:w-8 md:text-base"
           >
             <Tv className="h-4 w-4 transition-all group-hover:scale-110" />

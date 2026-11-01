@@ -1,8 +1,5 @@
-'use client';
-
 import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, useLocation } from '@tanstack/react-router';
 import { CircleUser, Tv, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,7 +27,7 @@ import BreadcrumbLinks from './breadcrumb-links';
 import { useLogout } from '@/lib/use-auth';
 
 function header() {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: (location) => location.pathname });
   const { mutate: logout } = useLogout();
 
   const handleLogout = () => {
@@ -57,7 +54,7 @@ function header() {
           </SheetHeader>
           <nav className="grid gap-6 text-lg font-medium">
             <Link
-              href="/"
+              to="/"
               className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary text-lg font-semibold text-primary-foreground md:text-base"
             >
               <Tv className="h-5 w-5 transition-all group-hover:scale-110" />
@@ -67,7 +64,7 @@ function header() {
             {routes.map((link) => (
               <SheetClose asChild key={link.href}>
                 <Link
-                  href={link.href}
+                  to={link.href}
                   key={link.href}
                   className={cn(
                     'flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground',
@@ -101,7 +98,7 @@ function header() {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <Link href="/dashboard/settings">
+          <Link to="/dashboard/settings">
             <DropdownMenuItem>Settings</DropdownMenuItem>
           </Link>
           <DropdownMenuSeparator />

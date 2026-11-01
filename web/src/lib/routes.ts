@@ -1,3 +1,5 @@
+import type { FileRouteTypes } from '@/routeTree.gen';
+
 export type RouteName =
   | 'Dashboard'
   | 'Downloads'
@@ -8,7 +10,7 @@ export type RouteName =
 
 export type Route = {
   name: RouteName;
-  href: string;
+  href: FileRouteTypes['to'];
 };
 
 export const routes: Route[] = [

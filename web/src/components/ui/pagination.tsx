@@ -3,7 +3,8 @@ import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { ButtonProps, buttonVariants } from '@/components/ui/button';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
+import type { LinkComponentProps, RegisteredRouter } from '@tanstack/react-router';
 
 const Pagination = ({ className, ...props }: React.ComponentProps<'nav'>) => (
   <nav
@@ -38,17 +39,15 @@ PaginationItem.displayName = 'PaginationItem';
 type PaginationLinkProps = {
   isActive?: boolean;
 } & Pick<ButtonProps, 'size'> &
-  React.ComponentProps<'a'>;
+  LinkComponentProps<'a', RegisteredRouter, string, '/dashboard/download'>;
 
 const PaginationLink = ({
   className,
   isActive,
   size = 'icon',
-  href = '#',
   ...props
 }: PaginationLinkProps) => (
   <Link
-    href={href}
     aria-current={isActive ? 'page' : undefined}
     className={cn(
       buttonVariants({

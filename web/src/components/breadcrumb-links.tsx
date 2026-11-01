@@ -1,8 +1,5 @@
-'use client';
-
 import React, { Fragment } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, useLocation } from '@tanstack/react-router';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,6 +9,7 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
 import { capitalize } from '@/lib/utils';
+import type { FileRouteTypes } from '@/routeTree.gen';
 
 interface BreadcrumbLink {
   path: string;
@@ -19,7 +17,7 @@ interface BreadcrumbLink {
 }
 
 function BreadcrumbLinks() {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: (location) => location.pathname });
   const segments = pathname.split('/').filter((segment) => segment);
 
   const breadcrumbs: BreadcrumbLink[] = [];
@@ -42,7 +40,7 @@ function BreadcrumbLinks() {
                 <BreadcrumbPage>{breadcrumb.name}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <Link href={breadcrumb.path}>{breadcrumb.name}</Link>
+                  <Link to={breadcrumb.path as FileRouteTypes['to']}>{breadcrumb.name}</Link>
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>

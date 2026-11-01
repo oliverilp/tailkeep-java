@@ -1,6 +1,5 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Next.js",
   "compilerOptions": {
     "composite": false,
     "esModuleInterop": true,
@@ -17,26 +16,18 @@
     "skipLibCheck": true,
     "strict": true,
     "strictNullChecks": true,
-    "plugins": [{ "name": "next" }],
     "allowJs": true,
     "declaration": false,
     "declarationMap": false,
-    "incremental": true,
     "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
     "resolveJsonModule": true,
     "target": "ES2017",
+    "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src",
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
-  ],
-  "exclude": ["node_modules"]
+  "include": ["src", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
 }

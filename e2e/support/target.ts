@@ -1,5 +1,5 @@
-// The ONLY framework-aware file in this suite. Swap the contents of this file
-// during the TanStack migration; specs and the mock API must not change.
+// The ONLY framework-aware file in this suite. Specs and the mock API must not
+// change.
 import { join } from 'node:path';
 import type { Page } from '@playwright/test';
 
@@ -7,19 +7,15 @@ const placeholderImage = join(__dirname, 'assets/thumbnail.png');
 
 export const baseURL = process.env.BASE_URL ?? 'http://localhost:3100';
 
-// Next reads DEMO_MODE from the server's environment, so demo tests need their
-// own server. A client-only app can drop this and use applyDemoMode() instead.
-export const demoBaseURL =
-  process.env.DEMO_BASE_URL ??
-  (process.env.BASE_URL ? baseURL : 'http://localhost:3101');
+// The SPA has one build, so demo tests use applyDemoMode() on the same server.
+export const demoBaseURL = process.env.DEMO_BASE_URL ?? baseURL;
 
-function nextServer(url: string, demoMode: boolean) {
+function spaServer(url: string) {
   const { port } = new URL(url);
 
   return {
-    command: `pnpm --dir ../web exec next start -p ${port}`,
+    command: `pnpm --dir ../web exec vite preview --port ${port} --strictPort`,
     url: `${url}/login`,
-    env: { DEMO_MODE: String(demoMode) },
     reuseExistingServer: !process.env.CI
   };
 }
@@ -27,16 +23,19 @@ function nextServer(url: string, demoMode: boolean) {
 // Setting BASE_URL means something is already serving the app.
 export const webServers = process.env.BASE_URL
   ? undefined
-  : [nextServer(baseURL, false), nextServer(demoBaseURL, true)];
+  : [spaServer(baseURL)];
 
-// next/image proxies thumbnails through the Next server, which would otherwise
-// fetch them from YouTube.
+// The browser loads thumbnails straight from YouTube.
 export async function routeImages(page: Page): Promise<void> {
-  await page.route('**/_next/image?**', (route) =>
+  await page.route('https://i.ytimg.com/**', (route) =>
     route.fulfill({ path: placeholderImage })
   );
 }
 
-// No-op on Next: the demo server already has DEMO_MODE set. In a client-only
-// app, mock its runtime config here.
-export async function applyDemoMode(_page: Page): Promise<void> {}
+// Registered after the mock API, so it takes precedence for this one endpoint.
+// Elsewhere the mock answers it with a 401, which the app treats as non-demo.
+export async function applyDemoMode(page: Page): Promise<void> {
+  await page.route('**/api/v1/config', (route) =>
+    route.fulfill({ json: { demoMode: true } })
+  );
+}
