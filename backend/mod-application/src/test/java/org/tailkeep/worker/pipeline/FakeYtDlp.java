@@ -1,7 +1,7 @@
 package org.tailkeep.worker.pipeline;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.tailkeep.worker.command.ProcessFactory;
+import org.tailkeep.adapter.ytdlp.process.ProcessFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

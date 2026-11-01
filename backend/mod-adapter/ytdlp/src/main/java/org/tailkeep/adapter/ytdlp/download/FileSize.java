@@ -1,4 +1,4 @@
-package org.tailkeep.worker.download;
+package org.tailkeep.adapter.ytdlp.download;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

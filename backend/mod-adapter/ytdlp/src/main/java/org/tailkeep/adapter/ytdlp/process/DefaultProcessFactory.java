@@ -1,9 +1,10 @@
-package org.tailkeep.worker.command;
+package org.tailkeep.adapter.ytdlp.process;
+
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultProcessFactory implements ProcessFactory {
@@ -13,4 +14,4 @@ public class DefaultProcessFactory implements ProcessFactory {
                 .directory(workingDirectory)
                 .start();
     }
-} 
+}
