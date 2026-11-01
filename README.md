@@ -23,7 +23,7 @@ The application is structured into four main components:
 
 1. **API:** Handles the business logic and JWT authentication.
 2. **Worker:** Manages the downloading and processing of videos in the background.
-3. **Web:** React web UI.
+3. **Web:** React web UI, served by the API.
 4. **Media:** Go server used for serving static video and image files.
 
 ### Technologies Used
@@ -33,7 +33,8 @@ The application is structured into four main components:
 - **Lombok**
 - **TypeScript**
 - **React**
-- **Next.js**
+- **Vite**
+- **TanStack Router**
 - **Tailwind CSS**
 - **Server-Sent Events (SSE)**
 - **PostgreSQL**
