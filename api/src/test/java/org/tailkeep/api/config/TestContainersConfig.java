@@ -20,7 +20,7 @@ public class TestContainersConfig {
             .withPassword("test");
 
     static final KafkaContainer kafka = new KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:latest")
+            DockerImageName.parse("confluentinc/cp-kafka:7.6.1")
     );
 
     static {
@@ -36,7 +36,7 @@ public class TestContainersConfig {
 
     @Bean
     public KafkaContainer kafkaContainer() {
-        KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"));
+        KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.6.1"));
         kafka.start();
         System.setProperty("spring.kafka.bootstrap-servers", kafka.getBootstrapServers());
         return kafka;
