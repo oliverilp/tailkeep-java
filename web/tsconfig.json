@@ -25,10 +25,9 @@
     "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
     "resolveJsonModule": true,
-    "target": "es5",
-    "baseUrl": ".",
+    "target": "ES2017",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [
