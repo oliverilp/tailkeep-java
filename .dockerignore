@@ -1,6 +1,6 @@
-# The API image is built from the repository root and only needs these two.
+# The image is built from the repository root and only needs these two.
 *
-!api
+!backend
 !web
 
 **/node_modules

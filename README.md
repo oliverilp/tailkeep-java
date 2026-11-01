@@ -19,12 +19,11 @@ Tailkeep is a free and open-source web application designed to help users downlo
 
 ## Architecture
 
-The application is structured into four main components:
+The application is structured into three main components:
 
-1. **API:** Handles the business logic and JWT authentication.
-2. **Worker:** Manages the downloading and processing of videos in the background.
-3. **Web:** React web UI, served by the API.
-4. **Media:** Go server used for serving static video and image files.
+1. **App:** One Spring Boot application, in `backend/`. It handles the business logic and JWT authentication, serves the web UI and runs the downloads in the background through yt-dlp.
+2. **Web:** React web UI, built into the app's image.
+3. **Media:** Go server used for serving static video and image files.
 
 ### Technologies Used
 
@@ -51,18 +50,18 @@ The following Kafka topics are used in the system:
 
 | Topic               | Description                                                |
 | ------------------- | ---------------------------------------------------------- |
-| `metadata-queue`    | Used by API to request video metadata from Worker          |
-| `metadata-results`  | Used by Worker to send back the fetched video metadata     |
-| `download-queue`    | Used by API to request video downloads from Worker         |
-| `download-progress` | Used by Worker to send real-time download progress updates |
+| `metadata-queue`    | Used to request video metadata from yt-dlp                 |
+| `metadata-results`  | Used to send back the fetched video metadata               |
+| `download-queue`    | Used to request a video download                           |
+| `download-progress` | Used to send real-time download progress updates           |
 
 Below is the sequence diagram showing the complete flow of a video download request:
 
 ```mermaid
 sequenceDiagram
     participant R as React Frontend
-    participant A as Spring Boot API
-    participant W as Spring Boot Worker
+    participant A as Spring Boot app (API)
+    participant W as Spring Boot app (worker)
 
     R->>+A: POST /api/v1/downloads
     A-->>-R: 202 Accepted
@@ -174,3 +173,16 @@ erDiagram
     Video ||--o{ Job : "has many"
     Job ||--|| DownloadProgress : "has one"
 ```
+
+## Upgrading from the separate api and worker images
+
+The API and the worker now run as one application in one image, `ghcr.io/oliverilp/tailkeep-java`. The old `tailkeep-java-api` and `tailkeep-java-worker` images are no longer updated. The database, the Kafka topics and the consumer groups are unchanged, so jobs queued before the upgrade carry over.
+
+1. Stop and remove the `api` and `worker` containers first, so the old and the new application never consume the same topics.
+2. In your compose file, replace the `api` and `worker` services with one service (`app` in [docker/compose.yml](docker/compose.yml)):
+   - image `ghcr.io/oliverilp/tailkeep-java:latest`
+   - the `api` environment, plus `MEDIA_PATH=/videos`
+   - the `/videos` volume the worker had
+   - the `api` Traefik labels (the application still listens on port 8080)
+3. Point the media server at the new service: `API_HOST=http://app:8080`.
+4. Run `docker compose up -d --remove-orphans`.
