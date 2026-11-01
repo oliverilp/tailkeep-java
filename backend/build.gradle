@@ -30,7 +30,12 @@ subprojects {
 
         dependencies {
             // Versions only. This adds no classes to a module's classpath.
-            implementation platform('org.springframework.boot:spring-boot-dependencies:3.3.5')
+            def bootVersions = platform('org.springframework.boot:spring-boot-dependencies:3.3.5')
+            implementation bootVersions
+            compileOnly bootVersions
+            annotationProcessor bootVersions
+            testCompileOnly bootVersions
+            testAnnotationProcessor bootVersions
 
             compileOnly 'org.projectlombok:lombok'
             annotationProcessor 'org.projectlombok:lombok'
