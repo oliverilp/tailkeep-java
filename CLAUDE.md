@@ -14,7 +14,8 @@ Read it before changing the backend, and keep its **Decisions** and **Known gaps
 | `mod-adapter/database` | JPA entities, Spring Data repositories, mappers, port implementations | `mod-domain` |
 | `mod-adapter/database-migration` | Flyway migrations only | nothing |
 | `mod-adapter/web` | Controllers, request and response classes, exception handling | `mod-domain` |
-| `mod-adapter/messaging`, `security`, `ytdlp` | Empty until tasks 04 to 06 (`ytdlp` has only the URL probe) | `mod-domain` |
+| `mod-adapter/ytdlp` | yt-dlp: process running, metadata fetching, downloading, stdout progress parsing (`StdoutProgressParser`), the URL probe | `mod-domain` |
+| `mod-adapter/messaging`, `security` | Empty until tasks 05 and 06 | `mod-domain` |
 | `mod-application` | Main class, config, full-stack tests, and the legacy code not yet migrated | everything |
 
 `./gradlew verifyModuleDependencies` (part of `check`) fails when `mod-domain` has a dependency or an adapter

@@ -68,8 +68,8 @@ dependencies {
 }
 
 tasks.named('test') {
-    // Downloader reads the size of the downloaded file from this directory
+    // app.media.path in application-test.properties points here: the fake yt-dlp writes the video file
+    // and the ytdlp adapter reads its size
     def testMedia = layout.buildDirectory.dir('tmp/test-media').get().asFile
     doFirst { testMedia.mkdirs() }
-    environment 'MEDIA_PATH', testMedia.absolutePath
 }
