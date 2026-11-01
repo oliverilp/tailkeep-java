@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import org.tailkeep.api.config.KafkaTopicNames;
 import org.tailkeep.api.message.DownloadRequestMessage;
 import org.tailkeep.api.message.MetadataResultMessage;
-import org.tailkeep.api.model.Channel;
-import org.tailkeep.api.model.Job;
-import org.tailkeep.api.model.Video;
+import org.tailkeep.adapter.database.download.JobEntity;
+import org.tailkeep.domain.channel.Channel;
+import org.tailkeep.domain.video.Video;
 import org.tailkeep.api.service.ChannelService;
 import org.tailkeep.api.service.JobService;
 import org.tailkeep.api.service.VideoService;
@@ -32,11 +32,11 @@ public class MetadataResultListener {
         Channel channel = channelService.getOrCreateChannel(message.metadata());
         Video video = videoService.createOrUpdateVideo(message.metadata(), channel);
         
-        Job job = jobService.updateJobMetadata(message.jobId(), video);
+        JobEntity job = jobService.updateJobMetadata(message.jobId(), video.id());
 
         DownloadRequestMessage downloadRequest = new DownloadRequestMessage(
                 job.getId(),
-                video.getYoutubeId(),
+                video.youtubeId(),
                 message.metadata().url(),
                 message.metadata().filename());
         downloadKafkaTemplate.send(KafkaTopicNames.DOWNLOAD_QUEUE, downloadRequest);

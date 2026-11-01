@@ -1,10 +1,11 @@
-package org.tailkeep.api.model;
+package org.tailkeep.adapter.database.download;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.tailkeep.adapter.database.video.VideoEntity;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -15,18 +16,18 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DownloadProgress {
+public class DownloadProgressEntity {
     @Id
     private UUID id;
     
     @OneToOne
     @MapsId
     @JoinColumn(name = "job_id", nullable = false)
-    private Job job;
+    private JobEntity job;
 
     @ManyToOne
     @JoinColumn(name = "video_id", nullable = false)
-    private Video video;
+    private VideoEntity video;
     
     private String status;
 

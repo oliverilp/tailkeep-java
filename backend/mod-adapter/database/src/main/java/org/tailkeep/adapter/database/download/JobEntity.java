@@ -1,9 +1,10 @@
-package org.tailkeep.api.model;
+package org.tailkeep.adapter.database.download;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.tailkeep.adapter.database.video.VideoEntity;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Job {
+public class JobEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -28,10 +29,10 @@ public class Job {
     
     @ManyToOne
     @JoinColumn(name = "video_id")
-    private Video video;
+    private VideoEntity video;
 
     @OneToOne(mappedBy = "job", cascade = CascadeType.ALL)
-    private DownloadProgress downloadProgress;
+    private DownloadProgressEntity downloadProgress;
 
     @Column(name = "created_at")
     @CreationTimestamp

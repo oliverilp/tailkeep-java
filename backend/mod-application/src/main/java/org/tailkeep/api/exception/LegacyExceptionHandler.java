@@ -1,25 +1,24 @@
 package org.tailkeep.api.exception;
 
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.tailkeep.adapter.web.shared.ApiError;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.NoHandlerFoundException;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 
+// Legacy: handles the exceptions of code that is not migrated yet. The web adapter handles the rest and runs last.
 @ControllerAdvice
-@Slf4j
-public class GlobalExceptionHandler {
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class LegacyExceptionHandler {
 
     @ExceptionHandler(InvalidUrlException.class)
     public ResponseEntity<ApiError> handleInvalidUrlException(InvalidUrlException e, HttpServletRequest request) {
@@ -49,30 +48,6 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.badRequest().body(error);
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiError> handleMessageNotReadableException(HttpMessageNotReadableException e, HttpServletRequest request) {
-        ApiError error = new ApiError(
-            request.getRequestURI(),
-            "Invalid request body: JSON is required",
-            HttpStatus.BAD_REQUEST.value(),
-            LocalDateTime.now().toString()
-        );
-
-        return ResponseEntity.badRequest().body(error);
-    }
-
-    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
-    public ResponseEntity<ApiError> handleNotFoundException(Exception e, HttpServletRequest request) {
-        ApiError error = new ApiError(
-            request.getRequestURI(),
-            "The requested resource was not found",
-            HttpStatus.NOT_FOUND.value(),
-            LocalDateTime.now().toString()
-        );
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(InsufficientAuthenticationException.class)
@@ -162,21 +137,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> handleResourceNotFoundException(
-            ResourceNotFoundException e,
-            HttpServletRequest request
-    ) {
-        ApiError error = new ApiError(
-            request.getRequestURI(),
-            e.getMessage(),
-            HttpStatus.NOT_FOUND.value(),
-            LocalDateTime.now().toString()
-        );
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-    }
-
     @ExceptionHandler(UnsupportedOperationException.class)
     public ResponseEntity<ApiError> handleUnsupportedOperation(UnsupportedOperationException ex, HttpServletRequest request) {
         ApiError error = new ApiError(
@@ -201,28 +161,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiError> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
-        ApiError apiError = new ApiError(
-            request.getRequestURI(),
-            "Invalid parameter format",
-            HttpStatus.BAD_REQUEST.value(),
-            LocalDateTime.now().toString()
-        );
-        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleAllExceptions(Exception e, HttpServletRequest request) {
-        log.error("Unexpected error occurred", e);
-        
-        ApiError error = new ApiError(
-            request.getRequestURI(),
-            "Something went wrong while executing the operation.",
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            LocalDateTime.now().toString()
-        );
-
-        return ResponseEntity.internalServerError().body(error);
-    }
 }

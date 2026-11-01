@@ -5,4 +5,5 @@ plugins {
 dependencies {
     implementation project(':mod-domain')
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
