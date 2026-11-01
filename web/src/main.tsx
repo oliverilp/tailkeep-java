@@ -6,6 +6,13 @@ import { loadRuntimeConfig } from '@/lib/config';
 import { routeTree } from './routeTree.gen';
 import './globals.css';
 
+// Internal links never end in a slash, so this only applies to typed URLs.
+const { pathname, search, hash } = window.location;
+if (pathname.length > 1 && pathname.endsWith('/')) {
+  const trimmed = pathname.replace(/\/+$/, '');
+  window.history.replaceState(null, '', `${trimmed}${search}${hash}`);
+}
+
 // Login and settings depend on demo mode, so nothing renders until it is known.
 const config = await loadRuntimeConfig();
 

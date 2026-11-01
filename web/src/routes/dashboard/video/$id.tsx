@@ -2,7 +2,7 @@ import React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { getVideoById } from '@/api/videos';
-import Player from '@/features/videos/player';
+import Player from '@/features/video/player';
 
 function VideoDetails() {
   const { id } = Route.useParams();

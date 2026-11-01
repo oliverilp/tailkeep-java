@@ -2,7 +2,7 @@ import React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { getVideos } from '@/api/videos';
-import VideoGrid from '@/features/videos/video-grid';
+import VideoGrid from '@/features/video/video-grid';
 
 function Videos() {
   const { data: videos, isLoading } = useQuery({
