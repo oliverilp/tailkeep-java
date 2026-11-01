@@ -18,7 +18,7 @@ function DownloadsCard({
   downloads: DownloadsPageResponse;
   progress: DownloadsTab;
 }) {
-  const { items, totalItems, totalPages, currentPage, pageSize } = downloads;
+  const { items, totalItems, currentPage, pageSize } = downloads;
 
   const start = pageSize * (currentPage - 1) + 1;
   const end = Math.min(pageSize * currentPage, totalItems);

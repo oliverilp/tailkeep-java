@@ -18,7 +18,7 @@ function VideoGrid({ videos }: VideoGridProps) {
       >
         {videos?.length ? (
           <>
-            {videos?.map((video) => (
+            {videos.map((video) => (
               <Link
                 to="/dashboard/video/$id"
                 params={{ id: video.id }}

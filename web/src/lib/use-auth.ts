@@ -19,8 +19,6 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      if (!apiClient) throw new Error('API client not initialized');
-
       const { data } = await apiClient.post<AuthResponse>(
         '/auth/authenticate',
         credentials
@@ -60,8 +58,6 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: async () => {
-      if (!apiClient) throw new Error('API client not initialized');
-
       try {
         await apiClient.post('/auth/logout');
       } catch (error) {

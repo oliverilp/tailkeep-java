@@ -1,5 +1,7 @@
-import { downloadsDashboardSchema } from '@/schemas/downloads-dashboard';
-import type { DownloadsDashboard } from '@/schemas/downloads-dashboard';
+import {
+  downloadsDashboardSchema,
+  type DownloadsDashboard
+} from '@/schemas/downloads-dashboard';
 import { apiClient } from '@/lib/api-client';
 
 export async function getDownloadsDashboard(

@@ -1,23 +1,15 @@
 import React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { z } from 'zod';
 import { getVideoById } from '@/api/videos';
 import Player from '@/features/videos/player';
 
-const idSchema = z.string();
-
 function VideoDetails() {
-  const params = Route.useParams();
-  const parsed = idSchema.safeParse(params.id);
-
-  if (!parsed.success) {
-    return <div>404 - cannot be found</div>;
-  }
+  const { id } = Route.useParams();
 
   const { data: video, isLoading } = useQuery({
-    queryKey: ['video', parsed.data],
-    queryFn: () => getVideoById(parsed.data)
+    queryKey: ['video', id],
+    queryFn: () => getVideoById(id)
   });
 
   if (isLoading) {
@@ -46,7 +38,7 @@ function VideoDetails() {
                 width="720"
               />
             </div>
-            <figcaption className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 transform text-center text-2xl font-semibold text-white sm:text-4xl">
+            <figcaption className="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 transform text-center text-2xl font-semibold text-white sm:text-4xl">
               This video is still downloading.
             </figcaption>
           </figure>
@@ -56,7 +48,7 @@ function VideoDetails() {
         {video.title}
       </h4>
       <div className="font-semibold">{video.channel.name}</div>
-      <div className="pb-12 pt-6">
+      <div className="pt-6 pb-12">
         {video.description.split('\n').map((line: string, index: number) => (
           <p key={index}>{line}</p>
         ))}

@@ -25,6 +25,7 @@ import {
 import { useLogin } from '@/lib/use-auth';
 import ErrorMessage from '@/components/display-error-message';
 import { AxiosError } from 'axios';
+import type { ApiError } from '@/lib/api-error';
 
 interface LoginProps {
   isDemo: boolean;
@@ -122,7 +123,7 @@ function Login({ isDemo }: LoginProps) {
               )}
               {error && (
                 <ErrorMessage
-                  text={(error as AxiosError<any>).response?.data.message}
+                  text={(error as AxiosError<ApiError>).response?.data.message}
                 />
               )}
             </CardFooter>

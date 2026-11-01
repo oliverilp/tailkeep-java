@@ -3,7 +3,6 @@ import {
   Home,
   Settings,
   ListVideo,
-  GalleryVerticalEnd,
   FileClock,
   Download,
   SquarePlay

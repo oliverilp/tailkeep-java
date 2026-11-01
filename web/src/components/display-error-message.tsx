@@ -1,6 +1,6 @@
 import { CircleAlert } from 'lucide-react';
 
-export default function ErrorMessage({ text }: { text: string }) {
+export default function ErrorMessage({ text }: { text?: string }) {
   const displayText = text?.trim() ? text : "Something went wrong";
   
   return (

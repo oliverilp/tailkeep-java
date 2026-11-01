@@ -10,6 +10,7 @@ export function useServerEvents(
   const [data, setData] = useState<DownloadsDashboard>(initialData);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- unused hook, left as it is
     setData(initialData);
   }, [initialData]);
 

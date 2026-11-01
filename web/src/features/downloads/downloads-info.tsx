@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Download, Check, TriangleAlert } from 'lucide-react';
+import { Clock, Download, Check } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { QueueInfo } from '@/schemas/queue-info';
 import { cn } from '@/lib/utils';

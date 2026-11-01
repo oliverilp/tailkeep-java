@@ -12,6 +12,7 @@ interface RetryableRequest extends InternalAxiosRequestConfig {
 
 const API_URL = '/api/v1';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- typing this would mean changing the interceptors
 let apiClientInstance: any = null;
 
 export function getApiClient(): AxiosInstance {
@@ -40,6 +41,7 @@ export function getApiClient(): AxiosInstance {
     (response: AxiosResponse) => response,
     async (error: AxiosError) => {
       const originalRequest = error.config as RetryableRequest;
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- error.config can be undefined at runtime
       if (!originalRequest) {
         return Promise.reject(error);
       }
@@ -85,11 +87,11 @@ export function getApiClient(): AxiosInstance {
           localStorage.setItem('accessToken', access_token);
           originalRequest.headers.Authorization = `Bearer ${access_token}`;
           return apiClientInstance(originalRequest);
-        } catch (error) {
+        } catch (refreshError) {
           // Clear tokens on refresh failure
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
-          console.error('Token refresh failed:', error);
+          console.error('Token refresh failed:', refreshError);
           window.location.href = '/login';
         }
       }

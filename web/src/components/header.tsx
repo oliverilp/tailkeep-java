@@ -26,7 +26,7 @@ import NavIcon from '@/components/nav-icon';
 import BreadcrumbLinks from './breadcrumb-links';
 import { useLogout } from '@/lib/use-auth';
 
-function header() {
+function Header() {
   const pathname = useLocation({ select: (location) => location.pathname });
   const { mutate: logout } = useLogout();
 
@@ -109,4 +109,4 @@ function header() {
   );
 }
 
-export default header;
+export default Header;

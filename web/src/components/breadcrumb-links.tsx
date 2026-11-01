@@ -40,7 +40,9 @@ function BreadcrumbLinks() {
                 <BreadcrumbPage>{breadcrumb.name}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <Link to={breadcrumb.path as FileRouteTypes['to']}>{breadcrumb.name}</Link>
+                  <Link to={breadcrumb.path as FileRouteTypes['to']}>
+                    {breadcrumb.name}
+                  </Link>
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>

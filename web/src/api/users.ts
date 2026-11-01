@@ -1,4 +1,3 @@
-import { getApiClient } from '@/lib/api-client';
 import type { ChangePassword } from '@/schemas/change-password';
 import { apiClient } from '@/lib/api-client';
 

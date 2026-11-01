@@ -31,6 +31,7 @@ import {
 import { changePassword } from '@/api/users';
 import ErrorMessage from '@/components/display-error-message';
 import { AxiosError } from 'axios';
+import type { ApiError } from '@/lib/api-error';
 
 interface SettingsProps {
   isDemo: boolean;
@@ -154,7 +155,7 @@ function Settings({ isDemo }: SettingsProps) {
                       {error && (
                         <ErrorMessage
                           text={
-                            (error as AxiosError<any>).response?.data.message
+                            (error as AxiosError<ApiError>).response?.data.message
                           }
                         />
                       )}

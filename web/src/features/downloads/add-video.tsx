@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { startDownload } from '@/api/downloads';
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
+import type { ApiError } from '@/lib/api-error';
 
 const formSchema = z.object({
   url: z.string().url({
@@ -37,10 +38,10 @@ function AddVideo() {
   const { mutate: addVideo, isPending } = useMutation({
     mutationFn: (data: FormType) => startDownload(data.url),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['downloads-dashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['downloads-dashboard'] });
       toast.success('Download added to queue successfully');
     },
-    onError: (error: AxiosError<any>) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error('Failed to add download to queue', {
         description: error.response?.data.message,
         duration: 7000

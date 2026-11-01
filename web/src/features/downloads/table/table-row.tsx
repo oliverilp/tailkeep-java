@@ -41,7 +41,7 @@ function formatDate(date: Date): string {
     month: 'short',
     day: 'numeric'
   };
-  const locale = navigator.language ?? 'en-GB';
+  const locale = navigator.language;
 
   const datePart = date.toLocaleDateString(locale, options);
   const timePart = date.toLocaleTimeString(locale);
@@ -69,7 +69,7 @@ function DeleteDialog({ open, setOpen, item }: DeleteDialogProps) {
     mutationFn: () => deleteDownload(item.id),
     onSuccess: () => {
       setOpen(false);
-      queryClient.invalidateQueries({ queryKey: ['downloads-dashboard'] });
+      void queryClient.invalidateQueries({ queryKey: ['downloads-dashboard'] });
       toast.success('Download history deleted successfully');
     },
     onError: (error: AxiosError<ApiError>) => {

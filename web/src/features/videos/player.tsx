@@ -1,15 +1,11 @@
 // import { useApiClient } from '@/lib/use-api-client';
-// import { useConfig } from '@/lib/use-config';
 import '@vidstack/react/player/styles/default/theme.css';
 import '@vidstack/react/player/styles/default/layouts/video.css';
-import '@vidstack/react/player/styles/default/theme.css';
-import '@vidstack/react/player/styles/default/layouts/video.css';
-import { MediaPlayer, MediaProvider } from '@vidstack/react';
+import { MediaPlayer, MediaProvider, Poster } from '@vidstack/react';
 import {
   defaultLayoutIcons,
   DefaultVideoLayout
 } from '@vidstack/react/player/layouts/default';
-import { Poster } from '@vidstack/react';
 
 import { VideoByIdDto } from '@/schemas/video-by-id';
 import React from 'react';

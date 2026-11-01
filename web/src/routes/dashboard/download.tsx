@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
-import Downloads from '@/features/downloads/downloads';
-import type { DownloadsSearch } from '@/features/downloads/downloads';
+import Downloads, {
+  type DownloadsSearch
+} from '@/features/downloads/downloads';
 
 function DownloadsPage() {
   return (
