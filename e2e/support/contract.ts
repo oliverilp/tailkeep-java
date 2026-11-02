@@ -1,8 +1,8 @@
 // The Java API contract, kept by hand. Paths are relative to
-// backend/mod-application/src/main/java/org/tailkeep/api. Java LocalDateTime values are serialized
-// as ISO strings with no zone, so they are plain strings here.
+// backend/mod-adapter/web/src/main/java/org/tailkeep/adapter/web, unless they start with backend/.
+// Java LocalDateTime values are serialized as ISO strings with no zone, so they are plain strings here.
 
-// dto/ChannelDto.java
+// channel/ChannelResponse.java
 export interface ChannelDto {
   id: string;
   name: string;
@@ -12,7 +12,7 @@ export interface ChannelDto {
   updatedAt: string;
 }
 
-// dto/VideoDto.java
+// video/VideoResponse.java
 export interface VideoDto {
   id: string;
   youtubeId: string;
@@ -30,12 +30,12 @@ export interface VideoDto {
   updatedAt: string;
 }
 
-// dto/VideoByIdDto.java
+// video/VideoDetailResponse.java
 export interface VideoByIdDto extends VideoDto {
   doneDownloading: boolean;
 }
 
-// dto/DownloadProgressDto.java
+// download/DownloadResponse.java
 export interface DownloadProgressDto {
   id: string;
   video: VideoDto;
@@ -50,7 +50,7 @@ export interface DownloadProgressDto {
   completedAt: string | null;
 }
 
-// dto/PageResponseDto.java
+// shared/PageResponse.java
 export interface PageResponseDto<T> {
   items: T[];
   totalPages: number;
@@ -61,33 +61,33 @@ export interface PageResponseDto<T> {
   hasPrevious: boolean;
 }
 
-// dto/QueueInfoDto.java
+// download/QueueInfoResponse.java
 export interface QueueInfoDto {
   queue: number;
   active: number;
   finished: number;
 }
 
-// dto/DownloadsDashboardDto.java
+// download/DashboardResponse.java
 export interface DownloadsDashboardDto {
   queueInfo: QueueInfoDto;
   downloads: PageResponseDto<DownloadProgressDto>;
 }
 
-// dto/AuthenticationResponseDto.java
+// auth/AuthenticationResponse.java
 export interface AuthenticationResponseDto {
   access_token: string;
   refresh_token: string;
 }
 
-// dto/ChangePasswordRequestDto.java
+// user/ChangePasswordRequest.java
 export interface ChangePasswordRequestDto {
   currentPassword: string;
   newPassword: string;
   confirmationPassword: string;
 }
 
-// exception/ApiError.java
+// shared/ApiError.java
 export interface ApiError {
   path: string;
   message: string;
@@ -95,5 +95,5 @@ export interface ApiError {
   timestamp: string;
 }
 
-// model/user/Role.java
+// backend/mod-domain/src/main/java/org/tailkeep/domain/user/model/Role.java
 export type Role = 'ADMIN' | 'USER';

@@ -8,13 +8,19 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-import org.tailkeep.domain.download.InvalidUrlException;
+import org.tailkeep.domain.auth.model.UnauthorizedException;
+import org.tailkeep.domain.download.model.InvalidUrlException;
 import org.tailkeep.domain.shared.ResourceNotFoundException;
+import org.tailkeep.domain.user.model.InvalidCurrentPasswordException;
+import org.tailkeep.domain.user.model.PasswordLengthException;
+import org.tailkeep.domain.user.model.PasswordMismatchException;
+import org.tailkeep.domain.user.model.UsernameAlreadyExistsException;
 
 import java.time.LocalDateTime;
 
@@ -35,6 +41,33 @@ public class WebExceptionHandler {
     @ExceptionHandler(InvalidUrlException.class)
     public ResponseEntity<ApiError> handleInvalidUrl(InvalidUrlException e, HttpServletRequest request) {
         return respond(HttpStatus.BAD_REQUEST, e.getMessage(), request);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorized(UnauthorizedException e, HttpServletRequest request) {
+        return respond(HttpStatus.UNAUTHORIZED, e.getMessage(), request);
+    }
+
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleUsernameAlreadyExists(UsernameAlreadyExistsException e,
+            HttpServletRequest request) {
+        return respond(HttpStatus.CONFLICT, e.getMessage(), request);
+    }
+
+    @ExceptionHandler({PasswordLengthException.class, PasswordMismatchException.class,
+            InvalidCurrentPasswordException.class, UnsupportedOperationException.class})
+    public ResponseEntity<ApiError> handleRefusedRequest(RuntimeException e, HttpServletRequest request) {
+        return respond(HttpStatus.BAD_REQUEST, e.getMessage(), request);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException e, HttpServletRequest request) {
+        String message = e.getBindingResult().getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .reduce((a, b) -> a + "; " + b)
+                .orElse("Validation failed");
+        return respond(HttpStatus.BAD_REQUEST, message, request);
     }
 
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})

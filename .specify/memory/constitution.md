@@ -96,7 +96,7 @@ Rationale for MAJOR version (1.0.0):
 **Java Requirements**:
 - Use Lombok's `@NonNull` for required fields
 - Use Optional<T> for nullable returns (never return null collections)
-- Use MapStruct for type-safe DTO mapping (already in dependencies)
+- Use hand-written, builder-based mappers for type-safe mapping between layers
 - Use Jakarta Validation annotations for request validation
 - Records for immutable DTOs
 

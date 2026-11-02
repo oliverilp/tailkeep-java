@@ -4,4 +4,18 @@ plugins {
 
 dependencies {
     implementation project(':mod-domain')
+    implementation 'org.springframework:spring-context'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:kafka'
+    testImplementation 'org.awaitility:awaitility:4.2.1'
+}
+
+tasks.named('test') {
+    // KafkaRedeliveryTest starts a second JVM with this classpath and kills it
+    systemProperty 'messaging.test.classpath', sourceSets.test.runtimeClasspath.asPath
 }

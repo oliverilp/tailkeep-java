@@ -37,39 +37,27 @@ dependencies {
     implementation project(':mod-adapter:ytdlp')
     runtimeOnly project(':mod-adapter:database-migration')
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-    implementation 'jakarta.validation:jakarta.validation-api'
-    runtimeOnly 'org.postgresql:postgresql'
-    implementation 'org.springframework.kafka:spring-kafka'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+    implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.flywaydb:flyway-core:11.1.0'
     implementation 'org.flywaydb:flyway-database-postgresql:11.1.0'
+    runtimeOnly 'org.postgresql:postgresql'
 
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.79'
-    testImplementation 'org.testcontainers:testcontainers-bom:1.19.8'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.springframework:spring-jdbc'
+    testImplementation 'org.springframework.kafka:spring-kafka'
     testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.testcontainers:testcontainers'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:kafka'
-    testImplementation 'org.testcontainers:redpanda'
-    testImplementation 'org.mockito:mockito-core:5.11.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
     testImplementation 'org.awaitility:awaitility:4.2.1'
-    testImplementation 'org.assertj:assertj-core:3.25.3'
-    testImplementation 'org.apache.httpcomponents.core5:httpcore5:5.3.1'
     testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
 }
 
 tasks.named('test') {
-    // Downloader reads the size of the downloaded file from this directory
+    // app.media.path in application-test.properties points here: the fake yt-dlp writes the video file
+    // and the ytdlp adapter reads its size
     def testMedia = layout.buildDirectory.dir('tmp/test-media').get().asFile
     doFirst { testMedia.mkdirs() }
-    environment 'MEDIA_PATH', testMedia.absolutePath
 }

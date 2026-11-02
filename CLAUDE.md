@@ -13,18 +13,27 @@ Read it before changing the backend, and keep its **Decisions** and **Known gaps
 | `mod-domain` | Models, use cases, ports. Plain Java: no Spring, Jakarta, Hibernate, Kafka or yt-dlp | nothing |
 | `mod-adapter/database` | JPA entities, Spring Data repositories, mappers, port implementations | `mod-domain` |
 | `mod-adapter/database-migration` | Flyway migrations only | nothing |
-| `mod-adapter/web` | Controllers, request and response classes, exception handling | `mod-domain` |
-| `mod-adapter/messaging`, `security`, `ytdlp` | Empty until tasks 04 to 06 (`ytdlp` has only the URL probe) | `mod-domain` |
-| `mod-application` | Main class, config, full-stack tests, and the legacy code not yet migrated | everything |
+| `mod-adapter/web` | Controllers, request and response classes, exception handling, SSE, serving the web UI | `mod-domain` |
+| `mod-adapter/ytdlp` | yt-dlp: process running, metadata fetching, downloading, stdout progress parsing (`StdoutProgressParser`), the URL probe | `mod-domain` |
+| `mod-adapter/messaging` | Broker-neutral wire contract, publishers and handlers, plus the Kafka adapter. Only the `kafka` package imports Kafka types; the broker is picked by `tailkeep.messaging.provider` | `mod-domain` |
+| `mod-adapter/security` | Spring Security config, the JWT filter and issuer, `SecurityUser`, password hashing, user seeding | `mod-domain` |
+| `mod-application` | Main class, application config (`org.tailkeep.config`), full-stack tests | everything |
 
 `./gradlew verifyModuleDependencies` (part of `check`) fails when `mod-domain` has a dependency or an adapter
 depends on anything but `mod-domain`. Adapters never depend on each other.
+`DomainArchitectureTest` (ArchUnit, in `mod-domain`) checks what Gradle can't: no cycles between domain features,
+`shared` knows no feature, the use case shape and the `Clock` rule.
 
 ## Conventions
 
 - **Packages:** `org.tailkeep.domain.<feature>` and `org.tailkeep.adapter.<adapter>.<feature>`. Features are
   singular (`video`, not `videos`: the root `.gitignore` has `**/videos`). `org.tailkeep.domain.shared` holds
-  what features share. `org.tailkeep.api.*` and `org.tailkeep.worker.*` in `mod-application` are legacy.
+  what features share.
+- **Domain subpackages:** a feature with use cases splits into `model` (records, value types, enums, domain
+  exceptions), `port` (outbound interfaces) and `usecase` (use case interfaces, their impls and helpers), so
+  `org.tailkeep.domain.download.usecase.GetDownload`. Use cases depend on ports and models, ports on models, and
+  models on neither. `channel` (no use cases) and `shared` stay flat, and so do the adapters: their packages are
+  small and their feature or role already groups them. Domain tests mirror this, with fakes in `usecase`.
 - **Use cases:** an interface and an `Impl` with one public `execute()` (`GetVideo`, `GetVideoImpl`). The impl is
   annotated `@UseCase` (from `mod-domain`) with a plain constructor. `mod-application` scans for the annotation
   (`UseCaseConfig`), so the domain needs no Spring.
@@ -39,8 +48,7 @@ depends on anything but `mod-domain`. Adapters never depend on each other.
 - **Models** are records with Lombok `@Builder(toBuilder = true)`. Aggregates refer to each other by ID
   (`Video.channelId`), and use cases return a composed type (`VideoDetails`) when a response needs both.
 - **Mappers** are hand-written, builder-based `final` classes with static methods (`VideoEntityMapper`,
-  `VideoResponseMapper`). Each layer has its own classes (`Video`, `VideoEntity`, `VideoResponse`). No MapStruct
-  in new code.
+  `VideoResponseMapper`). Each layer has its own classes (`Video`, `VideoEntity`, `VideoResponse`). No MapStruct.
 - Business rules live in the domain, never in an adapter. Component class names must be unique across modules,
   or the bean names collide.
 - Behaviour must not change: REST paths and JSON, status codes, the schema, Kafka topic names and wire formats.

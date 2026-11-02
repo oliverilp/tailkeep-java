@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 import org.tailkeep.domain.channel.Channel;
-import org.tailkeep.domain.video.Video;
-import org.tailkeep.domain.video.VideoDetails;
-import org.tailkeep.domain.video.VideoWithChannel;
+import org.tailkeep.domain.video.model.Video;
+import org.tailkeep.domain.video.model.VideoDetails;
+import org.tailkeep.domain.video.model.VideoWithChannel;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

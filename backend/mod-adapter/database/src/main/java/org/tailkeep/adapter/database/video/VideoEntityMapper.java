@@ -1,7 +1,7 @@
 package org.tailkeep.adapter.database.video;
 
 import org.tailkeep.adapter.database.channel.ChannelEntity;
-import org.tailkeep.domain.video.Video;
+import org.tailkeep.domain.video.model.Video;
 
 public final class VideoEntityMapper {
     private VideoEntityMapper() {

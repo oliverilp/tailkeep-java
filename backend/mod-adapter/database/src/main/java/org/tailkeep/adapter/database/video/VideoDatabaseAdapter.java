@@ -4,11 +4,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.tailkeep.adapter.database.channel.ChannelJpaRepository;
 import org.tailkeep.adapter.database.download.DownloadProgressRepository;
-import org.tailkeep.domain.video.CountVideoDownloads;
-import org.tailkeep.domain.video.FindVideo;
-import org.tailkeep.domain.video.SaveVideo;
-import org.tailkeep.domain.video.Video;
-import org.tailkeep.domain.video.VideoDownloadCount;
+import org.tailkeep.domain.video.model.Video;
+import org.tailkeep.domain.video.model.VideoDownloadCount;
+import org.tailkeep.domain.video.port.CountVideoDownloads;
+import org.tailkeep.domain.video.port.FindVideo;
+import org.tailkeep.domain.video.port.SaveVideo;
 
 import java.util.Collection;
 import java.util.List;

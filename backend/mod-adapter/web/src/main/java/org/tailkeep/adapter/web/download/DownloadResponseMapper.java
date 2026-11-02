@@ -2,10 +2,10 @@ package org.tailkeep.adapter.web.download;
 
 import org.tailkeep.adapter.web.shared.PageResponse;
 import org.tailkeep.adapter.web.video.VideoResponseMapper;
-import org.tailkeep.domain.download.DownloadDetails;
-import org.tailkeep.domain.download.DownloadProgress;
-import org.tailkeep.domain.download.DownloadsDashboard;
-import org.tailkeep.domain.download.QueueInfo;
+import org.tailkeep.domain.download.model.DownloadDetails;
+import org.tailkeep.domain.download.model.DownloadProgress;
+import org.tailkeep.domain.download.model.DownloadsDashboard;
+import org.tailkeep.domain.download.model.QueueInfo;
 import org.tailkeep.domain.shared.PageResult;
 
 public final class DownloadResponseMapper {

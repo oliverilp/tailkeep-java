@@ -4,7 +4,7 @@ import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.tailkeep.domain.download.ProbeUrl;
+import org.tailkeep.domain.download.port.ProbeUrl;
 
 import java.io.IOException;
 import java.net.InetAddress;

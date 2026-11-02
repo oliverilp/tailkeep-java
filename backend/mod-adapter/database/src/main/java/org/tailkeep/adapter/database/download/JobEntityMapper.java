@@ -1,8 +1,8 @@
 package org.tailkeep.adapter.database.download;
 
 import org.tailkeep.adapter.database.video.VideoEntity;
-import org.tailkeep.domain.download.DownloadProgress;
-import org.tailkeep.domain.download.Job;
+import org.tailkeep.domain.download.model.DownloadProgress;
+import org.tailkeep.domain.download.model.Job;
 
 public final class JobEntityMapper {
     private JobEntityMapper() {
