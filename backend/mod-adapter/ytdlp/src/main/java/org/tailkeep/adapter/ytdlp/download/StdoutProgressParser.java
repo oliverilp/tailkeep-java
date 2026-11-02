@@ -1,6 +1,6 @@
 package org.tailkeep.adapter.ytdlp.download;
 
-import org.tailkeep.domain.download.ProgressUpdate;
+import org.tailkeep.domain.download.model.ProgressUpdate;
 
 import java.util.UUID;
 import java.util.regex.Matcher;

@@ -95,5 +95,5 @@ export interface ApiError {
   timestamp: string;
 }
 
-// backend/mod-domain/src/main/java/org/tailkeep/domain/user/Role.java
+// backend/mod-domain/src/main/java/org/tailkeep/domain/user/model/Role.java
 export type Role = 'ADMIN' | 'USER';

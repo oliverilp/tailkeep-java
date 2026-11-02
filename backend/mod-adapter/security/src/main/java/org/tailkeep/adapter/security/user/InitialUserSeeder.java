@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.tailkeep.domain.user.SeedInitialUser;
+import org.tailkeep.domain.user.usecase.SeedInitialUser;
 
 /** Runs while the context starts, so the first user exists before any request can arrive. */
 @Component

@@ -1,7 +1,7 @@
 package org.tailkeep.adapter.messaging.contract;
 
-import org.tailkeep.domain.download.DownloadRequest;
-import org.tailkeep.domain.download.ProgressUpdate;
+import org.tailkeep.domain.download.model.DownloadRequest;
+import org.tailkeep.domain.download.model.ProgressUpdate;
 
 /** The wire calls the YouTube ID {@code videoId}, the domain {@code youtubeId}. */
 public final class DownloadMessageMapper {

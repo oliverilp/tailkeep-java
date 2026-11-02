@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-import org.tailkeep.domain.auth.UnauthorizedException;
-import org.tailkeep.domain.download.InvalidUrlException;
+import org.tailkeep.domain.auth.model.UnauthorizedException;
+import org.tailkeep.domain.download.model.InvalidUrlException;
 import org.tailkeep.domain.shared.ResourceNotFoundException;
-import org.tailkeep.domain.user.InvalidCurrentPasswordException;
-import org.tailkeep.domain.user.PasswordLengthException;
-import org.tailkeep.domain.user.PasswordMismatchException;
-import org.tailkeep.domain.user.UsernameAlreadyExistsException;
+import org.tailkeep.domain.user.model.InvalidCurrentPasswordException;
+import org.tailkeep.domain.user.model.PasswordLengthException;
+import org.tailkeep.domain.user.model.PasswordMismatchException;
+import org.tailkeep.domain.user.model.UsernameAlreadyExistsException;
 
 import java.time.LocalDateTime;
 

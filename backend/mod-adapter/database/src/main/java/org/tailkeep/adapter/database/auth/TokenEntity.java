@@ -13,7 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.tailkeep.domain.auth.TokenType;
+import org.tailkeep.domain.auth.model.TokenType;
 
 import java.util.UUID;
 

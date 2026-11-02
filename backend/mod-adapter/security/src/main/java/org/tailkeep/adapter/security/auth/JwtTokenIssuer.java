@@ -7,9 +7,9 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
-import org.tailkeep.domain.auth.FindSigningSecret;
-import org.tailkeep.domain.auth.SaveSigningSecret;
-import org.tailkeep.domain.auth.TokenIssuer;
+import org.tailkeep.domain.auth.port.FindSigningSecret;
+import org.tailkeep.domain.auth.port.SaveSigningSecret;
+import org.tailkeep.domain.auth.port.TokenIssuer;
 
 import javax.crypto.SecretKey;
 import java.util.Base64;

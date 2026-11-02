@@ -2,7 +2,7 @@ package org.tailkeep.adapter.messaging.handler;
 
 import org.springframework.stereotype.Component;
 import org.tailkeep.adapter.messaging.contract.DownloadBroadcastMessage;
-import org.tailkeep.domain.download.PushDownloadProgress;
+import org.tailkeep.domain.download.usecase.PushDownloadProgress;
 
 /** Runs on every instance, because each has its own clients. */
 @Component

@@ -2,9 +2,9 @@ package org.tailkeep.adapter.database.user;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.tailkeep.domain.user.FindUser;
-import org.tailkeep.domain.user.SaveUser;
-import org.tailkeep.domain.user.User;
+import org.tailkeep.domain.user.model.User;
+import org.tailkeep.domain.user.port.FindUser;
+import org.tailkeep.domain.user.port.SaveUser;
 
 import java.util.Optional;
 import java.util.UUID;

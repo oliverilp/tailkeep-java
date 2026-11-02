@@ -6,12 +6,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 import org.tailkeep.domain.channel.Channel;
-import org.tailkeep.domain.download.DownloadDetails;
-import org.tailkeep.domain.download.DownloadProgress;
-import org.tailkeep.domain.download.DownloadsDashboard;
-import org.tailkeep.domain.download.QueueInfo;
+import org.tailkeep.domain.download.model.DownloadDetails;
+import org.tailkeep.domain.download.model.DownloadProgress;
+import org.tailkeep.domain.download.model.DownloadsDashboard;
+import org.tailkeep.domain.download.model.QueueInfo;
 import org.tailkeep.domain.shared.PageResult;
-import org.tailkeep.domain.video.Video;
+import org.tailkeep.domain.video.model.Video;
 
 import java.time.LocalDateTime;
 import java.util.List;

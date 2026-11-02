@@ -3,7 +3,7 @@ package org.tailkeep.adapter.web.config;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.tailkeep.domain.auth.GetPublicConfig;
+import org.tailkeep.domain.auth.usecase.GetPublicConfig;
 
 // Public, because the login page needs it. Must never expose secrets.
 @RestController

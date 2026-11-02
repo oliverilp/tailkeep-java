@@ -7,10 +7,10 @@ import org.tailkeep.adapter.messaging.contract.DownloadRequestMessage;
 import org.tailkeep.adapter.messaging.contract.Metadata;
 import org.tailkeep.adapter.messaging.contract.MetadataRequestMessage;
 import org.tailkeep.adapter.messaging.contract.MetadataResultMessage;
-import org.tailkeep.domain.download.DownloadRequest;
-import org.tailkeep.domain.download.MetadataRequest;
-import org.tailkeep.domain.download.MetadataResult;
-import org.tailkeep.domain.download.ProgressUpdate;
+import org.tailkeep.domain.download.model.DownloadRequest;
+import org.tailkeep.domain.download.model.MetadataRequest;
+import org.tailkeep.domain.download.model.MetadataResult;
+import org.tailkeep.domain.download.model.ProgressUpdate;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.tailkeep.adapter.messaging.contract.MetadataMessageMapper;
 import org.tailkeep.adapter.messaging.contract.MetadataResultMessage;
-import org.tailkeep.domain.download.RecordMetadata;
+import org.tailkeep.domain.download.usecase.RecordMetadata;
 
 @Component
 @Slf4j

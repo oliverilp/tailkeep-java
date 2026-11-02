@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.tailkeep.adapter.ytdlp.config.YtDlpProperties;
 import org.tailkeep.adapter.ytdlp.process.YtDlpRunner;
-import org.tailkeep.domain.download.DownloadRequest;
-import org.tailkeep.domain.download.ProgressUpdate;
-import org.tailkeep.domain.download.VideoDownloader;
+import org.tailkeep.domain.download.model.DownloadRequest;
+import org.tailkeep.domain.download.model.ProgressUpdate;
+import org.tailkeep.domain.download.port.VideoDownloader;
 
 import java.io.File;
 import java.nio.file.Files;

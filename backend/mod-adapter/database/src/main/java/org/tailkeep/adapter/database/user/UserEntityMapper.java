@@ -1,6 +1,6 @@
 package org.tailkeep.adapter.database.user;
 
-import org.tailkeep.domain.user.User;
+import org.tailkeep.domain.user.model.User;
 
 public final class UserEntityMapper {
     private UserEntityMapper() {

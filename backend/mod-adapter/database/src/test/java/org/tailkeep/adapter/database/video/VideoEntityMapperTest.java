@@ -2,7 +2,7 @@ package org.tailkeep.adapter.database.video;
 
 import org.junit.jupiter.api.Test;
 import org.tailkeep.adapter.database.channel.ChannelEntity;
-import org.tailkeep.domain.video.Video;
+import org.tailkeep.domain.video.model.Video;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

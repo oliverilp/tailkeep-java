@@ -2,7 +2,7 @@ package org.tailkeep.adapter.security.auth;
 
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.tailkeep.domain.user.DeploymentMode;
+import org.tailkeep.domain.user.port.DeploymentMode;
 
 import java.util.Arrays;
 

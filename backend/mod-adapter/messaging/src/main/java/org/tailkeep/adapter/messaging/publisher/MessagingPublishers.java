@@ -5,16 +5,16 @@ import org.tailkeep.adapter.messaging.contract.Destination;
 import org.tailkeep.adapter.messaging.contract.DownloadBroadcastMessage;
 import org.tailkeep.adapter.messaging.contract.DownloadMessageMapper;
 import org.tailkeep.adapter.messaging.contract.MetadataMessageMapper;
-import org.tailkeep.domain.download.BroadcastDownloadProgress;
-import org.tailkeep.domain.download.DownloadDetails;
-import org.tailkeep.domain.download.DownloadRequest;
-import org.tailkeep.domain.download.MetadataRequest;
-import org.tailkeep.domain.download.MetadataResult;
-import org.tailkeep.domain.download.ProgressUpdate;
-import org.tailkeep.domain.download.PublishDownloadProgress;
-import org.tailkeep.domain.download.PublishDownloadRequest;
-import org.tailkeep.domain.download.PublishMetadataRequest;
-import org.tailkeep.domain.download.PublishMetadataResult;
+import org.tailkeep.domain.download.model.DownloadDetails;
+import org.tailkeep.domain.download.model.DownloadRequest;
+import org.tailkeep.domain.download.model.MetadataRequest;
+import org.tailkeep.domain.download.model.MetadataResult;
+import org.tailkeep.domain.download.model.ProgressUpdate;
+import org.tailkeep.domain.download.port.BroadcastDownloadProgress;
+import org.tailkeep.domain.download.port.PublishDownloadProgress;
+import org.tailkeep.domain.download.port.PublishDownloadRequest;
+import org.tailkeep.domain.download.port.PublishMetadataRequest;
+import org.tailkeep.domain.download.port.PublishMetadataResult;
 
 import java.util.UUID;
 

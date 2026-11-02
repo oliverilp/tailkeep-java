@@ -16,11 +16,11 @@ import org.tailkeep.adapter.messaging.handler.DownloadRequestHandler;
 import org.tailkeep.adapter.messaging.handler.MetadataRequestHandler;
 import org.tailkeep.adapter.messaging.handler.MetadataResultHandler;
 import org.tailkeep.adapter.messaging.publisher.MessagingPublishers;
-import org.tailkeep.domain.download.FetchMetadata;
-import org.tailkeep.domain.download.PushDownloadProgress;
-import org.tailkeep.domain.download.RecordDownloadProgress;
-import org.tailkeep.domain.download.RecordMetadata;
-import org.tailkeep.domain.download.RunDownload;
+import org.tailkeep.domain.download.usecase.FetchMetadata;
+import org.tailkeep.domain.download.usecase.PushDownloadProgress;
+import org.tailkeep.domain.download.usecase.RecordDownloadProgress;
+import org.tailkeep.domain.download.usecase.RecordMetadata;
+import org.tailkeep.domain.download.usecase.RunDownload;
 
 import java.util.List;
 import java.util.Map;

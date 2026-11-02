@@ -12,9 +12,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.tailkeep.domain.user.Permission.ADMIN_CREATE;
-import static org.tailkeep.domain.user.Permission.ADMIN_DELETE;
-import static org.tailkeep.domain.user.Permission.ADMIN_UPDATE;
+import static org.tailkeep.domain.user.model.Permission.ADMIN_CREATE;
+import static org.tailkeep.domain.user.model.Permission.ADMIN_DELETE;
+import static org.tailkeep.domain.user.model.Permission.ADMIN_UPDATE;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.HEAD;

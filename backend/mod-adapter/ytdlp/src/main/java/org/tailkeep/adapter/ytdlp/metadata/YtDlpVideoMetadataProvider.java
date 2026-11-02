@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.tailkeep.adapter.ytdlp.process.YtDlpRunner;
-import org.tailkeep.domain.download.VideoMetadata;
-import org.tailkeep.domain.download.VideoMetadataProvider;
+import org.tailkeep.domain.download.model.VideoMetadata;
+import org.tailkeep.domain.download.port.VideoMetadataProvider;
 
 import java.util.List;
 

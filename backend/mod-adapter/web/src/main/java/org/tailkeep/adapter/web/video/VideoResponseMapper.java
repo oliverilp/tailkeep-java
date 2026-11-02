@@ -2,9 +2,9 @@ package org.tailkeep.adapter.web.video;
 
 import org.tailkeep.adapter.web.channel.ChannelResponseMapper;
 import org.tailkeep.domain.channel.Channel;
-import org.tailkeep.domain.video.Video;
-import org.tailkeep.domain.video.VideoDetails;
-import org.tailkeep.domain.video.VideoWithChannel;
+import org.tailkeep.domain.video.model.Video;
+import org.tailkeep.domain.video.model.VideoDetails;
+import org.tailkeep.domain.video.model.VideoWithChannel;
 
 public final class VideoResponseMapper {
     private VideoResponseMapper() {

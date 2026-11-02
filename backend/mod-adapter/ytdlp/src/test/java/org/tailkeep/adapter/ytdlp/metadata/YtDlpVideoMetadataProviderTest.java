@@ -2,7 +2,7 @@ package org.tailkeep.adapter.ytdlp.metadata;
 
 import org.junit.jupiter.api.Test;
 import org.tailkeep.adapter.ytdlp.process.YtDlpRunner;
-import org.tailkeep.domain.download.VideoMetadata;
+import org.tailkeep.domain.download.model.VideoMetadata;
 
 import java.io.IOException;
 import java.io.InputStream;

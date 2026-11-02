@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.tailkeep.adapter.security.user.SecurityUser;
-import org.tailkeep.domain.user.FindUser;
+import org.tailkeep.domain.user.port.FindUser;
 
 /** Logging in is the {@code Authenticate} use case. These beans keep Spring from adding a default user. */
 @Configuration

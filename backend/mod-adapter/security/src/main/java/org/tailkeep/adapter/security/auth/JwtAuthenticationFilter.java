@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.tailkeep.adapter.security.user.SecurityUser;
-import org.tailkeep.domain.auth.IdentifyUser;
+import org.tailkeep.domain.auth.usecase.IdentifyUser;
 
 import java.io.IOException;
 

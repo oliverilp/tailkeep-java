@@ -2,11 +2,11 @@ package org.tailkeep.adapter.database.auth;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.tailkeep.domain.auth.FindSigningSecret;
-import org.tailkeep.domain.auth.FindToken;
-import org.tailkeep.domain.auth.SaveSigningSecret;
-import org.tailkeep.domain.auth.SaveToken;
-import org.tailkeep.domain.auth.Token;
+import org.tailkeep.domain.auth.model.Token;
+import org.tailkeep.domain.auth.port.FindSigningSecret;
+import org.tailkeep.domain.auth.port.FindToken;
+import org.tailkeep.domain.auth.port.SaveSigningSecret;
+import org.tailkeep.domain.auth.port.SaveToken;
 
 import java.util.List;
 import java.util.Optional;

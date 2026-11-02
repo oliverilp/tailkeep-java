@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.tailkeep.domain.download.DeleteDownload;
-import org.tailkeep.domain.download.DownloadFilter;
-import org.tailkeep.domain.download.GetDownload;
-import org.tailkeep.domain.download.GetDownloadsDashboard;
-import org.tailkeep.domain.download.ListDownloads;
-import org.tailkeep.domain.download.StartDownload;
+import org.tailkeep.domain.download.model.DownloadFilter;
+import org.tailkeep.domain.download.usecase.DeleteDownload;
+import org.tailkeep.domain.download.usecase.GetDownload;
+import org.tailkeep.domain.download.usecase.GetDownloadsDashboard;
+import org.tailkeep.domain.download.usecase.ListDownloads;
+import org.tailkeep.domain.download.usecase.StartDownload;
 
 import java.util.List;
 import java.util.UUID;

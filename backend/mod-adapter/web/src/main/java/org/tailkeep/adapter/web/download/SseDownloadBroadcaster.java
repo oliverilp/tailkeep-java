@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import org.tailkeep.domain.download.DownloadDetails;
-import org.tailkeep.domain.download.SendDownloadToClients;
+import org.tailkeep.domain.download.model.DownloadDetails;
+import org.tailkeep.domain.download.port.SendDownloadToClients;
 
 import java.io.IOException;
 import java.util.ArrayList;

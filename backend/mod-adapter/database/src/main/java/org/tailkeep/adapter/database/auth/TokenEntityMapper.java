@@ -1,6 +1,6 @@
 package org.tailkeep.adapter.database.auth;
 
-import org.tailkeep.domain.auth.Token;
+import org.tailkeep.domain.auth.model.Token;
 
 public final class TokenEntityMapper {
     private TokenEntityMapper() {

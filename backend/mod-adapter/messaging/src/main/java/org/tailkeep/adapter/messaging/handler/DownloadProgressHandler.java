@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.tailkeep.adapter.messaging.contract.DownloadMessageMapper;
 import org.tailkeep.adapter.messaging.contract.DownloadProgressMessage;
-import org.tailkeep.domain.download.RecordDownloadProgress;
+import org.tailkeep.domain.download.usecase.RecordDownloadProgress;
 
 @Component
 @Slf4j

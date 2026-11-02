@@ -2,8 +2,8 @@ package org.tailkeep.adapter.security.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
-import org.tailkeep.domain.user.Role;
-import org.tailkeep.domain.user.User;
+import org.tailkeep.domain.user.model.Role;
+import org.tailkeep.domain.user.model.User;
 
 import java.util.UUID;
 

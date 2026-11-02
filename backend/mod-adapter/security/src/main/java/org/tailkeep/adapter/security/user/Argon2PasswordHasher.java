@@ -2,7 +2,7 @@ package org.tailkeep.adapter.security.user;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.tailkeep.domain.user.PasswordHasher;
+import org.tailkeep.domain.user.port.PasswordHasher;
 
 @Component
 public class Argon2PasswordHasher implements PasswordHasher {

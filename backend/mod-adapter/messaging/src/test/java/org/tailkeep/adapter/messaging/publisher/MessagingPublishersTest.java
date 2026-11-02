@@ -6,11 +6,11 @@ import org.tailkeep.adapter.messaging.contract.DownloadBroadcastMessage;
 import org.tailkeep.adapter.messaging.contract.DownloadProgressMessage;
 import org.tailkeep.adapter.messaging.contract.DownloadRequestMessage;
 import org.tailkeep.adapter.messaging.contract.MetadataRequestMessage;
-import org.tailkeep.domain.download.DownloadDetails;
-import org.tailkeep.domain.download.DownloadProgress;
-import org.tailkeep.domain.download.DownloadRequest;
-import org.tailkeep.domain.download.MetadataRequest;
-import org.tailkeep.domain.download.ProgressUpdate;
+import org.tailkeep.domain.download.model.DownloadDetails;
+import org.tailkeep.domain.download.model.DownloadProgress;
+import org.tailkeep.domain.download.model.DownloadRequest;
+import org.tailkeep.domain.download.model.MetadataRequest;
+import org.tailkeep.domain.download.model.ProgressUpdate;
 
 import java.util.ArrayList;
 import java.util.List;

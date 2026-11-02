@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.tailkeep.domain.user.ChangePassword;
-import org.tailkeep.domain.user.CurrentUser;
-import org.tailkeep.domain.user.PasswordChange;
+import org.tailkeep.domain.user.model.PasswordChange;
+import org.tailkeep.domain.user.port.CurrentUser;
+import org.tailkeep.domain.user.usecase.ChangePassword;
 
 @RestController
 @RequestMapping("/api/v1/users")

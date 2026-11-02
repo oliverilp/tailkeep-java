@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.tailkeep.domain.video.GetVideo;
-import org.tailkeep.domain.video.ListVideos;
+import org.tailkeep.domain.video.usecase.GetVideo;
+import org.tailkeep.domain.video.usecase.ListVideos;
 
 import java.util.List;
 import java.util.UUID;

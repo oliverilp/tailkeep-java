@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.tailkeep.domain.auth.Authenticate;
-import org.tailkeep.domain.auth.Logout;
-import org.tailkeep.domain.auth.RefreshToken;
-import org.tailkeep.domain.auth.Register;
-import org.tailkeep.domain.auth.Registration;
+import org.tailkeep.domain.auth.model.Registration;
+import org.tailkeep.domain.auth.usecase.Authenticate;
+import org.tailkeep.domain.auth.usecase.Logout;
+import org.tailkeep.domain.auth.usecase.RefreshToken;
+import org.tailkeep.domain.auth.usecase.Register;
 
 import java.util.Map;
 

@@ -10,9 +10,9 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-import org.tailkeep.domain.download.DownloadDetails;
-import org.tailkeep.domain.download.DownloadProgress;
-import org.tailkeep.domain.download.MetadataRequest;
+import org.tailkeep.domain.download.model.DownloadDetails;
+import org.tailkeep.domain.download.model.DownloadProgress;
+import org.tailkeep.domain.download.model.MetadataRequest;
 
 import java.time.Duration;
 import java.util.ArrayList;

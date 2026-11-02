@@ -1,7 +1,7 @@
 package org.tailkeep.adapter.ytdlp.url;
 
 import org.springframework.stereotype.Component;
-import org.tailkeep.domain.download.ProbeUrl;
+import org.tailkeep.domain.download.port.ProbeUrl;
 
 import java.net.HttpURLConnection;
 import java.net.URI;

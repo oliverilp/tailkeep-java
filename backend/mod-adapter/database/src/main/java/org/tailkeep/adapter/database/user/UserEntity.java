@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.tailkeep.domain.user.Role;
+import org.tailkeep.domain.user.model.Role;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

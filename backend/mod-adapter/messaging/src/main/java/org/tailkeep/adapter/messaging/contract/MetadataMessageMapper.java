@@ -1,8 +1,8 @@
 package org.tailkeep.adapter.messaging.contract;
 
-import org.tailkeep.domain.download.MetadataRequest;
-import org.tailkeep.domain.download.MetadataResult;
-import org.tailkeep.domain.download.VideoMetadata;
+import org.tailkeep.domain.download.model.MetadataRequest;
+import org.tailkeep.domain.download.model.MetadataResult;
+import org.tailkeep.domain.download.model.VideoMetadata;
 
 public final class MetadataMessageMapper {
     private MetadataMessageMapper() {

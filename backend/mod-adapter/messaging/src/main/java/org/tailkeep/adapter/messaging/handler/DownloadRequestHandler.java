@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.tailkeep.adapter.messaging.contract.DownloadMessageMapper;
 import org.tailkeep.adapter.messaging.contract.DownloadRequestMessage;
-import org.tailkeep.domain.download.RunDownload;
+import org.tailkeep.domain.download.usecase.RunDownload;
 
 /** Returns when the download is over, which can take hours. */
 @Component

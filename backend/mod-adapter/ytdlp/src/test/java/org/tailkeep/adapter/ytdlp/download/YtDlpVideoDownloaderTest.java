@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.tailkeep.adapter.ytdlp.config.YtDlpProperties;
 import org.tailkeep.adapter.ytdlp.process.YtDlpRunner;
-import org.tailkeep.domain.download.DownloadRequest;
-import org.tailkeep.domain.download.ProgressUpdate;
+import org.tailkeep.domain.download.model.DownloadRequest;
+import org.tailkeep.domain.download.model.ProgressUpdate;
 
 import java.io.IOException;
 import java.nio.file.Files;
