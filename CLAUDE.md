@@ -29,6 +29,11 @@ depends on anything but `mod-domain`. Adapters never depend on each other.
 - **Packages:** `org.tailkeep.domain.<feature>` and `org.tailkeep.adapter.<adapter>.<feature>`. Features are
   singular (`video`, not `videos`: the root `.gitignore` has `**/videos`). `org.tailkeep.domain.shared` holds
   what features share.
+- **Domain subpackages:** a feature with use cases splits into `model` (records, value types, enums, domain
+  exceptions), `port` (outbound interfaces) and `usecase` (use case interfaces, their impls and helpers), so
+  `org.tailkeep.domain.download.usecase.GetDownload`. Use cases depend on ports and models, ports on models, and
+  models on neither. `channel` (no use cases) and `shared` stay flat, and so do the adapters: their packages are
+  small and their feature or role already groups them. Domain tests mirror this, with fakes in `usecase`.
 - **Use cases:** an interface and an `Impl` with one public `execute()` (`GetVideo`, `GetVideoImpl`). The impl is
   annotated `@UseCase` (from `mod-domain`) with a plain constructor. `mod-application` scans for the annotation
   (`UseCaseConfig`), so the domain needs no Spring.
